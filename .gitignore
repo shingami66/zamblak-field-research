@@ -8,3 +8,5 @@ out
 build
 dist
 .DS_Store
+npm-debug.log*
+*.tsbuildinfo
