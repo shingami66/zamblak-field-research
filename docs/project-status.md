@@ -1,9 +1,12 @@
 # Project Status
 
-Current phase: Core Schema Applied
-Next task: ZAMBLAK-MIGRATION-001-SMOKE-TEST (Post-apply Verification/Smoke Planning)
+Current phase: Core Schema Applied & LeanCTX Protocol Active
+Next task: ZAMBLAK-STITCH-V3-HANDOFF-INVENTORY-1 (Stitch V3 Handoff Inventory)
 
 ## Current Activity
+- LeanCTX protocol established at [docs/leanctx.md](file:///d:/Zamblak/Zamblak-field-research/docs/leanctx.md) and active for all future agent tasks.
+- Future Stitch/UI/frontend tasks must reference and adhere to [docs/leanctx.md](file:///d:/Zamblak/Zamblak-field-research/docs/leanctx.md).
+- Stitch output is restricted to a visual reference only; Stitch-generated HTML/CSS must not be copied or imported into the repository source.
 - Migration `202607060001_zamblak_core_schema.sql` successfully applied manually to Dev DB.
 - Target Dev DB details:
   - Project Ref: `gdegnwglakyblnmxgiwx`
