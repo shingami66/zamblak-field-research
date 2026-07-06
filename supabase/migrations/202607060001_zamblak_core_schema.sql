@@ -287,7 +287,7 @@ AS $$
   SELECT account_id FROM profiles WHERE auth_user_id = auth.uid() AND active = true AND deleted_at IS NULL LIMIT 1;
 $$;
 
-CREATE OR REPLACE FUNCTION current_role()
+CREATE OR REPLACE FUNCTION current_profile_role()
 RETURNS text
 LANGUAGE sql
 STABLE SECURITY DEFINER SET search_path = public
