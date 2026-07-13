@@ -16,6 +16,16 @@
 - Owner-only financial control.
 - Support Helper operational only.
 
+## Participation Membership Rules
+- Respondents may be created, searched, and maintained in the Respondent Registry independently of project activation. Registry existence does not create project participation.
+- A draft project may be configured and prepared, including eligibility, quota, dates, domain, company, and other approved project setup.
+- Registry preparation and draft project preparation do not create participation membership by themselves.
+- Participation membership writes are allowed only when the target project is `active` and `deleted_at IS NULL`.
+- Draft projects reject participation `INSERT`, reassignment into the project, and restore of a soft-deleted participation.
+- Closed, cancelled, and deleted projects reject participation `INSERT`, reassignment into the project, and restore of a soft-deleted participation.
+- Closing a project ends that project's active duplicate-blocking scope for future participation in other projects. It does not permit new participation writes into the closed project.
+- This section records a product decision only. Migration design, runtime enforcement, database behavior, and manual smoke are not yet proven here.
+
 ## MVP Import, Export, and Reporting Scope
 - Excel import remains in MVP. A `support_helper` may perform operational import when otherwise authorized.
 - Operational Excel export is approved MVP product scope, but implementation, runtime behavior, server authorization, RLS enforcement, field filtering, and manual export smoke are not yet proven.
