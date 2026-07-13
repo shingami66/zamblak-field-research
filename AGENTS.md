@@ -39,6 +39,73 @@ Modify only files explicitly relevant to the current task scope.
 6. Diffs/tests/DB verification
 7. Graphify (as navigation only)
 
+## Authority and Decision Gates
+
+### Workflow Authority
+- Root `AGENTS.md` governs repository workflow, task control, safety gates, and agent conduct.
+
+### Product Authority
+- Approved Zamblak product, role, privacy, security, and specification documents govern intended product behavior.
+- `AGENTS.md` must not invent or replace product requirements.
+
+### Technical Reality
+- Current committed source code and Supabase migrations govern what is actually implemented and enforced.
+- Documentation must not claim runtime, database, RLS, route, authentication, or authorization behavior that current source or migrations do not prove.
+
+### Task Prompts
+- A task prompt defines the current bounded operation.
+- It must remain consistent with `AGENTS.md`, approved product authority, and verified technical reality.
+- A task prompt must not silently override them.
+
+### Visual References
+- Stitch screens, screenshots, mockups, ZIP archives, and design samples are visual references only.
+- They do not authorize scope, roles, permissions, data visibility, or implementation status.
+
+### Agent Reports
+- Agent output is execution and review evidence only.
+- It is not automatically a source of truth.
+- Claims must be verified against repository state, current source, migrations, or approved documentation.
+
+### Direct Conflicts
+- Do not silently choose between conflicting authorities.
+- Identify the conflict precisely.
+- Stop with HOLD when the conflict affects correctness, scope, permissions, security, privacy, data behavior, or safe execution.
+
+### PASS
+Use PASS only when:
+- all mandatory acceptance criteria pass;
+- repository state matches the expected baseline and final state;
+- required validation passes;
+- no unresolved safety, security, privacy, role, data, scope, or source-of-truth conflict remains.
+
+### PASS WITH WARN
+Use PASS WITH WARN only when:
+- all mandatory acceptance criteria pass;
+- the remaining warning is precise, evidence-based, and nonblocking;
+- it does not involve security, privacy, role or permission leakage, account isolation, data corruption or loss, migration uncertainty, validation failure, repository-state mismatch, or unsupported completion claims.
+
+A warning must not be used to bypass a HOLD condition.
+
+### HOLD
+Use HOLD when:
+- repository baseline or file inventory differs;
+- required authority or evidence is missing or contradictory;
+- a validation fails;
+- scope would need to broaden;
+- an unexpected file or state appears;
+- permissions, roles, PII, account isolation, database safety, or product correctness are uncertain;
+- a destructive or unauthorized action would be required;
+- the task cannot be completed without inventing facts.
+
+### Required HOLD Behavior
+When HOLD occurs:
+- make no speculative fix unless the current task explicitly authorizes a narrow fix;
+- perform no unrelated work;
+- do not stage, commit, push, apply migrations, install tools, or broaden scope;
+- report the exact blocking evidence;
+- provide exactly one narrow recovery task ID or recovery action;
+- preserve the repository state.
+
 ## Reporting Format
 All tasks must end with a structured PASS/HOLD report:
 PASS/HOLD
