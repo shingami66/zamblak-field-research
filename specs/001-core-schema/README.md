@@ -32,7 +32,8 @@ The core schema draft has been created in `supabase/migrations/202607060001_zamb
 - Account consistency triggers updated to implement fail-closed validations checking if parent keys exist and performing NULL-safe `IS DISTINCT FROM` comparisons.
 - Restored additional neutral field assertions in `ins_participations` policy.
 - Added explicit trigger execution ordering documentation for `BEFORE` triggers on `participations`.
-- Migration still not applied.
-- Next task is SQL review again (ZAMBLAK-MIGRATION-001-SQL-REVIEW-5).
-- Dev DB Apply remains blocked until Review-5 PASS.
+- The core migration was manually applied to the designated DEV/DEMO database. The later participation project-state enforcement migration `supabase/migrations/202607130001_participation_project_state_guard.sql` was also manually applied and post-apply verified.
+- The project-state guard requires active, non-deleted projects for participation membership-creating writes and preserves the existing partial unique index and account-consistency trigger.
+- A controlled missing-project dry-run produced the expected failure and persisted no test row.
+- Supabase migration-history registration is not claimed because the migration was applied manually.
 - Bootstrap/auth trigger for first account/profile remains deferred to a future auth/bootstrap migration or manual dev SQL.
