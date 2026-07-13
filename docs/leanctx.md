@@ -43,7 +43,7 @@ The following product rules are non-negotiable:
 - **Role Visibility - Owner**: The `owner` role has full visibility, including financial data.
 - **Role Visibility - Support Helper**: The `support_helper` role sees no financial data, no locked cards, and no blurred amounts.
 - **Role Limitations**: The only authorized roles are `owner` and `support_helper`.
-- **Scope Creep Prevention**: No maps, sync, export, reports, team tracking, task management, or analytics features are permitted in the MVP.
+- **Scope Creep Prevention**: No maps, sync, team tracking, task management, or advanced analytics features are permitted in the MVP. Operational Excel export is approved product scope under `docs/product-requirements.md`, but its implementation and enforcement remain unproven. Financial export is owner-only; PDF reports and advanced reporting dashboards remain deferred.
 
 ## 7. Task Sizing Rule
 Agents must prefer small, incremental tasks over broad sweeping changes:
