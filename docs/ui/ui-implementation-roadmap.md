@@ -73,6 +73,14 @@ Every batch must successfully pass the following validation commands before comp
 - **Acceptance criteria:** App shell handles switching between owner and support helper views based on a mock state.
 - **Validation commands:** Refer to the Shared Validation Gate.
 - **HOLD conditions:** Edits header or globals unnecessarily.
+- **Status:** Completed.
+- **Verification notes:**
+  - Independent review found mismatched static role sources, support-helper financial navigation risk, unsupported researcher-team wording, and admin-like owner wording.
+  - Narrow fix consolidated the static role source, filtered navigation before render, and corrected the approved Arabic role descriptions.
+  - Independent re-review passed.
+  - Static validation passed: build, lint, TypeScript, and `git diff --check`.
+  - Mozfer manual smoke passed for owner and support helper.
+  - `mockRole` was restored to `owner`.
 
 ### B2A Owner dashboard static cards
 - **Task ID:** ZAMBLAK-UI-OWNER-DASHBOARD-1
@@ -208,12 +216,12 @@ Every batch must successfully pass the following validation commands before comp
 - `/login`: Visual/static route.
 - `/search`: Visual/static route.
 - `/respondents/new`: Visual/static route.
-- `/projects`: Visual/static route.
-- `/projects/[id]`: Visual/static route (owner/support split).
-- `/projects/[id]/add-respondent`: Visual/static route.
-- `/companies`: Visual/static route.
-- `/companies/[id]`: Visual/static route.
-- `/financials` (المستحقات): **owner-only route.** Reserved for future live-data integration, not part of early static batches.
+- `/projects`: Navigation destination only in the current Dashboard Shell; unimplemented, currently returns a Next.js 404 page, and deferred.
+- `/projects/[id]`: Planned visual/static route (owner/support split).
+- `/projects/[id]/add-respondent`: Planned visual/static route.
+- `/companies`: Navigation destination only in the current Dashboard Shell; unimplemented, currently returns a Next.js 404 page, and deferred.
+- `/companies/[id]`: Planned visual/static route.
+- `/financials` (المستحقات): Navigation destination only in the current Dashboard Shell; the `owner`-only rule applies only to rendering this nav item, no page implementation exists yet, it currently returns a Next.js 404 page, and it is deferred for future live-data integration.
 
 ## 10. Validation Strategy
 - **build:** Run `npm run build` to ensure Next.js builds successfully.
@@ -242,5 +250,4 @@ Every batch must successfully pass the following validation commands before comp
 - **UI screens must remain independent from DB until approved:** Prevents locking UI into premature database schema assumptions.
 
 ## 13. Recommended Immediate Next Task
-**ZAMBLAK-UI-LOGIN-SHELL-1**
-**Scope:** Login visual shell only, no auth, no Supabase, no forms submission, no session handling.
+The Dashboard Shell slice is complete. The next persisted activity is workflow-governance adoption, starting with agent-control strengthening.

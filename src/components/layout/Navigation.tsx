@@ -2,13 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { mockRole, type DashboardRole } from "@/lib/auth/mock-role";
 
-// TEMPORARY: This is a safe local stub for the UI foundation.
-// Must be replaced by real auth and role fetching before production.
-type Role = "owner" | "support_helper";
-const currentRole: Role = "owner"; // Toggle to "support_helper" to test
-
-const NAV_ITEMS = [
+const NAV_ITEMS: Array<{ name: string; href: string; roles: DashboardRole[] }> = [
   { name: "الرئيسية", href: "/", roles: ["owner", "support_helper"] },
   { name: "الشركات", href: "/companies", roles: ["owner", "support_helper"] },
   { name: "المشاريع", href: "/projects", roles: ["owner", "support_helper"] },
@@ -20,7 +16,7 @@ export function Navigation() {
 
   // Filter items based on the current user role
   const visibleItems = NAV_ITEMS.filter((item) =>
-    item.roles.includes(currentRole)
+    item.roles.includes(mockRole)
   );
 
   return (

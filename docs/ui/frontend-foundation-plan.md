@@ -24,7 +24,7 @@ Batch 1 is strictly for setting up the frontend foundation. Batch 1 planning doe
 - Real auth integration
 - Live role fetching
 - Supabase calls
-- Dashboard content implementation
+- Dashboard content implementation beyond the completed role-aware empty shell slice
 - Financial route implementation
 
 Specifically, Batch 1 is restricted to:
@@ -121,8 +121,8 @@ Checks for the later implementation task:
 - Ensure no financial placeholders exist in the `support_helper` UI.
 
 ## 14. Proposed Next Task After This Plan
-- **Recommended Task:** `ZAMBLAK-UI-FOUNDATION-BATCH-1A`
-- **Scope:** This task should inspect the existing app structure first, then implement only the layout setup, design tokens, typography, header/top navigation, and empty page shell if it is safe to do so.
+- The dashboard shell slice is already complete.
+- The next persisted activity is workflow-governance adoption, starting with agent-control strengthening.
 
 ## 15. Open Questions / Risks
 - Existing app structure (e.g., Next.js app router vs pages router) must be inspected before beginning implementation.

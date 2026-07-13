@@ -1,16 +1,19 @@
 # Project Status
 
-Current phase: Core Schema Applied & LeanCTX Protocol Active
-Next task: ZAMBLAK-STITCH-V3-HANDOFF-INVENTORY-1 (Stitch V3 Handoff Inventory)
+Current phase: Dashboard Shell documentation synchronization after completed role-aware slice
+Next task: ZAMBLAK-UI-DASHBOARDS-SHELL-PRECOMMIT-REVIEW-1 (read-only precommit review)
 
 ## Current Activity
-- LeanCTX protocol established at [docs/leanctx.md](file:///d:/Zamblak/Zamblak-field-research/docs/leanctx.md) and active for all future agent tasks.
-- Future Stitch/UI/frontend tasks must reference and adhere to [docs/leanctx.md](file:///d:/Zamblak/Zamblak-field-research/docs/leanctx.md).
-- Stitch output is restricted to a visual reference only; Stitch-generated HTML/CSS must not be copied or imported into the repository source.
-- Migration `202607060001_zamblak_core_schema.sql` successfully applied manually to Dev DB.
-- Target Dev DB details:
-  - Project Ref: `gdegnwglakyblnmxgiwx`
-  - Region: `ap-northeast-1` (Northeast Asia / Tokyo)
-  - Method: Supabase SQL Editor inside explicit `BEGIN/COMMIT` transaction.
-- Verification passed: 10 core tables exist with RLS enabled, key `SECURITY DEFINER` functions exist with `search_path=public`, `current_profile_role` verified, operational/financial views exist, and RLS policies exist.
-- Warning: Do not rerun this migration on the same Dev DB. Future CLI-based migrations must account for this manual apply history (i.e. by bootstrapping/marking applied) to avoid conflicts during `db push` or `migration up`.
+- Role-aware empty Dashboard Shell slice is complete and reflected in `src/app/page.tsx`, `src/components/dashboard/DashboardShell.tsx`, `src/components/layout/Navigation.tsx`, and `src/lib/auth/mock-role.ts`.
+- Approved roles are limited to `owner` and `support_helper`.
+- The shell remains static UI only: no live auth, no Supabase integration, no database access, no metrics, no charts, and no dashboard cards.
+- `support_helper` does not receive `المستحقات` or `/financials`.
+- Independent review found mismatched static role sources, support-helper financial navigation risk, unsupported researcher-team wording, and admin-like owner wording.
+- Narrow fix completed with one shared static role source, source-level role filtering before navigation render, and corrected approved Arabic role descriptions.
+- Independent re-review passed.
+- Static validation passed: build, lint, TypeScript, and `git diff --check`.
+- Mozfer manual smoke passed for both owner and support helper views.
+- Deferred routes `"/companies"`, `"/projects"`, and `"/financials"` remain unimplemented and currently return Next.js 404 pages.
+- `mockRole` was restored to `owner`.
+- Impeccable and Graphify were not used for this slice.
+- Next persisted activity after this slice: workflow-governance adoption, starting with agent-control strengthening.
