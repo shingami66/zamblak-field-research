@@ -1,7 +1,7 @@
 # Project Status
 
-Current phase: Authentication access-policy and first-owner bootstrap decision
-Next task: ZAM-AUTH-001B-AUTH-ACCESS-POLICY-DECISION-1
+Current phase: Approved MVP access policy documentation and first-owner bootstrap design preparation
+Next task: ZAM-AUTH-001C-FIRST-OWNER-BOOTSTRAP-DESIGN-1
 
 ## Current Activity
 - Role-aware empty Dashboard Shell slice is complete and reflected in `src/app/page.tsx`, `src/components/dashboard/DashboardShell.tsx`, `src/components/layout/Navigation.tsx`, and `src/lib/auth/mock-role.ts`.
@@ -50,4 +50,62 @@ Next task: ZAM-AUTH-001B-AUTH-ACCESS-POLICY-DECISION-1
 - Public environment contract names only: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`. Call-time validation only; no `.env` files added; no values claimed configured.
 - Boundaries: runtime client foundation only. No live login/signup/logout, callback routes, Proxy/middleware session refresh, `getSession`/`getUser`/`getClaims`, route protection, profile/account resolution in the app, database/view/RPC/storage calls, generated Database TypeScript types, service-role client, browser smoke, or Supabase console configuration claims. Login remains visual/static. Customer production readiness is not claimed.
 - Security: `mockRole` is UI-only and not authorization; live roles must resolve from authenticated database-backed profile/account context. Service-role/secret keys must never enter browser or normal application paths. User-session RLS remains the normal application path. Owner financial and Support Helper approved safe RPC-only boundaries remain unchanged. Residual non-SELECT privilege follow-up (`MAINTAIN` / `REFERENCES` / `TRIGGER` / `TRUNCATE`) remains open and separate.
-- Next program task (not started): `ZAM-AUTH-001B-AUTH-ACCESS-POLICY-DECISION-1` — resolve whether MVP allows any self-service registration, or Owner and Support Helper access is invitation-or-admin-seed only; first-owner DEV/DEMO bootstrap remains deferred until that decision.
+- Next program after 001A was `ZAM-AUTH-001B` (access policy decision); that decision is now recorded below. Live authentication remains unimplemented.
+
+## ZAM-AUTH-001B MVP Access Policy Decision (RECORDED)
+
+Controller-approved binding MVP access policy:
+
+- **MVP_ACCESS_POLICY:** `INVITATION_OR_ADMIN_SEED_ONLY`
+- **Public self-service signup:** DISABLED FOR MVP
+- **Arbitrary account creation:** DISABLED FOR MVP
+- **User-selected role:** PROHIBITED
+- **User-created Owner:** PROHIBITED
+- **First Owner:** ONE-TIME CONTROLLED ADMINISTRATIVE BOOTSTRAP only
+- **First-owner bootstrap exposure:** NOT AVAILABLE through public or normal application routes
+- **Bootstrap after first active Owner:** DISABLED OR UNUSABLE
+- **Support Helper onboarding:** AUTHORIZED OWNER OR CONTROLLED ADMINISTRATIVE CREATION ONLY
+- **Support Helper self-registration:** PROHIBITED
+- **Support Helper role escalation:** PROHIBITED
+- **Runtime role authority:** SERVER-RESOLVED PROFILE AND ACCOUNT MEMBERSHIP UNDER RLS
+- **mockRole authority:** NONE; UI-ONLY
+- **Service-role:** NEVER in browser or normal user-session paths
+- **Sole-Owner recovery:** DEFERRED SEPARATE DESIGN
+
+### Long-term architecture (not MVP; not implemented; not approved for implementation)
+
+A future separately approved onboarding program may allow a verified new researcher to create a brand-new tenant/account and become the initial Owner of that new account through a controlled server-side provisioning workflow. If later approved, that workflow must:
+
+- create a new tenant/account only;
+- create exactly one initial Owner for that new tenant;
+- perform account and Owner provisioning atomically or fail closed;
+- run only through a controlled server-side provisioning boundary;
+- never allow joining an existing account without invitation;
+- never allow a user to select an arbitrary role;
+- never allow creating an Owner inside an existing account;
+- never expose service-role credentials to the browser;
+- require email verification, abuse controls, recovery design, and explicit rate limiting;
+- remain outside the current MVP.
+
+This future model is **not** implemented, **not** part of MVP, and **not** approved implementation work.
+
+### Non-claims preserved after 001B decision documentation
+
+- Live login is not wired; signup is not implemented; logout is not implemented.
+- Callback routes, Proxy/session refresh, protected routes, and authenticated profile/account resolution are absent.
+- Invitation flow is absent; first-owner bootstrap **implementation** is absent (design is the next task).
+- Generated database types are absent; `mockRole` remains UI-only.
+- Browser smoke remains Mozfer-owned; production readiness is not claimed.
+
+### Security boundaries preserved
+
+- `account_id` isolation remains mandatory.
+- Owner financial access remains Owner-only.
+- Support Helper remains limited to approved operational and safe RPC surfaces.
+- Authenticated user-session RLS remains the normal runtime path.
+- Client state is never role authority; inactive or deleted profiles must fail closed.
+- Service-role and privileged credentials remain outside browser and normal application paths.
+
+### Next auth task (not started)
+
+- `ZAM-AUTH-001C-FIRST-OWNER-BOOTSTRAP-DESIGN-1` — design the one-time controlled administrative first-Owner bootstrap (mechanism not selected in 001B).

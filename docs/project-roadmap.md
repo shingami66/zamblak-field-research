@@ -7,8 +7,10 @@
 - Phase 2: Auth + Shell
   - Role-aware Dashboard Shell slice: completed
   - Supabase runtime client foundation (`@supabase/ssr` browser + request-scoped server factories, public env contract): **CLOSED** — implementation, docs correction, push, and final verification PASS (`567c021` → `130637e` → `8da92f7`). Provides only environment validation and browser/server client factories; live authentication has not started
-  - Next bounded auth activity: `ZAM-AUTH-001B-AUTH-ACCESS-POLICY-DECISION-1` (not started) — decide whether MVP allows any self-service registration, or Owner and Support Helper access is invitation-or-admin-seed only
-  - Live auth, session refresh (Next.js Proxy), mockRole replacement, login/logout, protected routes, and runtime role enforcement: deferred
+  - MVP access policy decision (`ZAM-AUTH-001B`): **RECORDED** — binding policy `INVITATION_OR_ADMIN_SEED_ONLY`. Public self-service signup and arbitrary account creation are disabled for MVP. User-selected role and user-created Owner are prohibited. First Owner is one-time controlled administrative bootstrap only (not via public/normal app routes; disabled or unusable after first active Owner). Support Helper onboarding is authorized Owner or controlled administrative creation only; self-registration and role escalation are prohibited. Runtime role authority is server-resolved profile/account membership under RLS; `mockRole` has no authority. Service-role never in browser or normal user-session paths. Sole-Owner recovery remains a deferred separate design.
+  - Long-term product direction (not MVP; not implemented; not approved for implementation): a future separately approved program may allow a verified new researcher to create a brand-new tenant/account and become its initial Owner via controlled server-side atomic provisioning, with email verification, abuse controls, recovery design, and rate limiting. Existing-account self-join without invitation, Owner creation inside an existing account, and arbitrary role selection remain prohibited.
+  - Next bounded auth activity: `ZAM-AUTH-001C-FIRST-OWNER-BOOTSTRAP-DESIGN-1` (not started) — design the one-time controlled administrative first-Owner bootstrap; do not select or implement the mechanism until that design task
+  - Live auth, session refresh (Next.js Proxy), mockRole replacement, login/logout, protected routes, invitation flow, bootstrap implementation, and runtime role enforcement: deferred
 - Phase 3: Respondent Registry
 - Phase 4: Projects + Participations
 - Phase 5: WhatsApp workflow
