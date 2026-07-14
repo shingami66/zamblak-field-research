@@ -6,8 +6,9 @@
   - Role-safe owner / support-helper read surfaces: migration prepared, manually applied to designated DEV/DEMO, and post-apply verified
 - Phase 2: Auth + Shell
   - Role-aware Dashboard Shell slice: completed
-  - Supabase runtime client foundation (`@supabase/ssr` browser + request-scoped server factories, public env contract): committed and pushed in `567c021670b4f6546993c7529256df7b5e6cacf7` (`feat(auth): add Supabase runtime client foundation`); live login/session not started
-  - Live auth, session refresh (Next.js Proxy), mockRole replacement, and runtime role enforcement: deferred
+  - Supabase runtime client foundation (`@supabase/ssr` browser + request-scoped server factories, public env contract): **CLOSED** — implementation, docs correction, push, and final verification PASS (`567c021` → `130637e` → `8da92f7`). Provides only environment validation and browser/server client factories; live authentication has not started
+  - Next bounded auth activity: `ZAM-AUTH-001B-AUTH-ACCESS-POLICY-DECISION-1` (not started) — decide whether MVP allows any self-service registration, or Owner and Support Helper access is invitation-or-admin-seed only
+  - Live auth, session refresh (Next.js Proxy), mockRole replacement, login/logout, protected routes, and runtime role enforcement: deferred
 - Phase 3: Respondent Registry
 - Phase 4: Projects + Participations
 - Phase 5: WhatsApp workflow

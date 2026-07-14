@@ -1,7 +1,7 @@
 # Project Status
 
-Current phase: Supabase runtime client foundation closure pending final remote verification
-Next task: ZAM-AUTH-001A-SUPABASE-RUNTIME-CLIENT-FOUNDATION-FINAL-CLOSURE-VERIFICATION-1
+Current phase: Authentication access-policy and first-owner bootstrap decision
+Next task: ZAM-AUTH-001B-AUTH-ACCESS-POLICY-DECISION-1
 
 ## Current Activity
 - Role-aware empty Dashboard Shell slice is complete and reflected in `src/app/page.tsx`, `src/components/dashboard/DashboardShell.tsx`, `src/components/layout/Navigation.tsx`, and `src/lib/auth/mock-role.ts`.
@@ -38,13 +38,16 @@ Next task: ZAM-AUTH-001A-SUPABASE-RUNTIME-CLIENT-FOUNDATION-FINAL-CLOSURE-VERIFI
 - Boundaries: DEV/DEMO database evidence only. No browser smoke, no live authenticated application integration claim, no customer production-readiness claim, and no Supabase migration-history registration claim (manual SQL Editor apply).
 - Deferred residual privilege follow-up remains open: non-SELECT privileges such as `MAINTAIN`, `REFERENCES`, `TRIGGER`, and `TRUNCATE` on residual surfaces (including anon/service_role patterns) are out of scope for this completed program and must not be silently closed here.
 
-## ZAM-AUTH-001A Supabase Runtime Client Foundation (committed and pushed)
-- Program `ZAM-AUTH-001A-SUPABASE-RUNTIME-CLIENT-FOUNDATION`: implementation PASS; independent implementation review accepted (PASS WITH WARN: historical process note only; no remediation required); docs sync PASS; independent docs review PASS; precommit gate accepted; commit PASS; push PASS (mandatory dry-run evidenced); local and remote aligned after push.
-- Commit: `567c021670b4f6546993c7529256df7b5e6cacf7` — `feat(auth): add Supabase runtime client foundation`.
+## ZAM-AUTH-001A Supabase Runtime Client Foundation (CLOSED)
+- Program `ZAM-AUTH-001A-SUPABASE-RUNTIME-CLIENT-FOUNDATION`: **CLOSED**. Final closure verification `ZAM-AUTH-001A-SUPABASE-RUNTIME-CLIENT-FOUNDATION-FINAL-CLOSURE-VERIFICATION-1` result: **PASS**.
+- Verified auth-program chain: `567c021` (`feat(auth): add Supabase runtime client foundation`) → `130637e` (`docs(auth): record Supabase foundation push`) → `8da92f7` (`docs(auth): set final closure verification`).
+- Auth-program final verification HEAD: `8da92f7bde113c94d8d456d1908e294c729d960c`. Program gates: implementation PASS; independent implementation review accepted (PASS WITH WARN: historical process note only); docs sync PASS; independent docs review PASS; precommit accepted; commit PASS; push PASS (mandatory dry-run evidenced); local/remote aligned after foundation push; post-push docs correction and durable status commits pushed and verified.
+- Repository later advanced to current HEAD `e39068a9a79112ec4041bb8e953e3dd1f4775a82` via unrelated `chore(graphify): add project navigation workflow` (does not change auth implementation or 001A closure evidence). Local and remote `main` aligned at `e39068a`. Tracked tree clean at closure docs writing; implementation hashes verified; final verification made no file, commit, database, or remote mutation.
+- Foundation commit: `567c021670b4f6546993c7529256df7b5e6cacf7` — env validation + browser/server client factories only.
 - Static validation at foundation handoff: `lint`, standalone `tsc`, `build`, `git diff --check`.
 - Direct packages: `@supabase/supabase-js`, `@supabase/ssr` (not deprecated Auth Helpers).
 - Source modules: `src/lib/supabase/env.ts`, `client.ts`, `server.ts` (browser `createClient()` via `createBrowserClient`; request-scoped async server `createClient()` via `createServerClient` + awaited Next.js cookies getAll/setAll).
 - Public environment contract names only: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`. Call-time validation only; no `.env` files added; no values claimed configured.
-- Boundaries: runtime client foundation only. No live login/signup/logout, callback routes, Proxy/middleware session refresh, `getSession`/`getUser`/`getClaims`, route protection, profile/account resolution in the app, database/view/RPC/storage calls, generated Database TypeScript types, service-role client, browser smoke, or Supabase console configuration claims.
-- Security: `mockRole` is not authorization; live roles must resolve from authenticated database-backed profile/account context. Service-role/secret keys must never enter browser code. User-session RLS remains the normal application path. Owner financial and Support Helper RPC-only boundaries remain unchanged. Residual non-SELECT privilege follow-up remains open and separate.
-- Not started: `ZAM-AUTH-001B` (or any live session/login integration task).
+- Boundaries: runtime client foundation only. No live login/signup/logout, callback routes, Proxy/middleware session refresh, `getSession`/`getUser`/`getClaims`, route protection, profile/account resolution in the app, database/view/RPC/storage calls, generated Database TypeScript types, service-role client, browser smoke, or Supabase console configuration claims. Login remains visual/static. Customer production readiness is not claimed.
+- Security: `mockRole` is UI-only and not authorization; live roles must resolve from authenticated database-backed profile/account context. Service-role/secret keys must never enter browser or normal application paths. User-session RLS remains the normal application path. Owner financial and Support Helper approved safe RPC-only boundaries remain unchanged. Residual non-SELECT privilege follow-up (`MAINTAIN` / `REFERENCES` / `TRIGGER` / `TRUNCATE`) remains open and separate.
+- Next program task (not started): `ZAM-AUTH-001B-AUTH-ACCESS-POLICY-DECISION-1` — resolve whether MVP allows any self-service registration, or Owner and Support Helper access is invitation-or-admin-seed only; first-owner DEV/DEMO bootstrap remains deferred until that decision.
