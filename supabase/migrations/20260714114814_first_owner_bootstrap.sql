@@ -44,7 +44,7 @@ DECLARE
   v_unique_auth_count bigint;
   v_col_type text;
 BEGIN
-  IF pg_catalog.current_user() IS DISTINCT FROM 'postgres' THEN
+  IF current_user IS DISTINCT FROM 'postgres' THEN
     RAISE EXCEPTION USING
       ERRCODE = 'P0001',
       MESSAGE = 'migration_precondition_failed: current_user_must_be_postgres';
@@ -451,7 +451,7 @@ DECLARE
   v_role_check text;
   v_index_oid oid;
 BEGIN
-  IF pg_catalog.current_user() IS DISTINCT FROM 'postgres' THEN
+  IF current_user IS DISTINCT FROM 'postgres' THEN
     RAISE EXCEPTION USING
       ERRCODE = 'P0001',
       MESSAGE = 'migration_postcondition_failed: current_user_must_be_postgres';
