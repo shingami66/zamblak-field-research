@@ -55,13 +55,14 @@ Database evidence from manually applied `202607130002_role_safe_read_surfaces.sq
 - Live authentication is not implemented. Login remains visual/static. `mockRole` remains the current UI role source and is not secure authorization.
 - Application role authority must eventually come from authenticated database-backed profile/account context (`owner` / `support_helper`), not client state.
 
-## MVP access and onboarding authority (ZAM-AUTH-001B recorded)
+## MVP access and onboarding authority (ZAM-AUTH-001B recorded; 001C design approved)
 
 Binding MVP policy: `INVITATION_OR_ADMIN_SEED_ONLY`.
 
-- **Owner:** the first Owner for an account is created only by one-time controlled administrative bootstrap (not public or normal application routes). After the first active Owner exists, that bootstrap path is disabled or unusable. Users must not create themselves as Owner. Users must not select their own role.
+- **Deployment first Owner (current MVP bootstrap, APPROVED DESIGN ONLY):** globally one-time deployment initialization creates **exactly one** initial account and **exactly one** initial active non-deleted Owner via a privileged SQL-owner-only administrative path (not public or normal application routes). After any Owner profile has existed (including inactive or soft-deleted historical Owners), this bootstrap path remains unavailable. It cannot create another Owner or another tenant. Users must not create themselves as Owner. Users must not select their own role. Design detail: `docs/first-owner-bootstrap-design.md`. **Not implemented. Not applied. Not available at runtime.**
 - **Support Helper:** onboarded only by an authorized Owner or controlled administrative creation. Self-registration is prohibited. Role escalation to Owner (or any other role) by the Support Helper is prohibited.
-- **Existing-account access:** invitation or controlled administrative seed only for MVP. Public self-service signup and arbitrary account creation are disabled for MVP.
-- **Runtime role authority:** server-resolved profile and account membership under RLS. `mockRole` has no authority (UI-only). Service-role credentials never enter browser or normal user-session paths.
-- **Sole-Owner recovery:** deferred separate design.
+- **Existing-account access after initialization:** invitation or controlled administrative seed only for MVP. Public self-service signup and arbitrary account creation are disabled for MVP.
+- **Additional tenants:** future separate program only; not authorized by the approved current bootstrap.
+- **Runtime role authority:** server-resolved profile and account membership under RLS. `mockRole` has no authority (UI-only). Service-role credentials never enter browser or normal user-session paths. Live application role enforcement is not claimed yet.
+- **Sole-Owner recovery:** deferred separate design (not the bootstrap path).
 - **Long-term (not MVP; not implemented; not approved for implementation):** a future separately approved program may allow a verified new researcher to create a **new** tenant/account only and become its single initial Owner through controlled server-side atomic provisioning. It must never allow joining an existing account without invitation, creating an Owner inside an existing account, or selecting an arbitrary role.

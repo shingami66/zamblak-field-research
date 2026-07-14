@@ -1,7 +1,7 @@
 # Project Status
 
-Current phase: Approved MVP access policy documentation and first-owner bootstrap design preparation
-Next task: ZAM-AUTH-001C-FIRST-OWNER-BOOTSTRAP-DESIGN-1
+Current phase: First-owner bootstrap design approved; canonical documentation synchronized locally
+Next task: ZAM-AUTH-001C-FIRST-OWNER-BOOTSTRAP-DESIGN-DOCS-REVIEW-1
 
 ## Current Activity
 - Role-aware empty Dashboard Shell slice is complete and reflected in `src/app/page.tsx`, `src/components/dashboard/DashboardShell.tsx`, `src/components/layout/Navigation.tsx`, and `src/lib/auth/mock-role.ts`.
@@ -93,7 +93,7 @@ This future model is **not** implemented, **not** part of MVP, and **not** appro
 
 - Live login is not wired; signup is not implemented; logout is not implemented.
 - Callback routes, Proxy/session refresh, protected routes, and authenticated profile/account resolution are absent.
-- Invitation flow is absent; first-owner bootstrap **implementation** is absent (design is the next task).
+- Invitation flow is absent; first-owner bootstrap **implementation** remains absent (design approved; not implemented or applied).
 - Generated database types are absent; `mockRole` remains UI-only.
 - Browser smoke remains Mozfer-owned; production readiness is not claimed.
 
@@ -106,6 +106,21 @@ This future model is **not** implemented, **not** part of MVP, and **not** appro
 - Client state is never role authority; inactive or deleted profiles must fail closed.
 - Service-role and privileged credentials remain outside browser and normal application paths.
 
+## ZAM-AUTH-001C First-Owner Bootstrap Design (APPROVED DESIGN ONLY)
+
+Canonical design document: `docs/first-owner-bootstrap-design.md`.
+
+- **Status:** APPROVED DESIGN ONLY. **NOT IMPLEMENTED.** **NOT APPLIED.** **NOT AVAILABLE AT RUNTIME.**
+- **Approval chain:** design → controller HOLD → corrected design PASS → independent review PASS → Mozfer approval APPROVED.
+- **MVP scope:** globally one-time deployment initialization. Creates exactly one initial account and one initial active non-deleted Owner. Not reusable for additional tenants or first Owners. Not sole-Owner recovery.
+- **Mechanism (approved, not present in source):** one privileged `SECURITY DEFINER` function (conceptual `public.bootstrap_first_owner(...)`), Mozfer SQL-owner session only. No browser, Next.js, Server Action, Route Handler, Proxy, Edge Function, `anon`, `authenticated`, or `service_role` application execution path. `EXECUTE` must be revoked from `PUBLIC`, `anon`, `authenticated`, and `service_role`.
+- **Serialization:** mandatory fixed transaction-scoped PostgreSQL advisory lock before all checks; lock identity independent of Auth user, account, caller, request, or environment. Exact lock form/constants **not frozen yet** (required in SQL-draft task).
+- **Gates (deterministic order after lock):** active Owner → `bootstrap_already_completed`; historical Owner → `bootstrap_historical_owner_present`; pre-existing accounts → `bootstrap_preexisting_accounts`; schema-qualified `auth.users` existence (mandatory) → `auth_user_not_found`; existing profile → `auth_user_already_profiled`; input validation → `invalid_input`.
+- **Atomic write:** one new account (DB-generated id) + one Owner profile hard-coded `role = owner`, `active = true`, `deleted_at = NULL`. Failures leave no account/profile rows.
+- **Post-success:** any later invocation (same or different Auth user) returns **`bootstrap_already_completed`** only.
+- **Mandatory later implementation requirements:** (1) freeze/document exact advisory-lock form and constants in SQL draft; (2) keep post-success code strictly `bootstrap_already_completed`; (3) pin actual function owner after apply and prove authoritative `SELECT` on `auth.users`.
+- **Non-claims:** no bootstrap function or migration exists; not applied to DEV/DEMO; live login/session not started; production readiness not claimed; additional tenant provisioning not authorized.
+
 ### Next auth task (not started)
 
-- `ZAM-AUTH-001C-FIRST-OWNER-BOOTSTRAP-DESIGN-1` — design the one-time controlled administrative first-Owner bootstrap (mechanism not selected in 001B).
+- `ZAM-AUTH-001C-FIRST-OWNER-BOOTSTRAP-DESIGN-DOCS-REVIEW-1` — independent review of this documentation synchronization.
