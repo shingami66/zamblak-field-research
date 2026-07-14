@@ -10,3 +10,5 @@ dist
 .DS_Store
 npm-debug.log*
 *.tsbuildinfo
+# Graphify generated navigation index
+graphify-out/

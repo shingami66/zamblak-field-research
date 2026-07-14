@@ -17,6 +17,18 @@ Local skills reside in `.agents/skills/`. The agent must select the **smallest r
 - `zamblak-security-privacy-guard`: Privacy and tenant boundaries.
 - `zamblak-docs-guard`: Documentation integrity.
 - `zamblak-ui-rtl-senior-ux-guard`: Arabic-first UX logic.
+- `zamblak-graphify-navigation`: Graphify-first navigation, symbol/impact tracing, freshness classification, targeted grep fallback, and explicit post-commit refresh before push.
+
+### Graphify navigation policy
+- Select `zamblak-graphify-navigation` for Graphify-backed navigation, symbol tracing, impact review, and post-commit index refresh verification.
+- Graphify remains **navigation only** (hierarchy item 7). It never overrides source, migrations, Git state, or canonical docs.
+- Source verification against current files is mandatory for material conclusions.
+- When graph nodes are missing or stale, use **targeted** `grep` / `rg` (known symbols and mapped paths) before any broader search.
+- Repository-local Graphify output is generated under ignored `graphify-out/`. Verify the ignore rule before refresh. Ignored `graphify-out/**` is allowed after refresh; tracked, staged, or non-ignored untracked changes block push; output outside `graphify-out/` blocks push.
+- After every authorized successful commit, and before push, run explicit `graphify update .` (absolute executable fallback only if documented by the skill and available). Do not push until refresh verification passes or is explicitly WARN/HOLD.
+- Do **not** create automatic Graphify Git hooks.
+- Do **not** refresh Graphify during read-only tasks unless the task explicitly authorizes refresh.
+- Full procedures live in `.agents/skills/zamblak-graphify-navigation/SKILL.md`; do not duplicate them here.
 
 ## Approved & Forbidden Files Per Task
 Modify only files explicitly relevant to the current task scope.
