@@ -1,7 +1,7 @@
 # Project Status
 
-Current phase: First-owner bootstrap design approved; canonical documentation synchronized locally
-Next task: ZAM-AUTH-001C-FIRST-OWNER-BOOTSTRAP-DESIGN-DOCS-REVIEW-1
+Current phase: First-Owner bootstrap implemented in repository and verified on DEV/DEMO; live login/session not started
+Next task: ZAM-AUTH-001D-LIVE-LOGIN-SESSION-PLAN-1
 
 ## Current Activity
 - Role-aware empty Dashboard Shell slice is complete and reflected in `src/app/page.tsx`, `src/components/dashboard/DashboardShell.tsx`, `src/components/layout/Navigation.tsx`, and `src/lib/auth/mock-role.ts`.
@@ -93,7 +93,7 @@ This future model is **not** implemented, **not** part of MVP, and **not** appro
 
 - Live login is not wired; signup is not implemented; logout is not implemented.
 - Callback routes, Proxy/session refresh, protected routes, and authenticated profile/account resolution are absent.
-- Invitation flow is absent; first-owner bootstrap **implementation** remains absent (design approved; not implemented or applied).
+- Invitation flow is absent. First-Owner bootstrap repository implementation and DEV/DEMO apply are recorded under ZAM-AUTH-001C below; live application integration of that Owner remains pending.
 - Generated database types are absent; `mockRole` remains UI-only.
 - Browser smoke remains Mozfer-owned; production readiness is not claimed.
 
@@ -106,21 +106,33 @@ This future model is **not** implemented, **not** part of MVP, and **not** appro
 - Client state is never role authority; inactive or deleted profiles must fail closed.
 - Service-role and privileged credentials remain outside browser and normal application paths.
 
-## ZAM-AUTH-001C First-Owner Bootstrap Design (APPROVED DESIGN ONLY)
+## ZAM-AUTH-001C First-Owner Bootstrap (REPOSITORY + DEV/DEMO COMPLETE)
 
 Canonical design document: `docs/first-owner-bootstrap-design.md`.
 
-- **Status:** APPROVED DESIGN ONLY. **NOT IMPLEMENTED.** **NOT APPLIED.** **NOT AVAILABLE AT RUNTIME.**
-- **Approval chain:** design → controller HOLD → corrected design PASS → independent review PASS → Mozfer approval APPROVED.
-- **MVP scope:** globally one-time deployment initialization. Creates exactly one initial account and one initial active non-deleted Owner. Not reusable for additional tenants or first Owners. Not sole-Owner recovery.
-- **Mechanism (approved, not present in source):** one privileged `SECURITY DEFINER` function (conceptual `public.bootstrap_first_owner(...)`), Mozfer SQL-owner session only. No browser, Next.js, Server Action, Route Handler, Proxy, Edge Function, `anon`, `authenticated`, or `service_role` application execution path. `EXECUTE` must be revoked from `PUBLIC`, `anon`, `authenticated`, and `service_role`.
-- **Serialization:** mandatory fixed transaction-scoped PostgreSQL advisory lock before all checks; lock identity independent of Auth user, account, caller, request, or environment. Exact lock form/constants **not frozen yet** (required in SQL-draft task).
-- **Gates (deterministic order after lock):** active Owner → `bootstrap_already_completed`; historical Owner → `bootstrap_historical_owner_present`; pre-existing accounts → `bootstrap_preexisting_accounts`; schema-qualified `auth.users` existence (mandatory) → `auth_user_not_found`; existing profile → `auth_user_already_profiled`; input validation → `invalid_input`.
-- **Atomic write:** one new account (DB-generated id) + one Owner profile hard-coded `role = owner`, `active = true`, `deleted_at = NULL`. Failures leave no account/profile rows.
-- **Post-success:** any later invocation (same or different Auth user) returns **`bootstrap_already_completed`** only.
-- **Mandatory later implementation requirements:** (1) freeze/document exact advisory-lock form and constants in SQL draft; (2) keep post-success code strictly `bootstrap_already_completed`; (3) pin actual function owner after apply and prove authoritative `SELECT` on `auth.users`.
-- **Non-claims:** no bootstrap function or migration exists; not applied to DEV/DEMO; live login/session not started; production readiness not claimed; additional tenant provisioning not authorized.
+### Repository implementation
+- Migration: `supabase/migrations/20260714114814_first_owner_bootstrap.sql` (committed/pushed; syntax fix for bare `current_user` in `fd847f5`).
+- Function: `public.bootstrap_first_owner(uuid, text, text, text)` — `SECURITY DEFINER`, `SET search_path = pg_catalog, public`, owner `postgres`, frozen advisory lock `-1850433270600458575` (`zamblak:first-owner-bootstrap:v1`).
+- `EXECUTE` revoked from `PUBLIC`, `anon`, `authenticated`, and `service_role`. SQL-owner (`postgres`) session only; not browser/app/`service_role` application paths.
+- Globally one-time deployment initialization: one account + one active non-deleted Owner; post-success always `bootstrap_already_completed`. Not recovery; not multi-tenant self-provisioning.
+
+### DEV/DEMO apply and first bootstrap (Mozfer-owned; project `gdegnwglakyblnmxgiwx`)
+- Migration applied successfully in SQL Editor as `postgres`.
+- Post-apply catalog checks: function owner `postgres`; language `plpgsql`; `SECURITY DEFINER` true; search path `pg_catalog, public`; PUBLIC/anon/authenticated/service_role EXECUTE false; frozen lock and schema-qualified `auth.users` in source; role constraint and active-Owner unique index preserved.
+- Pre-bootstrap readiness: accounts `0`, profiles `0`, Owners `0`.
+- First Auth user created manually in Supabase Authentication (identity not recorded here).
+- Bootstrap invoked once: account display name `Zamblak Field Research`; Owner display name `محمد الهادي ادم سعيد`.
+- Post-bootstrap: accounts `1`, profiles `1`, active Owners `1`, Support Helpers `0`.
+- Replay invoke returned `bootstrap_already_completed`; final counts remained accounts `1` / profiles `1`.
+- **Bootstrap path is globally consumed for this DEV/DEMO database** — do not re-invoke; soft-delete does not reopen the path.
+
+### Explicit remaining non-claims
+- Live login, logout, Proxy/session refresh, protected routes, and application profile/account resolution are **not** implemented.
+- `mockRole` remains UI-only.
+- Production readiness is **not** claimed.
+- Supabase migration-history registration is **not** claimed (manual SQL Editor apply).
+- Additional tenants and sole-Owner recovery remain deferred separate programs.
 
 ### Next auth task (not started)
 
-- `ZAM-AUTH-001C-FIRST-OWNER-BOOTSTRAP-DESIGN-DOCS-REVIEW-1` — independent review of this documentation synchronization.
+- `ZAM-AUTH-001D-LIVE-LOGIN-SESSION-PLAN-1` — plan live login and session integration (login/logout, Next.js Proxy session refresh, authenticated profile/account resolution under RLS, fail-closed inactive/deleted profiles, eventual `mockRole` replacement).

@@ -1,11 +1,13 @@
 # Approved First-Owner Bootstrap Design
 
-**Status:** APPROVED DESIGN ONLY
-**Implementation status:** NOT IMPLEMENTED
-**Database apply status:** NOT APPLIED
-**Runtime availability:** NOT AVAILABLE AT RUNTIME
+**Status:** APPROVED DESIGN + REPOSITORY IMPLEMENTATION + DEV/DEMO VERIFIED
+**Implementation status:** IMPLEMENTED IN REPOSITORY (`supabase/migrations/20260714114814_first_owner_bootstrap.sql`)
+**Database apply status:** APPLIED AND VERIFIED ON DESIGNATED DEV/DEMO (`gdegnwglakyblnmxgiwx`)
+**Bootstrap path on DEV/DEMO:** GLOBALLY CONSUMED (do not re-invoke)
+**Application runtime:** Live login/session/profile resolution still NOT implemented
 
-Canonical reference for the controller-approved, independently reviewed first-Owner bootstrap design under `ZAM-AUTH-001C`. This document does **not** claim a function, migration, or DEV/DEMO apply exists.
+
+Canonical reference for the controller-approved first-Owner bootstrap under `ZAM-AUTH-001C`.
 
 ## 1. Approval chain
 
@@ -41,8 +43,8 @@ Verified in committed migrations and application source (not re-applied by this 
   - `role` CHECK constrained to `owner` / `support_helper`;
   - `account_id` FK to `accounts`.
 - These constraints are **not** the global bootstrap gate.
-- No bootstrap function, migration, or privileged bootstrap path exists in source yet.
-- Live login, session refresh, protected routes, and profile resolution are absent. `mockRole` is UI-only.
+- Bootstrap function and migration now exist in repository and were applied on designated DEV/DEMO (see section 12).
+- Live login, session refresh, protected routes, and profile resolution remain absent. `mockRole` is UI-only.
 
 ## 4. Selected mechanism
 
@@ -145,35 +147,36 @@ All of the following occur in **one** database transaction.
 - Live login, logout, session refresh, protected routes, and profile resolution remain **not implemented**.
 - Service-role and privileged credentials remain outside browser and normal application paths.
 
-## 12. Mandatory later implementation requirements
+## 12. Implementation and DEV/DEMO closeout (completed)
 
-From independent review (nonblocking for design approval; mandatory before implementation acceptance):
+| Gate | Result |
+|---|---|
+| SQL draft / review / commit / push | Complete (`20260714114814_first_owner_bootstrap.sql`; `current_user` syntax fix in `fd847f5`) |
+| Frozen lock | `-1850433270600458575` / namespace `zamblak:first-owner-bootstrap:v1` |
+| Function owner + `auth.users` SELECT | Verified on DEV/DEMO as `postgres` |
+| DEV/DEMO migration apply | Complete (SQL Editor, project `gdegnwglakyblnmxgiwx`) |
+| Pre-bootstrap readiness | accounts/profiles/Owners all `0` |
+| First bootstrap | Complete once (account `Zamblak Field Research`; Owner display name recorded without Auth secrets) |
+| Post-bootstrap | accounts `1`, profiles `1`, active Owners `1`, Support Helpers `0` |
+| Replay | `bootstrap_already_completed`; counts remained `1` / `1` |
 
-1. Freeze and document the exact advisory-lock function form and numeric constants in `ZAM-AUTH-001C-FIRST-OWNER-BOOTSTRAP-SQL-DRAFT-1`.
-2. Preserve strict failure precedence so post-success invocation always returns `bootstrap_already_completed`.
-3. Pin the actual function owner after apply and prove that owner can authoritatively `SELECT` from `auth.users`.
+SQL-owner-only contract preserved: no browser/app/`service_role` EXECUTE path.
 
 ## 13. Explicit non-claims
 
-- Bootstrap function does **not** exist in the repository.
-- No bootstrap migration exists.
-- Design is **not applied** to DEV/DEMO or any database by this documentation.
-- Live authentication is **not** started.
+- Live authentication (login/logout), Proxy/session refresh, protected routes, and app profile/account resolution are **not** started.
+- `mockRole` remains UI-only until a later authorized replacement.
 - Production readiness is **not** claimed.
-- Additional tenant creation is **not** authorized.
-- This path is **not** sole-Owner recovery.
+- Supabase migration-history registration is **not** claimed (manual SQL Editor apply).
+- Additional tenant creation is **not** authorized by this path.
+- This path is **not** sole-Owner recovery; soft-delete does **not** reopen bootstrap.
+- Do **not** re-invoke bootstrap on the designated DEV/DEMO database.
 
 ## 14. Deferred
 
-SQL implementation; migration drafting; DEV/DEMO apply; post-apply verification; login/logout; Proxy/session refresh; protected routes; `mockRole` replacement; Support Helper invitation/onboarding; sole-Owner recovery; additional tenant provisioning; public self-provisioning; email confirmation hard requirement; future provisioning abuse controls/rate limits; browser smoke; production onboarding; residual non-SELECT privilege cleanup.
+Login/logout; Proxy/session refresh; protected routes; `mockRole` replacement; invitation/Support Helper onboarding UX; sole-Owner recovery; additional tenant provisioning; public self-provisioning; email confirmation hard requirement for future programs; browser smoke for live auth; production onboarding; residual non-SELECT privilege cleanup; migration-history registration.
 
-## 15. Proposed controlled sequence after this documentation
+## 15. Next controlled sequence
 
-1. `ZAM-AUTH-001C-FIRST-OWNER-BOOTSTRAP-DESIGN-DOCS-REVIEW-1` — independent docs review
-2. Docs commit with explicitly authorized post-commit Graphify refresh
-3. Docs push (separate task)
-4. `ZAM-AUTH-001C-FIRST-OWNER-BOOTSTRAP-SQL-DRAFT-1` — SQL draft only
-5. SQL review; later commit/push gates as authorized
-6. Mozfer-owned DEV/DEMO action when authorized
-7. Read-only post-apply verification
-8. Later authentication/session tasks remain separate programs
+1. `ZAM-AUTH-001D-LIVE-LOGIN-SESSION-PLAN-1` — plan live login and session integration under authenticated user-session RLS (not started).
+2. Subsequent bounded tasks for Proxy refresh, login UX, profile resolution, and `mockRole` retirement as separately authorized.
