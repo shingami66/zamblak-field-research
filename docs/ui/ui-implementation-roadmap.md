@@ -63,7 +63,8 @@ Every batch must successfully pass the following validation commands before comp
 - **Non-goals:** Supabase auth, session handling, actual API validation.
 - **Acceptance criteria:** Login screen follows the approved visual direction without pixel-perfect copying, applying correct RTL layout and tokens.
 - **Validation commands:** Refer to the Shared Validation Gate.
-- **HOLD conditions:** Includes Supabase client, creates DB connections.
+- **HOLD conditions:** Implements live login, session handling, or database connections in this UI batch.
+- **Runtime note:** A separate Supabase runtime client foundation (`ZAM-AUTH-001A`) may exist as source factories only; it does not make this login shell authenticated or session-capable until a later dedicated login/session task.
 
 ### B1C Role-aware empty dashboards shell
 - **Task ID:** ZAMBLAK-UI-DASHBOARDS-SHELL-1

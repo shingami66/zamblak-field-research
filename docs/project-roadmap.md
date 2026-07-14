@@ -6,7 +6,8 @@
   - Role-safe owner / support-helper read surfaces: migration prepared, manually applied to designated DEV/DEMO, and post-apply verified
 - Phase 2: Auth + Shell
   - Role-aware Dashboard Shell slice: completed
-  - Live auth, Supabase integration, and runtime role enforcement: deferred
+  - Supabase runtime client foundation (`@supabase/ssr` browser + request-scoped server factories, public env contract): implemented and independently reviewed; not yet committed; live login/session not started
+  - Live auth, session refresh (Next.js Proxy), mockRole replacement, and runtime role enforcement: deferred
 - Phase 3: Respondent Registry
 - Phase 4: Projects + Participations
 - Phase 5: WhatsApp workflow

@@ -1,12 +1,12 @@
 # Project Status
 
-Current phase: Role-safe read-surface documentation synchronization
-Next task: ZAM-WF-001F-RLS-READ-SURFACE-DOCS-REVIEW-1 (independent documentation review)
+Current phase: Supabase runtime client foundation documentation synchronization
+Next task: ZAM-AUTH-001A-SUPABASE-RUNTIME-CLIENT-FOUNDATION-DOCS-REVIEW-1 (independent documentation review)
 
 ## Current Activity
 - Role-aware empty Dashboard Shell slice is complete and reflected in `src/app/page.tsx`, `src/components/dashboard/DashboardShell.tsx`, `src/components/layout/Navigation.tsx`, and `src/lib/auth/mock-role.ts`.
 - Approved roles are limited to `owner` and `support_helper`.
-- The shell remains static UI only: no live auth, no Supabase integration, no database access, no metrics, no charts, and no dashboard cards.
+- The shell remains static UI only for authorization: login is visual-only, `mockRole` remains the UI role source, and no live session, protected routes, or domain data access is implemented.
 - `support_helper` does not receive `المستحقات` or `/financials`.
 - Independent review found mismatched static role sources, support-helper financial navigation risk, unsupported researcher-team wording, and admin-like owner wording.
 - Narrow fix completed with one shared static role source, source-level role filtering before navigation render, and corrected approved Arabic role descriptions.
@@ -37,3 +37,12 @@ Next task: ZAM-WF-001F-RLS-READ-SURFACE-DOCS-REVIEW-1 (independent documentation
 - A compact note: the final evidence-exact verification packet passed after local verification-packet formatting corrections; those corrections were not database defects.
 - Boundaries: DEV/DEMO database evidence only. No browser smoke, no live authenticated application integration claim, no customer production-readiness claim, and no Supabase migration-history registration claim (manual SQL Editor apply).
 - Deferred residual privilege follow-up remains open: non-SELECT privileges such as `MAINTAIN`, `REFERENCES`, `TRIGGER`, and `TRUNCATE` on residual surfaces (including anon/service_role patterns) are out of scope for this completed program and must not be silently closed here.
+
+## ZAM-AUTH-001A Supabase Runtime Client Foundation (implemented and reviewed; not yet committed)
+- Program `ZAM-AUTH-001A-SUPABASE-RUNTIME-CLIENT-FOUNDATION` completed implementation, independent code/dependency review (PASS WITH WARN: historical process note only; no remediation required), and static validation (`lint`, standalone `tsc`, `build`, `git diff --check`).
+- Direct packages: `@supabase/supabase-js`, `@supabase/ssr` (not deprecated Auth Helpers).
+- Source modules: `src/lib/supabase/env.ts`, `client.ts`, `server.ts` (browser `createClient()` via `createBrowserClient`; request-scoped async server `createClient()` via `createServerClient` + awaited Next.js cookies getAll/setAll).
+- Public environment contract names only: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`. Call-time validation only; no `.env` files added; no values claimed configured.
+- Boundaries: runtime client foundation only. No live login/signup/logout, callback routes, Proxy/middleware session refresh, `getSession`/`getUser`/`getClaims`, route protection, profile/account resolution in the app, database/view/RPC/storage calls, generated Database TypeScript types, service-role client, browser smoke, or Supabase console configuration claims.
+- Security: `mockRole` is not authorization; live roles must resolve from authenticated database-backed profile/account context. Service-role/secret keys must never enter browser code. User-session RLS remains the normal application path. Owner financial and Support Helper RPC-only boundaries remain unchanged. Residual non-SELECT privilege follow-up remains open and separate.
+- Not started: `ZAM-AUTH-001B` (or any live session/login integration task).
