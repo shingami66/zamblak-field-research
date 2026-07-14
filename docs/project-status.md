@@ -1,7 +1,7 @@
 # Project Status
 
-Current phase: Supabase runtime client foundation documentation synchronization
-Next task: ZAM-AUTH-001A-SUPABASE-RUNTIME-CLIENT-FOUNDATION-DOCS-REVIEW-1 (independent documentation review)
+Current phase: Supabase runtime client foundation post-push documentation closure
+Next task: ZAM-AUTH-001A-SUPABASE-RUNTIME-CLIENT-FOUNDATION-POST-PUSH-DOCS-FIX-REVIEW-1 (independent post-push documentation fix review)
 
 ## Current Activity
 - Role-aware empty Dashboard Shell slice is complete and reflected in `src/app/page.tsx`, `src/components/dashboard/DashboardShell.tsx`, `src/components/layout/Navigation.tsx`, and `src/lib/auth/mock-role.ts`.
@@ -38,8 +38,10 @@ Next task: ZAM-AUTH-001A-SUPABASE-RUNTIME-CLIENT-FOUNDATION-DOCS-REVIEW-1 (indep
 - Boundaries: DEV/DEMO database evidence only. No browser smoke, no live authenticated application integration claim, no customer production-readiness claim, and no Supabase migration-history registration claim (manual SQL Editor apply).
 - Deferred residual privilege follow-up remains open: non-SELECT privileges such as `MAINTAIN`, `REFERENCES`, `TRIGGER`, and `TRUNCATE` on residual surfaces (including anon/service_role patterns) are out of scope for this completed program and must not be silently closed here.
 
-## ZAM-AUTH-001A Supabase Runtime Client Foundation (implemented and reviewed; not yet committed)
-- Program `ZAM-AUTH-001A-SUPABASE-RUNTIME-CLIENT-FOUNDATION` completed implementation, independent code/dependency review (PASS WITH WARN: historical process note only; no remediation required), and static validation (`lint`, standalone `tsc`, `build`, `git diff --check`).
+## ZAM-AUTH-001A Supabase Runtime Client Foundation (committed and pushed)
+- Program `ZAM-AUTH-001A-SUPABASE-RUNTIME-CLIENT-FOUNDATION`: implementation PASS; independent implementation review accepted (PASS WITH WARN: historical process note only; no remediation required); docs sync PASS; independent docs review PASS; precommit gate accepted; commit PASS; push PASS (mandatory dry-run evidenced); local and remote aligned after push.
+- Commit: `567c021670b4f6546993c7529256df7b5e6cacf7` — `feat(auth): add Supabase runtime client foundation`.
+- Static validation at foundation handoff: `lint`, standalone `tsc`, `build`, `git diff --check`.
 - Direct packages: `@supabase/supabase-js`, `@supabase/ssr` (not deprecated Auth Helpers).
 - Source modules: `src/lib/supabase/env.ts`, `client.ts`, `server.ts` (browser `createClient()` via `createBrowserClient`; request-scoped async server `createClient()` via `createServerClient` + awaited Next.js cookies getAll/setAll).
 - Public environment contract names only: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`. Call-time validation only; no `.env` files added; no values claimed configured.

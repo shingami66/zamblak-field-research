@@ -50,7 +50,7 @@ Database evidence from manually applied `202607130002_role_safe_read_surfaces.sq
 
 ## Application runtime status (ZAM-AUTH-001A foundation)
 
-- Supabase browser/server client factories exist in source (`src/lib/supabase/*`) and were independently reviewed; they are not yet committed with the package changes.
+- Supabase browser/server client factories exist in source (`src/lib/supabase/*`), were independently reviewed, and are committed and pushed in `567c021670b4f6546993c7529256df7b5e6cacf7` (`feat(auth): add Supabase runtime client foundation`) with the package changes.
 - Public env names only: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (not `NEXT_PUBLIC_SUPABASE_ANON_KEY`; no service-role client).
 - Live authentication is not implemented. Login remains visual/static. `mockRole` remains the current UI role source and is not secure authorization.
 - Application role authority must eventually come from authenticated database-backed profile/account context (`owner` / `support_helper`), not client state.
