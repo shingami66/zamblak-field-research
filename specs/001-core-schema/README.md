@@ -35,5 +35,8 @@ The core schema draft has been created in `supabase/migrations/202607060001_zamb
 - The core migration was manually applied to the designated DEV/DEMO database. The later participation project-state enforcement migration `supabase/migrations/202607130001_participation_project_state_guard.sql` was also manually applied and post-apply verified.
 - The project-state guard requires active, non-deleted projects for participation membership-creating writes and preserves the existing partial unique index and account-consistency trigger.
 - A controlled missing-project dry-run produced the expected failure and persisted no test row.
-- Supabase migration-history registration is not claimed because the migration was applied manually.
+- Role-safe read-surface migration `supabase/migrations/202607130002_role_safe_read_surfaces.sql` (program `ZAM-WF-001F`) was manually applied to the same designated DEV/DEMO project and post-apply verified (`overall_verdict = PASS`): 11 managed functions, 2 managed views, 23 managed policies; managed manifest MD5 `f950c7ec5024dcf907d36f02df8c78b4` (8238 octets). Support Helper database access is limited to four support-safe RPCs; owner base-table reads remain owner-only.
+- Supabase migration-history registration is not claimed because migrations were applied manually.
+- Browser smoke, live application authorization, and customer production readiness remain unclaimed for these database milestones.
+- Residual non-SELECT privilege cleanup remains a separate deferred security follow-up.
 - Bootstrap/auth trigger for first account/profile remains deferred to a future auth/bootstrap migration or manual dev SQL.
