@@ -1,16 +1,41 @@
 # Deferred Decisions
 
-- PDF reports
-- WhatsApp Business API
-- FCM (Firebase Cloud Messaging)
-- Offline mode
-- Mobile app
-- Advanced analytics
-- SaaS billing
-- Complex rules engine
-- Refunds/adjustments
-- Residual non-SELECT privilege cleanup after role-safe read surfaces (`ZAM-WF-001F`): privileges such as `MAINTAIN`, `REFERENCES`, `TRIGGER`, and `TRUNCATE` that may remain on residual catalog surfaces (including anon/service_role patterns) are intentionally out of scope for the completed read-surface program and require a separate future security follow-up. Do not fold this cleanup into completed 001F apply/verification claims.
-- Live authentication follow-ups after the Supabase runtime client foundation (`ZAM-AUTH-001A`), MVP access policy (`ZAM-AUTH-001B`, `INVITATION_OR_ADMIN_SEED_ONLY`), and completed DEV/DEMO first-Owner bootstrap (`ZAM-AUTH-001C`): session refresh via Next.js 16 `proxy.ts`; login/logout; auth UX method confirmation before login implementation; fail-closed missing/inactive/deleted profile UX; replacement of `mockRole`; protected routes; invitation flow implementation; generated Supabase Database TypeScript types; first domain slice; Support Helper RPC application integration; Mozfer-owned browser smoke. Do not treat client factories, bootstrap migration presence, or DEV/DEMO Owner seed as live application authentication complete. Next planning task: `ZAM-AUTH-001D-LIVE-LOGIN-SESSION-PLAN-1`.
-- First-owner bootstrap (`ZAM-AUTH-001C`): **COMPLETE for repository + designated DEV/DEMO** (`gdegnwglakyblnmxgiwx`). Migration `20260714114814_first_owner_bootstrap.sql`; SQL-owner-only `SECURITY DEFINER` function; frozen advisory lock; one-time first account/Owner verified; path **consumed** on that database (replay `bootstrap_already_completed`). Do not re-bootstrap DEV/DEMO. Customer production bootstrap/apply remains a separate authorized action when needed.
-- Sole-Owner recovery: deferred separate design (not part of the approved bootstrap; historical Owner profiles fail closed and must not re-open bootstrap).
-- Future controlled new-tenant self-provisioning (long-term product direction only): a separately approved future onboarding program may allow a verified new researcher to create a brand-new tenant/account and become its initial Owner through controlled server-side atomic provisioning, with email verification, abuse controls, recovery design, and explicit rate limiting. **Not** current MVP. **Not** implemented. **Not** approved for implementation. Outside the approved global one-time bootstrap. Must never allow joining an existing account without invitation, creating an Owner inside an existing account, arbitrary role selection, or browser exposure of service-role credentials.
+## Product and platform
+
+- PDF reports.
+- WhatsApp Business API.
+- FCM (Firebase Cloud Messaging).
+- Offline mode and a mobile app.
+- Advanced analytics.
+- SaaS billing.
+- Complex rules engine.
+- Refunds/adjustments.
+- Generated Supabase Database TypeScript types.
+- Residual non-SELECT privilege cleanup after `ZAM-WF-001F`, including any remaining `MAINTAIN`, `REFERENCES`, `TRIGGER`, or `TRUNCATE` grants on residual catalog surfaces.
+
+## Auth and account administration after `ZAM-AUTH-001D`
+
+- Password recovery.
+- Authenticated password change.
+- Invitation and Support Helper administration.
+- Controlled Auth-user/profile relinking administration.
+- Account and profile settings.
+- Broader multi-device session viewing and revocation controls. Current logout intentionally ends only the current browser session.
+- Sole-Owner recovery as a separately designed, fail-closed administrative workflow.
+
+Deleting and recreating Auth users is **not** an approved recovery or relinking procedure. Any future recovery/relinking capability must be a controlled administrative design that preserves tenant, profile, audit, and authorization integrity.
+
+## Domain modules after the controlled placeholders
+
+- Replace `/companies` with the real Companies module; this is the next product milestone after Auth commit closure.
+- Replace `/projects` with the real Projects module.
+- Replace Owner-only `/financials` with the real Financials module and server-authorized data integration.
+- Implement the remaining sequence: Company → Project → Respondent → Participation → Review → Financials.
+
+The current `/companies`, `/projects`, and `/financials` pages are navigation-safety placeholders with no fake data. They are not completed domain pages or final domain permission implementations.
+
+## Preserved onboarding deferrals
+
+- First-Owner bootstrap (`ZAM-AUTH-001C`) is complete for repository and designated DEV/DEMO; the path is consumed there and must not be re-run.
+- Customer production bootstrap/apply remains a separately authorized action when needed.
+- Future controlled new-tenant self-provisioning is not MVP, not implemented, and not approved for implementation. It must never permit existing-account self-join, Owner creation in an existing account, arbitrary role selection, or browser service-role exposure.

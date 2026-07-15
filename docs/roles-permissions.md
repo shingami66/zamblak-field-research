@@ -1,68 +1,73 @@
 # Roles and Permissions
 
-## MVP Roles
+## MVP roles and authority
+
+The only approved application roles are:
+
 1. `owner`
 2. `support_helper`
 
+Application authority is resolved on the server from the authenticated user's active, non-deleted database profile and account membership. Browser state, form input, URL parameters, and role labels are never authority. The former `mockRole` UI source has been removed. Normal application requests use the authenticated user-session client under RLS; no service-role client is used.
+
 ## Owner
+
 Can:
-- Manage all operational data
-- Mark accepted/rejected
-- Set project price
-- View financial summaries
-- Record payments
-- Export financial reports
+
+- Manage all operational data.
+- Mark accepted/rejected.
+- Set project price.
+- View financial summaries and future financial data.
+- Record payments.
+- Export financial reports.
 
 ## Support Helper
+
 Can:
-- Add/edit companies
-- Add/edit non-financial project details
-- Add/edit respondents
-- Import Excel
-- Export operational reports
-- Add respondent to project
-- Open WhatsApp link
-- Confirm manual WhatsApp sent
-- Update contact status
-- Mark form completed/transferred
+
+- Add/edit companies and non-financial project details.
+- Add/edit respondents and add a respondent to a project.
+- Import Excel and export operational reports.
+- Open a WhatsApp link and confirm a manual WhatsApp send.
+- Update contact status and mark a form completed/transferred.
 
 Cannot:
-- View financial data
-- View payments
-- Change prices
-- Mark accepted/rejected
-- Record payments
-- Export financial reports
 
-## Verified database read surface (DEV/DEMO, ZAM-WF-001F)
+- View financial wording, data, summaries, prices, payments, due amounts, or financial placeholders.
+- Change prices, mark accepted/rejected, record payments, or export financial reports.
+- Select or escalate their role.
 
-Database evidence from manually applied `202607130002_role_safe_read_surfaces.sql` on designated DEV/DEMO project `gdegnwglakyblnmxgiwx` (post-apply verification PASS):
+## Current authenticated route access (`ZAM-AUTH-001D`)
 
-- **Owner**: base-table SELECT remains owner-only for current permitted rows; operational and financial summary views remain owner-scoped.
-- **Support Helper**: database access is limited to four support-safe `SECURITY DEFINER` RPCs only:
+| Capability | `owner` | `support_helper` | Current boundary |
+| :--- | :---: | :---: | :--- |
+| Protected dashboard `/` | Yes | Yes | Responsive authenticated shell; no fake metrics. |
+| Controlled `/companies` | Yes | Yes | Navigation-safety placeholder only; real Companies permissions/data are not complete. |
+| Controlled `/projects` | Yes | Yes | Navigation-safety placeholder only; real Projects permissions/data are not complete. |
+| Account menu | Yes | Yes | Displays server-resolved profile context. |
+| Logout | Yes | Yes | Ends only the current browser session (`scope: "local"`) and redirects to `/login`. |
+| Controlled `/financials` | Yes | No | Owner-only placeholder. Support Helper direct access redirects to `/`; no financial wording or data is exposed. |
+
+These placeholders prevent dead navigation; they do not represent completed domain modules or final domain permission enforcement.
+
+## Verified database read surface (DEV/DEMO, `ZAM-WF-001F`)
+
+Database evidence from the manually applied `202607130002_role_safe_read_surfaces.sql` on the designated DEV/DEMO database:
+
+- Owner base-table SELECT remains Owner-only for permitted rows; operational and financial summary views remain Owner-scoped.
+- Support Helper access is limited to four approved support-safe `SECURITY DEFINER` RPCs:
   - `support_participation_operational_rows(uuid, integer, integer)`
   - `support_profile_directory(integer, integer)`
   - `support_project_participation_summary(uuid, integer, integer)`
   - `support_project_directory(integer, integer)`
-- Support Helper must not receive broad base-table reads, pricing visibility, payments visibility, financial-summary visibility, or review-only / sensitive respondent fields beyond the approved safe RPC surface.
-- Managed inventory verified: 11 functions, 2 views, 23 policies; managed manifest MD5 `f950c7ec5024dcf907d36f02df8c78b4` (8238 octets).
-- Boundaries: DEV/DEMO only; no live application authorization claim; no browser smoke claim; residual non-SELECT privilege cleanup remains a separate deferred security follow-up.
+- Support Helper must not receive broad base-table reads, pricing, payments, financial summaries, or review-only/sensitive respondent fields beyond that safe RPC surface.
+- The verified managed inventory remains 11 functions, 2 views, and 23 policies; managed manifest MD5 `f950c7ec5024dcf907d36f02df8c78b4` (8238 octets).
+- Boundaries: DEV/DEMO evidence only; application integration of the domain RPCs and residual non-SELECT privilege cleanup remain separate future work.
 
-## Application runtime status (ZAM-AUTH-001A foundation)
+## MVP access and onboarding authority
 
-- Supabase browser/server client factories exist in source (`src/lib/supabase/*`), were independently reviewed, and are committed and pushed in `567c021670b4f6546993c7529256df7b5e6cacf7` (`feat(auth): add Supabase runtime client foundation`) with the package changes.
-- Public env names only: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (not `NEXT_PUBLIC_SUPABASE_ANON_KEY`; no service-role client).
-- Live authentication is not implemented. Login remains visual/static. `mockRole` remains the current UI role source and is not secure authorization.
-- Application role authority must eventually come from authenticated database-backed profile/account context (`owner` / `support_helper`), not client state.
+Binding policy: `INVITATION_OR_ADMIN_SEED_ONLY`.
 
-## MVP access and onboarding authority (ZAM-AUTH-001B recorded; 001C DEV/DEMO complete)
-
-Binding MVP policy: `INVITATION_OR_ADMIN_SEED_ONLY`.
-
-- **Deployment first Owner (current MVP bootstrap):** globally one-time deployment initialization creates **exactly one** initial account and **exactly one** initial active non-deleted Owner via a privileged SQL-owner-only administrative path (not public or normal application routes). After any Owner profile has existed (including inactive or soft-deleted historical Owners), this bootstrap path remains unavailable. It cannot create another Owner or another tenant. Users must not create themselves as Owner. Users must not select their own role. Design detail: `docs/first-owner-bootstrap-design.md`. **Repository implemented; DEV/DEMO (`gdegnwglakyblnmxgiwx`) applied and path consumed.** Live app login/session still not wired.
-- **Support Helper:** onboarded only by an authorized Owner or controlled administrative creation. Self-registration is prohibited. Role escalation to Owner (or any other role) by the Support Helper is prohibited. DEV/DEMO first bootstrap created **no** Support Helper.
-- **Existing-account access after initialization:** invitation or controlled administrative seed only for MVP. Public self-service signup and arbitrary account creation are disabled for MVP.
-- **Additional tenants:** future separate program only; not authorized by the approved current bootstrap.
-- **Runtime role authority:** server-resolved profile and account membership under RLS. `mockRole` has no authority (UI-only). Service-role credentials never enter browser or normal user-session paths. Live application role enforcement is not claimed yet.
-- **Sole-Owner recovery:** deferred separate design (not the bootstrap path).
-- **Long-term (not MVP; not implemented; not approved for implementation):** a future separately approved program may allow a verified new researcher to create a **new** tenant/account only and become its single initial Owner through controlled server-side atomic provisioning. It must never allow joining an existing account without invitation, creating an Owner inside an existing account, or selecting an arbitrary role.
+- The one-time first-Owner bootstrap created exactly one initial account and one active, non-deleted Owner through a privileged SQL-owner-only path. It is consumed on designated DEV/DEMO and is not a recovery or normal application route.
+- Support Helpers are onboarded only by an authorized Owner or controlled administration. Self-registration and role escalation are prohibited.
+- Existing-account access is invitation or controlled administrative seed only. Public self-service signup and arbitrary account creation are disabled for MVP.
+- Additional tenants and sole-Owner recovery require separately approved future designs.

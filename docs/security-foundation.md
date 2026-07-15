@@ -1,13 +1,30 @@
 # Security Foundation
 
-- `account_id` boundary (Tenant boundary)
-- Row Level Security (RLS) is strictly required on all tables.
-- RPC-only / Server Actions for sensitive writes.
-- Financial isolation between operational and financial tables.
-- Audit immutability (trigger-backed, client-immutable).
-- No direct client financial access.
-- Role-safe read surfaces (DEV/DEMO verified under `ZAM-WF-001F`): owner base-table SELECT remains owner-only for permitted rows; Support Helper is limited to four support-safe `SECURITY DEFINER` RPCs and must not receive broad base-table, pricing, payments, or financial-summary visibility. Residual non-SELECT privilege cleanup is deferred separately.
-- Supabase runtime client foundation (`ZAM-AUTH-001A`, committed and pushed in `567c021670b4f6546993c7529256df7b5e6cacf7`, `feat(auth): add Supabase runtime client foundation`): browser and request-scoped server clients use only `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` via `@supabase/ssr`. No service-role or secret key on the normal app path. Client-side role stubs (`mockRole`) are not authorization. Live session, Proxy refresh, login, and profile resolution are not implemented yet.
-- MVP authentication access policy (`ZAM-AUTH-001B`, binding): `INVITATION_OR_ADMIN_SEED_ONLY`. Public self-service signup and arbitrary account creation are disabled for MVP. User-selected role and user-created Owner are prohibited. Support Helper onboarding is authorized Owner or controlled administrative creation only; self-registration and role escalation are prohibited. Runtime role authority is server-resolved profile and account membership under RLS; `mockRole` has none. Service-role never in browser or normal user-session paths. Inactive or deleted profiles must fail closed. Sole-Owner recovery is a deferred separate design. Live login/signup/logout and invitation/runtime application flows remain absent (bootstrap repository/DEV-DEMO status is under ZAM-AUTH-001C below).
-- First-Owner bootstrap security contract (`ZAM-AUTH-001C` — design in `docs/first-owner-bootstrap-design.md`; migration `20260714114814_first_owner_bootstrap.sql`): globally one-time deployment initialization creating at most one account and one active non-deleted Owner. Privileged SQL-owner-only `SECURITY DEFINER` function `public.bootstrap_first_owner`; fixed `search_path = pg_catalog, public`; schema-qualified `auth.users`; `EXECUTE` revoked from `PUBLIC`, `anon`, `authenticated`, and `service_role`. Frozen transaction-scoped advisory lock `-1850433270600458575` (`zamblak:first-owner-bootstrap:v1`). Fail-closed gates include active Owner (`bootstrap_already_completed`), historical Owner, pre-existing accounts, `auth.users` existence, existing profile, and input validation. Atomic hard-coded Owner (`role = owner`, `active = true`, `deleted_at = NULL`). No recovery path; no additional tenant provisioning via this function; no browser/app/`service_role` application execution. **Repository:** implemented and reviewed. **DEV/DEMO (`gdegnwglakyblnmxgiwx`):** migration applied; function security verified; one-time bootstrap completed (accounts/profiles/active Owners = 1; Support Helpers = 0; replay `bootstrap_already_completed`). Bootstrap path **consumed** on that database. Live login/session integration remains absent; production readiness is not claimed.
-- Long-term onboarding architecture (future option only; not MVP; not implemented; not approved for implementation): a future separately approved program may allow a verified new researcher to create a brand-new tenant/account and become its initial Owner via controlled server-side atomic provisioning with email verification, abuse controls, recovery design, and rate limiting. Existing-account self-join without invitation, Owner creation inside an existing account, arbitrary role selection, and browser service-role exposure remain prohibited.
+- `account_id` is the mandatory tenant boundary.
+- Row Level Security (RLS) is required on all tables.
+- Sensitive writes use RPC-only boundaries or Server Actions.
+- Operational and financial data remain isolated.
+- Audit history is trigger-backed and client-immutable.
+- Support Helper receives no financial wording, route, or data exposure.
+
+## Application Auth boundary (`ZAM-AUTH-001D`)
+
+Implemented in source, passed source/static review, and passed Mozfer-owned manual smoke; application implementation is committed locally as `74ceca7 feat(auth): add protected sessions and role-aware shell`. Documentation sync remains uncommitted; no push has occurred.
+
+- Auth Server Components and Server Actions use the existing request-scoped Supabase SSR client. Server Actions have the writable cookie adapter required by Supabase Auth.
+- Next.js Proxy refreshes Auth cookies and validates the user through `getUser()` on matched requests.
+- Login and session authority are server-side. Login accepts credentials only; it does not accept role, account, profile, redirect, or other browser-supplied authorization context.
+- The argument-free database RPC `resolve_current_profile()` binds profile/account resolution to the authenticated Auth identity. Missing, inactive, deleted, malformed, or unsupported profiles fail closed.
+- The protected root requires the resolved application session. An authenticated visit to `/login` redirects to `/`.
+- The former `mockRole` source is removed. Browser state is not role authority, and no service-role client is present on the normal application path.
+- User-initiated logout is explicitly local to the current browser session (`supabase.auth.signOut({ scope: "local" })`) and redirects to the fixed `/login` destination. Errors remain sanitized.
+- Redirect destinations are fixed by the server; no browser-supplied redirect authority is accepted.
+- `/financials` performs a server-side Owner check. A Support Helper direct request redirects to `/` and receives no financial wording or data.
+- `/companies`, `/projects`, and `/financials` are controlled placeholders only. Their presence prevents dead navigation and does not claim domain data integration or completed domain permissions.
+
+## Preserved database and onboarding controls
+
+- Role-safe reads (`ZAM-WF-001F`) are verified on designated DEV/DEMO: Owner base-table access remains Owner-scoped, while Support Helper is limited to four approved safe `SECURITY DEFINER` RPCs. Residual non-SELECT privilege cleanup remains deferred.
+- MVP access policy (`ZAM-AUTH-001B`) remains `INVITATION_OR_ADMIN_SEED_ONLY`. Public signup, arbitrary account creation, user-selected roles, and user-created Owners are prohibited.
+- First-Owner bootstrap (`ZAM-AUTH-001C`) remains a globally one-time SQL-owner-only operation. It is consumed on designated DEV/DEMO, is unavailable to browser/application/service-role paths, and is not a recovery mechanism.
+- Production readiness is not claimed.

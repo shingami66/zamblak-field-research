@@ -2,26 +2,28 @@
 
 - Phase 0: Bootstrap
 - Phase 1: Core Schema
-  - Participation project-state enforcement: completed in source, manually applied to designated DEV/DEMO, and post-apply verified
-  - Role-safe owner / support-helper read surfaces: migration prepared, manually applied to designated DEV/DEMO, and post-apply verified
+  - Participation project-state enforcement: completed in source, manually applied to designated DEV/DEMO, and post-apply verified.
+  - Role-safe Owner / Support Helper read surfaces: migration prepared, manually applied to designated DEV/DEMO, and post-apply verified.
 - Phase 2: Auth + Shell
-  - Role-aware Dashboard Shell slice: completed
-  - Supabase runtime client foundation (`@supabase/ssr` browser + request-scoped server factories, public env contract): **CLOSED** — implementation, docs correction, push, and final verification PASS (`567c021` → `130637e` → `8da92f7`). Provides only environment validation and browser/server client factories; live authentication has not started
-  - MVP access policy decision (`ZAM-AUTH-001B`): **RECORDED** — binding policy `INVITATION_OR_ADMIN_SEED_ONLY`. Public self-service signup and arbitrary account creation are disabled for MVP. User-selected role and user-created Owner are prohibited. Support Helper onboarding is authorized Owner or controlled administrative creation only; self-registration and role escalation are prohibited. Runtime role authority is server-resolved profile/account membership under RLS; `mockRole` has no authority. Service-role never in browser or normal user-session paths. Sole-Owner recovery remains a deferred separate design.
-  - First-Owner bootstrap (`ZAM-AUTH-001C`): **REPOSITORY COMPLETE + DEV/DEMO VERIFIED** — migration `20260714114814_first_owner_bootstrap.sql`; function `public.bootstrap_first_owner` (postgres-owned `SECURITY DEFINER`, SQL-owner-only EXECUTE, frozen advisory lock). Design: `docs/first-owner-bootstrap-design.md`. Mozfer applied migration and completed one-time first bootstrap on DEV/DEMO `gdegnwglakyblnmxgiwx` (account `Zamblak Field Research`; one active Owner; replay `bootstrap_already_completed`). Bootstrap path **consumed** on that database. Live application login/session **not** started. Production readiness **not** claimed.
-  - Long-term product direction (not MVP; not implemented; not approved for implementation): a future separately approved program may allow a verified new researcher to create a brand-new tenant/account and become its initial Owner via controlled server-side atomic provisioning, with email verification, abuse controls, recovery design, and rate limiting. Existing-account self-join without invitation, Owner creation inside an existing account, and arbitrary role selection remain prohibited. Additional tenant provisioning is outside the approved current bootstrap.
-  - Next bounded auth activity: `ZAM-AUTH-001D-LIVE-LOGIN-SESSION-PLAN-1` (not started) — plan live login and session integration under authenticated user-session RLS.
-  - Live auth, session refresh (Next.js Proxy), mockRole replacement, login/logout, protected routes, invitation flow, and runtime role enforcement: deferred
-- Phase 3: Respondent Registry
-- Phase 4: Projects + Participations
-- Phase 5: WhatsApp workflow
-- Phase 6: Review + Billing
-- Phase 7: Excel import/export
-- Phase 8: Stitch UI polish
+  - Role-aware empty Dashboard Shell slice: completed.
+  - Supabase runtime client foundation (`ZAM-AUTH-001A`): closed and pushed. It established the public-environment contract and browser/request-scoped server client factories.
+  - MVP access policy (`ZAM-AUTH-001B`): recorded as `INVITATION_OR_ADMIN_SEED_ONLY`; public signup, user-selected roles, and user-created Owners remain prohibited.
+  - First-Owner bootstrap (`ZAM-AUTH-001C`): repository complete and verified on designated DEV/DEMO; the one-time bootstrap path is consumed there. Production readiness is not claimed.
+  - Live login, session, and authenticated shell milestone (`ZAM-AUTH-001D`): **implementation complete; source/static reviews passed; Mozfer-owned manual smoke passed; application committed locally as `74ceca7 feat(auth): add protected sessions and role-aware shell`.** Documentation sync remains uncommitted; no push has occurred. This milestone provides live email/password login, server-side Auth/session/profile/role resolution, Proxy cookie refresh, protected root access, authenticated `/login` redirect, the responsive branded login and shell, account menu, current-session local logout, and controlled `/companies`, `/projects`, and Owner-only `/financials` routes.
+  - The controlled routes are navigation-safety placeholders only. They contain no fake domain data and do not complete Companies, Projects, or Financials permissions, workflows, or data integration.
+  - Auth closure sequence: documentation commit-state correction, documentation commit, independent documentation-commit review, then push-only after explicit approval.
+- Phase 3: Companies
+  - **Next product milestone after Auth commit closure:** replace the controlled `/companies` placeholder with the real Companies domain slice.
+- Phase 4: Projects
+- Phase 5: Respondent Registry
+- Phase 6: Participation
+- Phase 7: Review
+- Phase 8: Financials
+- Later: WhatsApp workflow, Excel import/export, and UI polish.
 
-Completed UI slice:
-- `ZAMBLAK-UI-DASHBOARDS-SHELL-1` - role-aware empty Dashboard Shell with static owner/support_helper navigation split.
+Required product sequence: **Company → Project → Respondent → Participation → Review → Financials**.
 
 Completed database enforcement milestones:
-- `ZAM-WF-001E-PARTICIPATION-PROJECT-STATE-ENFORCEMENT` - active, non-deleted project guard applied and verified in the designated DEV/DEMO database. Migration history registration, live application authorization, live concurrency testing, and production readiness remain unclaimed.
-- `ZAM-WF-001F-RLS-READ-SURFACE` - role-safe read surfaces (11 managed functions, 2 managed views, 23 managed policies) manually applied and post-apply verified in the designated DEV/DEMO database. Evidence-exact managed manifest MD5 `f950c7ec5024dcf907d36f02df8c78b4` (8238 octets). Browser smoke, live application authorization, customer production readiness, and Supabase migration-history registration remain unclaimed. Residual non-SELECT privilege cleanup (for example `MAINTAIN` / `REFERENCES` / `TRIGGER` / `TRUNCATE`) remains a separate future security follow-up.
+
+- `ZAM-WF-001E-PARTICIPATION-PROJECT-STATE-ENFORCEMENT`: active, non-deleted project guard applied and verified in designated DEV/DEMO. Migration-history registration, live concurrency testing, and production readiness remain unclaimed.
+- `ZAM-WF-001F-RLS-READ-SURFACE`: role-safe read surfaces manually applied and post-apply verified in designated DEV/DEMO (11 managed functions, 2 managed views, 23 managed policies; manifest MD5 `f950c7ec5024dcf907d36f02df8c78b4`). Customer production readiness and migration-history registration remain unclaimed. Residual non-SELECT privilege cleanup remains deferred.
