@@ -1,8 +1,8 @@
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
-import { mockRole } from "@/lib/auth/mock-role";
+import { requireAppSession } from "@/lib/auth/session";
 
-export default function Home() {
-  return (
-    <DashboardShell role={mockRole} />
-  );
+export default async function Home() {
+  const session = await requireAppSession();
+
+  return <DashboardShell role={session.profile.role} />;
 }

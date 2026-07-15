@@ -1,37 +1,63 @@
+import Image from "next/image";
+import Link from "next/link";
+import { AccountMenu } from "./AccountMenu";
 import { Navigation } from "./Navigation";
+import type { DashboardRole } from "@/lib/auth/dashboard-role";
+import styles from "@/components/dashboard/authenticated-shell.module.css";
 
-export function Header() {
+type HeaderProps = {
+  role?: DashboardRole | null;
+  displayName?: string | null;
+};
+
+export function Header({ role = null, displayName = null }: HeaderProps) {
+  if (!role) {
+    return null;
+  }
+
+  const normalizedDisplayName = displayName?.trim() || null;
+  const roleLabel = role === "owner" ? "مالك الحساب" : "مساعد الدعم";
+  const avatarLabel =
+    normalizedDisplayName?.charAt(0) ?? (role === "owner" ? "م" : "د");
+
   return (
-    <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20">
+    <header className={styles.header}>
+      <div className={styles.headerInner}>
+        <div className={styles.headerPrimaryRow}>
+          <Link
+            href="/"
+            className={styles.brandLink}
+            aria-label="زمبلك للأبحاث الميدانية — الرئيسية"
+          >
+            <span className={styles.brandMarkPlate}>
+              <Image
+                src="/brand/zamblak-mark.svg"
+                alt=""
+                width={48}
+                height={48}
+                priority
+                className={styles.brandMark}
+              />
+            </span>
+            <span className={styles.brandText}>
+              <span className={styles.brandName}>زمبلك للأبحاث الميدانية</span>
+              <span className={styles.brandDescriptor}>مساحة العمل الميداني</span>
+            </span>
+          </Link>
 
-          {/* Right Side (RTL Start) - Branding & Logo */}
-          <div className="flex items-center gap-4">
-            {/* Logo Plate */}
-            <div className="bg-background rounded-xl p-2 w-12 h-12 flex items-center justify-center shadow-sm">
-              <span className="text-primary font-bold text-xl">Z</span>
-            </div>
-
-            {/* Text Branding */}
-            <h1 className="text-2xl font-bold text-primary tracking-tight">
-              زمبلك للأبحاث الميدانية
-            </h1>
+          <div className={styles.desktopNavigation}>
+            <Navigation role={role} />
           </div>
 
-          {/* Navigation */}
-          <div className="hidden md:flex flex-1 justify-start">
-            <Navigation />
-          </div>
+          <AccountMenu
+            displayName={normalizedDisplayName ?? roleLabel}
+            roleLabel={roleLabel}
+            avatarLabel={avatarLabel}
+          />
+        </div>
 
-          {/* Left Side (RTL End) - User / Actions (Placeholder for now) */}
-          <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 border border-gray-200">
-              {/* User Avatar Placeholder */}
-              U
-            </div>
-          </div>
-
+        <div className={styles.compactNavigation}>
+          <Navigation role={role} />
         </div>
       </div>
     </header>

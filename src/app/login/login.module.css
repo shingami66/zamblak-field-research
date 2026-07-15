@@ -1,0 +1,128 @@
+.page {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  width: 100%;
+  min-height: 100dvh;
+  place-items: center;
+  overflow-x: clip;
+  background: #f5f7f7;
+  padding-block-start: max(clamp(2rem, 6dvh, 5rem), env(safe-area-inset-top));
+  padding-block-end: max(clamp(2rem, 6dvh, 5rem), env(safe-area-inset-bottom));
+  padding-inline-start: max(clamp(1rem, 4vw, 3rem), env(safe-area-inset-left));
+  padding-inline-end: max(clamp(1rem, 4vw, 3rem), env(safe-area-inset-right));
+}
+
+.page::before {
+  position: absolute;
+  z-index: -1;
+  top: 50%;
+  inset-inline-end: max(-24rem, -18vw);
+  width: clamp(28rem, 48vw, 54rem);
+  aspect-ratio: 1;
+  content: "";
+  border: clamp(3rem, 5vw, 5.5rem) solid rgb(15 61 62 / 3.5%);
+  border-top-color: transparent;
+  border-radius: 50%;
+  transform: translateY(-50%) rotate(-18deg);
+  pointer-events: none;
+}
+
+.page::after {
+  position: absolute;
+  z-index: -1;
+  top: clamp(2rem, 8dvh, 7rem);
+  inset-inline-end: clamp(2rem, 10vw, 12rem);
+  width: clamp(8rem, 12vw, 13rem);
+  height: clamp(1.75rem, 2.6vw, 2.75rem);
+  content: "";
+  border-radius: 0.75rem;
+  background: rgb(15 61 62 / 3.5%);
+  transform: rotate(-18deg);
+  pointer-events: none;
+}
+
+.composition {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  width: 100%;
+  max-width: 42.5rem;
+  flex-direction: column;
+  align-items: center;
+}
+
+.brandPlate {
+  display: flex;
+  width: min(100%, clamp(18.125rem, 23vw, 23.125rem));
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgb(192 200 200 / 78%);
+  border-radius: 1rem;
+  background: #ffffff;
+  padding-block: clamp(0.75rem, 1.2vw, 1.125rem);
+  padding-inline: clamp(1.25rem, 2.4vw, 2rem);
+}
+
+.brandImage {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+.heading {
+  width: 100%;
+  margin-top: clamp(1.25rem, 3dvh, 2rem);
+  text-align: center;
+}
+
+.formSurface {
+  width: min(100%, clamp(30rem, 37vw, 37.5rem));
+  margin-top: clamp(1rem, 2.4dvh, 1.5rem);
+}
+
+@media (max-width: 39.9375rem) {
+  .page {
+    place-items: start center;
+    padding-block-start: max(1.25rem, env(safe-area-inset-top));
+    padding-block-end: max(1.25rem, env(safe-area-inset-bottom));
+  }
+
+  .page::before {
+    top: -11rem;
+    inset-inline-end: -15rem;
+    width: 30rem;
+    transform: rotate(-18deg);
+  }
+
+  .page::after {
+    display: none;
+  }
+
+  .brandPlate {
+    padding-block: 0.625rem;
+    padding-inline: 1rem;
+  }
+}
+
+@media (max-height: 46.25rem) and (min-width: 40rem) {
+  .page {
+    place-items: start center;
+    padding-block-start: max(1.5rem, env(safe-area-inset-top));
+    padding-block-end: max(1.5rem, env(safe-area-inset-bottom));
+  }
+
+  .brandPlate {
+    max-width: 18rem;
+    padding-block: 0.625rem;
+  }
+
+  .heading {
+    margin-top: 0.75rem;
+  }
+
+  .formSurface {
+    margin-top: 0.75rem;
+  }
+}

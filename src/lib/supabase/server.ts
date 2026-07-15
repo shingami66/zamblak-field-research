@@ -5,7 +5,7 @@ import { getSupabasePublicEnv } from "@/lib/supabase/env";
 /**
  * Server Supabase client factory for Server Components, Server Actions, and Route Handlers.
  * Request-scoped: creates a new client per call. Uses publishable key only.
- * Session refresh ownership belongs to a later dedicated Proxy task.
+ * Session cookie refresh is owned by src/proxy.ts via updateSession.
  */
 export async function createClient() {
   const { url, publishableKey } = getSupabasePublicEnv();
@@ -22,7 +22,7 @@ export async function createClient() {
             cookieStore.set(name, value, options);
           });
         } catch {
-          // Cookie writes can fail in pure Server Components; Proxy task will own session refresh later.
+          // Cookie writes can fail in pure Server Components; Proxy owns refresh writes.
         }
       },
     },

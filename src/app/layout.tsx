@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Tajawal } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/layout/Header";
+import { getOptionalAppSession } from "@/lib/auth/session";
 
 const tajawal = Tajawal({
   weight: ["400", "500", "700"],
@@ -14,15 +15,20 @@ export const metadata: Metadata = {
   description: "Zamblak Field Research Platform",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await getOptionalAppSession();
+
   return (
     <html lang="ar" dir="rtl" className={`${tajawal.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col font-sans">
-        <Header />
+        <Header
+          role={session?.profile.role ?? null}
+          displayName={session?.profile.name ?? null}
+        />
         <main className="flex-1 flex flex-col">{children}</main>
       </body>
     </html>
