@@ -1,8 +1,8 @@
 # Project Status
 
-Current phase: **Companies product phase** after closed Auth. Companies MVP contract and deferred-work register are **Mozfer-approved**. Companies UI remains a protected placeholder. **No Companies implementation has begun.** Current work: documentation sync of the approved contract and deferred register.
+Current phase: **Companies product phase** after closed Auth. Companies MVP contract and deferred-work register are **Mozfer-approved** and recorded in local commit `1fb6a08 docs(companies): record MVP contract and deferred work`. Local `main` is ahead of `origin/main` by **1** commit (not pushed). Companies UI remains a protected placeholder. **No Companies implementation has begun.**
 
-Next sequence after this docs sync: independent documentation review → exact documentation commit → independent commit review → Graphify refresh → independent Graphify freshness review → live DEV/DEMO catalog verification (`ZAM-COMPANIES-001-LIVE-CATALOG-VERIFY-1`) → schema/RPC design → implementation only after design approval.
+Next sequence: Graphify refresh → independent Graphify freshness review → live DEV/DEMO catalog verification (`ZAM-COMPANIES-001-LIVE-CATALOG-VERIFY-1`) → schema/RPC design → implementation only after design approval. Docs commit review may complete before Graphify if still open.
 
 ## Auth (`ZAM-AUTH-001D`) — CLOSED
 
@@ -29,9 +29,10 @@ Implemented Auth behavior (still current):
 
 - **Contract:** Mozfer-approved lean Companies MVP (fields, phone, duplicates, lifecycle active-only, roles, RPC read/mutation, pagination, metrics, routes).
 - **Deferred register:** `DWR-COMP-001` through `DWR-COMP-028` recorded in `docs/deferred-decisions.md`.
+- **Docs commit:** contract and deferred register committed locally as `1fb6a08 docs(companies): record MVP contract and deferred work`; not yet pushed.
 - **Application today:** `/companies` remains a protected placeholder (`requireAppSession` + empty pending module). No list, detail, create, edit, query, server action, RPC, or fake company data.
 - **Mandatory before schema/RPC design:** live DEV/DEMO catalog verification (`DWR-COMP-026` / `ZAM-COMPANIES-001-LIVE-CATALOG-VERIFY-1`). Metadata only; no domain row dumps; no `.env` secret access.
-- **Current docs task:** `ZAM-COMPANIES-001-CONTRACT-DEFERRED-DOCS-SYNC-1` (this documentation synchronization only).
+- **Next workflow stage after docs commit review:** Graphify refresh (index is currently stale relative to `1fb6a08`; marker still `ee44d666`) and independent freshness review.
 
 ### Approved Companies MVP summary (not runtime)
 
@@ -85,7 +86,8 @@ Implemented Auth behavior (still current):
 
 ## Open work
 
-- Complete Companies contract/deferred-register documentation sync, independent review, docs commit, Graphify refresh, and live catalog verification gates.
-- Design then implement Companies MVP only after those gates pass.
+- Complete Graphify refresh and independent freshness review after the local Companies docs commit (`1fb6a08`).
+- Complete live DEV/DEMO catalog verification (`DWR-COMP-026`) before schema/RPC design.
+- Design then implement Companies MVP only after those gates pass (docs commit is local; push is a later authorized task).
 - Then Projects and remaining domain sequence.
 - Deferred Auth admin: password recovery/change, invitation and Support Helper administration, Auth-user/profile relinking, account/profile settings, multi-device session controls, sole-Owner recovery.
