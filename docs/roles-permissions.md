@@ -24,7 +24,7 @@ Can:
 
 Can:
 
-- Add/edit companies and non-financial project details.
+- Add/edit companies and non-financial project details (see approved Companies plan below; **not fully runtime-enforced yet**).
 - Add/edit respondents and add a respondent to a project.
 - Import Excel and export operational reports.
 - Open a WhatsApp link and confirm a manual WhatsApp send.
@@ -32,22 +32,70 @@ Can:
 
 Cannot:
 
-- View financial wording, data, summaries, prices, payments, due amounts, or financial placeholders.
+- View financial wording, data, summaries, prices, payments, due amounts, or financial placeholders (**finance-blind**).
 - Change prices, mark accepted/rejected, record payments, or export financial reports.
 - Select or escalate their role.
 
-## Current authenticated route access (`ZAM-AUTH-001D`)
+## Current authenticated route access (`ZAM-AUTH-001D` — implemented)
 
 | Capability | `owner` | `support_helper` | Current boundary |
 | :--- | :---: | :---: | :--- |
 | Protected dashboard `/` | Yes | Yes | Responsive authenticated shell; no fake metrics. |
-| Controlled `/companies` | Yes | Yes | Navigation-safety placeholder only; real Companies permissions/data are not complete. |
-| Controlled `/projects` | Yes | Yes | Navigation-safety placeholder only; real Projects permissions/data are not complete. |
-| Account menu | Yes | Yes | Displays server-resolved profile context. |
-| Logout | Yes | Yes | Ends only the current browser session (`scope: "local"`) and redirects to `/login`. |
-| Controlled `/financials` | Yes | No | Owner-only placeholder. Support Helper direct access redirects to `/`; no financial wording or data is exposed. |
+| Controlled `/companies` | Yes | Yes | **Navigation-safety placeholder only**; real Companies UI/data not implemented. |
+| Controlled `/projects` | Yes | Yes | Navigation-safety placeholder only. |
+| Account menu | Yes | Yes | Server-resolved profile context. |
+| Logout | Yes | Yes | Current browser session only (`scope: "local"`) → `/login`. |
+| Controlled `/financials` | Yes | No | Owner-only placeholder; Support Helper redirects to `/`; no financial wording or data. |
 
 These placeholders prevent dead navigation; they do not represent completed domain modules or final domain permission enforcement.
+
+## Approved Companies permissions (planned — not yet runtime)
+
+Mozfer-approved Companies MVP contract. **Do not claim these RPCs, queries, or pages exist until implementation gates pass.**
+
+### Owner (planned)
+
+| Action | Allowed | Enforcement (planned) |
+| :--- | :---: | :--- |
+| List / search companies | Yes | Server-side query helpers + request-scoped authenticated Supabase client; RLS remains authoritative |
+| View company detail | Yes | Same |
+| Create company | Yes | Server Action → authenticated RPC |
+| Edit `name`, `contact_person`, `phone`, `notes` | Yes | Server Action → authenticated RPC |
+| Soft-delete / restore | **No** (MVP) | Deferred (`DWR-COMP-001`–`003`) |
+| Companies financial ledger | **No** | Finance stays off Companies UI |
+| View operational project summaries | Yes | Non-financial project aggregates only |
+
+### Support Helper (planned)
+
+| Action | Allowed | Enforcement (planned) |
+| :--- | :---: | :--- |
+| List / search companies | Yes | **Bounded support-safe SECURITY DEFINER list/detail RPCs** only |
+| View company detail | Yes | Same RPCs |
+| Create company | Yes | Server Action → authenticated RPC |
+| Edit the same four operational fields | Yes | Server Action → authenticated RPC |
+| Soft-delete / restore | **No** | — |
+| Broad Companies base-table SELECT | **No** | Owner-only base SELECT posture remains |
+| Direct base-table mutation / UPDATE | **No** | Denied by design |
+| Finance (prices, payments, due amounts, summaries) | **No** | **Finance-blind** |
+| Operational notes view/edit | Yes | Explicit Mozfer approval recorded for MVP |
+
+### Companies mutation and authority invariants (planned)
+
+- All create/edit mutations: **Server Action → authenticated RPC**.
+- No direct client or direct base-table UPDATE path.
+- No browser-supplied trusted `account_id`, role, profile, ownership, or finance authority.
+- Account isolation fails closed; active profile required.
+- Stable conceptual errors include `duplicate_company_name` and `invalid_company_phone`.
+- No lifecycle RPC in MVP.
+
+### Distinguishing planned vs current
+
+| Surface | Current (implemented) | Planned (approved contract) |
+| :--- | :--- | :--- |
+| `/companies` page | Protected empty placeholder | List with search, pagination, active project count |
+| `/companies/new`, `/companies/[id]`, `/companies/[id]/edit` | Absent | Dedicated senior-friendly pages |
+| Support Helper company reads | Nav only; no data | Support-safe RPCs |
+| Support Helper company writes | Not implemented | Create/edit four fields via RPC |
 
 ## Verified database read surface (DEV/DEMO, `ZAM-WF-001F`)
 
@@ -61,7 +109,7 @@ Database evidence from the manually applied `202607130002_role_safe_read_surface
   - `support_project_directory(integer, integer)`
 - Support Helper must not receive broad base-table reads, pricing, payments, financial summaries, or review-only/sensitive respondent fields beyond that safe RPC surface.
 - The verified managed inventory remains 11 functions, 2 views, and 23 policies; managed manifest MD5 `f950c7ec5024dcf907d36f02df8c78b4` (8238 octets).
-- Boundaries: DEV/DEMO evidence only; application integration of the domain RPCs and residual non-SELECT privilege cleanup remain separate future work.
+- Boundaries: DEV/DEMO database evidence only; Companies domain RPCs are **planned under the approved contract** and are not yet implemented. Residual non-SELECT privilege cleanup remain separate future work.
 
 ## MVP access and onboarding authority
 

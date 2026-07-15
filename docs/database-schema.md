@@ -27,3 +27,72 @@
 - **Read-Surface Contract**: Owner base-table SELECT remains owner-only for current permitted rows. Support Helper database access is limited to four support-safe `SECURITY DEFINER` RPCs (`support_participation_operational_rows`, `support_profile_directory`, `support_project_participation_summary`, `support_project_directory`) and must not receive broad base-table reads, pricing, payments, financial-summary visibility, or unapproved sensitive fields.
 - **Managed Manifest Evidence**: Final DEV/DEMO managed-manifest MD5 `f950c7ec5024dcf907d36f02df8c78b4`, octets `8238`. Post-apply verification also confirmed fixed `search_path`, EXECUTE ACLs, view structure/dependencies/ACLs, policy identities/expressions, core-table SELECT ACL contract, preserved project-state guard and unique respondent-per-project index, and expected RLS state.
 - **Read-Surface Boundary**: DEV/DEMO database evidence only. No browser smoke, live application authorization, customer production readiness, or Supabase migration-history registration is claimed. Residual non-SELECT privileges (for example `MAINTAIN`, `REFERENCES`, `TRIGGER`, `TRUNCATE`) remain a separate deferred security follow-up.
+
+## Companies data contract (approved design — not yet implemented)
+
+**Truth classes:**
+
+1. **Existing committed/applied facts** (core schema + role-safe read surfaces, DEV/DEMO apply evidence as above).
+2. **Approved future design** (Mozfer Companies MVP contract) — planned only until gates pass.
+3. **Live catalog state** — **unknown for this phase** until `ZAM-COMPANIES-001-LIVE-CATALOG-VERIFY-1` / `DWR-COMP-026` completes metadata-only reconciliation against DEV/DEMO. Do not claim indexes, new constraints, new policies, grants, or Companies RPCs exist before that verification and implementation.
+
+### Existing companies table facts (source: core schema)
+
+`public.companies` currently includes (source migration):
+
+- `id` (uuid PK)
+- `account_id` (uuid NOT NULL → accounts)
+- `name` (text NOT NULL)
+- `contact_person` (text)
+- `phone` (text)
+- `notes` (text)
+- `created_by` / `updated_by` (uuid → profiles)
+- `created_at` / `updated_at` (timestamptz)
+- `deleted_at` (timestamptz) — **foundation only** for soft-delete storage
+
+Related:
+
+- `projects.company_id` is required and account-consistency with companies fails closed.
+- Direct client **UPDATE** on `companies` is denied by design (state-smuggling control); operational mutations must go through controlled RPC/Server Actions.
+- After `ZAM-WF-001F`, `sel_companies` is Owner-only for non-deleted rows; `ins_companies` is account-scoped insert with checks. Support Helper does **not** have broad Companies base-table SELECT.
+
+### Approved future Companies design (not implemented)
+
+**User-managed fields (MVP):** `name` (required), `contact_person`, `phone`, `notes` (optional; blank → null).
+
+**Application/RPC validation limits (not existing DB column limits):** name ≤ 120; contact_person ≤ 80; phone 8–15 digits after normalization; notes ≤ 2000.
+
+**Phone (approved model):** optional; digits-only E.164-style storage; strip spaces/`()`/`-`/leading `+`; Saudi `05xxxxxxxx` → `9665xxxxxxxx`; other values must include country code; not unique; error `invalid_company_phone`; display LTR.
+
+**Duplicates (approved model):** database-authoritative normalized active name uniqueness per `account_id` where `deleted_at IS NULL`; atomic block; error `duplicate_company_name`. Future schema task must define one immutable DB normalization authority shared by unique index/constraint and RPCs.
+
+**Not in Companies MVP schema additions:**
+
+- company status enum
+- stored company domain
+- email / city / address
+- payment terms or financial totals on companies
+- stored aggregate/count columns
+
+**Lifecycle (approved MVP product):**
+
+- Expose **non-deleted** companies only.
+- **No** soft-delete/restore lifecycle mutation path or UI in MVP.
+- `deleted_at` remains a column foundation only and does **not** authorize a lifecycle UI or RPC in this phase.
+
+**Mutations (approved):** create and edit only via **Server Action → authenticated RPC**. No direct base-table UPDATE path. No lifecycle RPC.
+
+**Reads (approved):**
+
+- Owner: server-side query helpers + request-scoped authenticated client; RLS authoritative.
+- Support Helper: bounded support-safe `SECURITY DEFINER` list/detail RPCs (to be designed); finance-blind; no broad base SELECT.
+
+**Metrics (approved product, query-time only):**
+
+- List: active project count (`projects.deleted_at IS NULL` and `status = 'active'`).
+- Detail: active projects (`status = 'active'`); completed projects (`status = 'closed'`, Arabic label `مكتمل`).
+- Exclude draft, cancelled, and deleted projects from those metrics.
+
+**Project statuses (existing, authoritative):** `draft`, `active`, `closed`, `cancelled` only. Do not invent a stored `completed` status.
+
+**Implementation gate:** no Companies migration/RPC implementation until live catalog verification and schema/RPC design reviews pass. See `docs/deferred-decisions.md` register `DWR-COMP-001`–`DWR-COMP-028`.

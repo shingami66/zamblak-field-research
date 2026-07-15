@@ -1,30 +1,46 @@
 # Project Status
 
-Current phase: `ZAM-AUTH-001D` application and documentation are both committed locally; no push has occurred.
+Current phase: **Companies product phase** after closed Auth. Companies MVP contract and deferred-work register are **Mozfer-approved**. Companies UI remains a protected placeholder. **No Companies implementation has begun.** Current work: documentation sync of the approved contract and deferred register.
 
-Next sequence: post-commit documentation-state correction → independent review → exact correction commit if approved → push-only after explicit approval. After Auth closure, the next product milestone is the real Companies domain slice.
+Next sequence after this docs sync: independent documentation review → exact documentation commit → independent commit review → Graphify refresh → independent Graphify freshness review → live DEV/DEMO catalog verification (`ZAM-COMPANIES-001-LIVE-CATALOG-VERIFY-1`) → schema/RPC design → implementation only after design approval.
 
-## Current application state (`ZAM-AUTH-001D`)
+## Auth (`ZAM-AUTH-001D`) — CLOSED
 
-- **Implementation:** complete and committed locally as `74ceca7 feat(auth): add protected sessions and role-aware shell`.
-- **Review:** source/static implementation reviews passed, including the focused logout-scope, account-menu accessibility, final integration, and dead-navigation reviews. Independent application-commit review passed.
-- **Manual runtime evidence:** Mozfer-owned smoke passed for real Owner login, redirects, session persistence after refresh, unauthenticated root protection, responsive login/dashboard layouts, desktop/mobile account menu behavior, logout, and all controlled routes. These are Mozfer's runtime observations, not agent-performed browser claims.
-- **Commit state:** application committed locally as `74ceca7 feat(auth): add protected sessions and role-aware shell`; documentation committed locally as `9a140d8 docs(auth): record protected session milestone`. Local `main` is ahead of `origin/main` (`af7a68a`) by two commits. No push has occurred. The post-commit documentation-state correction remains uncommitted.
+- **Status:** closed, committed, and pushed.
+- **Application commit:** `74ceca7 feat(auth): add protected sessions and role-aware shell`.
+- **Documentation commits:** `9a140d8 docs(auth): record protected session milestone`; `ee44d66 docs(auth): sync post-commit milestone state`.
+- **Remote:** local `main` and `origin/main` aligned at `ee44d6663eac2a08ca0559c15db81dfc44cb6f02`.
+- **Manual runtime evidence:** Mozfer-owned smoke passed for real Owner login, redirects, session persistence after refresh, unauthenticated root protection, responsive login/dashboard layouts, desktop/mobile account menu behavior, logout, and controlled routes. Not agent-performed browser smoke.
+- Production readiness is **not** claimed.
 
-Implemented behavior:
+Implemented Auth behavior (still current):
 
 - Live email/password login using the request-scoped Supabase server client and sanitized Arabic errors.
-- Server-side Auth user validation and database-backed profile/account/role resolution for the only approved roles: `owner` and `support_helper`.
+- Server-side Auth user validation and database-backed profile/account/role resolution for `owner` and `support_helper` only.
 - Next.js Proxy session-cookie refresh.
 - Protected `/`; unauthenticated access redirects to `/login`.
 - Authenticated `/login` access redirects to `/`.
-- Responsive branded login and authenticated dashboard shell, with server-resolved account/profile context and no fake dashboard metrics.
-- Accessible desktop/mobile account menu.
-- Argument-free local logout that ends only the current browser session and redirects to `/login` with sanitized Arabic error handling.
-- Controlled authenticated `/companies` and `/projects` placeholders.
-- Controlled Owner-only `/financials` placeholder; Support Helper direct access redirects to `/` without financial wording or data exposure.
+- Responsive branded login and authenticated dashboard shell; no fake dashboard metrics.
+- Accessible desktop/mobile account menu; local-session logout to `/login`.
+- Controlled authenticated placeholders for `/companies` and `/projects`.
+- Controlled Owner-only `/financials` placeholder; Support Helper direct access redirects to `/` without financial wording or data.
 
-The three controlled routes are navigation-safety placeholders only. They prevent dead navigation but do not represent completed Companies, Projects, or Financials modules, domain data integration, or final domain permissions.
+## Companies (`ZAM-COMPANIES-001`) — contract approved; implementation not started
+
+- **Contract:** Mozfer-approved lean Companies MVP (fields, phone, duplicates, lifecycle active-only, roles, RPC read/mutation, pagination, metrics, routes).
+- **Deferred register:** `DWR-COMP-001` through `DWR-COMP-028` recorded in `docs/deferred-decisions.md`.
+- **Application today:** `/companies` remains a protected placeholder (`requireAppSession` + empty pending module). No list, detail, create, edit, query, server action, RPC, or fake company data.
+- **Mandatory before schema/RPC design:** live DEV/DEMO catalog verification (`DWR-COMP-026` / `ZAM-COMPANIES-001-LIVE-CATALOG-VERIFY-1`). Metadata only; no domain row dumps; no `.env` secret access.
+- **Current docs task:** `ZAM-COMPANIES-001-CONTRACT-DEFERRED-DOCS-SYNC-1` (this documentation synchronization only).
+
+### Approved Companies MVP summary (not runtime)
+
+- Fields: `name` (required), `contact_person`, `phone`, `notes` (optional).
+- Errors: `duplicate_company_name`, `invalid_company_phone`.
+- Mutations: **Server Action → authenticated RPC** for create and edit only; no lifecycle RPC; no direct base-table UPDATE.
+- Owner: server query helpers + RLS. Support Helper: bounded support-safe list/detail RPCs; finance-blind; no broad base-table SELECT.
+- Metrics: active project count on list; active (`status = active`) and completed (`status = closed`, Arabic `مكتمل`) project sections on detail.
+- Routes: `/companies`, `/companies/new`, `/companies/[id]`, `/companies/[id]/edit`.
 
 ## Auth security and authority boundary
 
@@ -41,39 +57,35 @@ The three controlled routes are navigation-safety placeholders only. They preven
 ### `ZAM-AUTH-001A` — Supabase runtime client foundation (closed)
 
 - Committed/pushed foundation introduced environment-name validation and browser/request-scoped SSR client factories using `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`.
-- At 001A closure, live login/session behavior was intentionally absent. That historical limitation was superseded by the local 001D application commit described above.
+- Superseded for login/session by `ZAM-AUTH-001D`.
 
 ### `ZAM-AUTH-001B` — MVP access policy (recorded)
 
 - Binding policy: `INVITATION_OR_ADMIN_SEED_ONLY`.
-- Public self-service signup, arbitrary account creation, user-selected roles, and user-created Owners are prohibited.
-- Support Helper onboarding is authorized Owner or controlled administration only; self-registration and role escalation are prohibited.
-- At 001B recording, login/logout, Proxy refresh, route protection, and profile resolution were historical non-claims. Those application-runtime items were implemented by 001D; invitation/admin onboarding remains deferred.
+- Support Helper onboarding is authorized Owner or controlled administration only.
 
 ### `ZAM-AUTH-001C` — First-Owner bootstrap (repository + DEV/DEMO complete)
 
-- Canonical design: `docs/first-owner-bootstrap-design.md`.
-- Migration: `supabase/migrations/20260714114814_first_owner_bootstrap.sql`; SQL-owner-only `public.bootstrap_first_owner` with fixed search path, frozen advisory lock, revoked application-role execution, and fail-closed one-time gates.
-- Mozfer applied and verified the migration on the designated DEV/DEMO database, created one account and one active Owner, and confirmed replay returns `bootstrap_already_completed`.
-- The bootstrap path is consumed for that DEV/DEMO database. It is not recovery, additional-tenant provisioning, or a browser/application flow.
-- At 001C completion, live application login/session integration was outside that milestone; it was subsequently implemented by 001D. Production readiness and Supabase migration-history registration remain unclaimed.
+- Design: `docs/first-owner-bootstrap-design.md`.
+- Migration applied and path consumed on designated DEV/DEMO. Production readiness unclaimed.
 
 ## Database enforcement status
 
 ### `ZAM-WF-001E` — Participation project-state enforcement
 
-- Migration `supabase/migrations/202607130001_participation_project_state_guard.sql` was committed/pushed, manually applied by Mozfer to designated DEV/DEMO, and structurally verified.
+- Migration committed/pushed, manually applied by Mozfer to designated DEV/DEMO, and structurally verified.
 - Participation creation and relevant membership/restore changes fail closed unless the project is active and non-deleted.
 
 ### `ZAM-WF-001F` — Role-safe read surface
 
-- Mozfer manually applied the frozen migration to designated DEV/DEMO; the read-only post-apply packet passed.
+- Mozfer manually applied the frozen migration to designated DEV/DEMO; post-apply packet passed.
 - Verified inventory: 11 functions, 2 views, and 23 policies; managed manifest MD5 `f950c7ec5024dcf907d36f02df8c78b4` (8238 octets).
-- Owner base-table and summary access remains Owner-scoped. Support Helper remains limited to the four approved support-safe `SECURITY DEFINER` RPCs and receives no broad base-table, pricing, payment, financial-summary, or sensitive review data.
-- Boundaries: DEV/DEMO database evidence only. Domain RPC application integration, residual non-SELECT privilege cleanup, customer production readiness, and migration-history registration remain separate work.
+- Owner base-table SELECT remains Owner-scoped. Support Helper limited to four support-safe `SECURITY DEFINER` RPCs (no broad base-table, pricing, payment, or financial-summary access).
+- Boundaries: DEV/DEMO database evidence only. Domain Companies RPCs are **planned under the approved contract**, not yet implemented. Residual non-SELECT privilege cleanup remains deferred.
 
 ## Open work
 
-- Complete post-commit documentation-state correction, independent review, exact correction commit if approved, and separately approved push-only closure.
-- Begin the real Companies domain module after Auth closure, preserving the sequence Company → Project → Respondent → Participation → Review → Financials.
-- Password recovery/change, invitation and Support Helper administration, Auth-user/profile relinking, account/profile settings, broader multi-device session controls, and sole-Owner recovery remain deferred.
+- Complete Companies contract/deferred-register documentation sync, independent review, docs commit, Graphify refresh, and live catalog verification gates.
+- Design then implement Companies MVP only after those gates pass.
+- Then Projects and remaining domain sequence.
+- Deferred Auth admin: password recovery/change, invitation and Support Helper administration, Auth-user/profile relinking, account/profile settings, multi-device session controls, sole-Owner recovery.
