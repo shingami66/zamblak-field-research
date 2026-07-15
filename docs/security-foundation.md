@@ -9,7 +9,7 @@
 
 ## Application Auth boundary (`ZAM-AUTH-001D`)
 
-Implemented in source, passed source/static review, and passed Mozfer-owned manual smoke; application implementation is committed locally as `74ceca7 feat(auth): add protected sessions and role-aware shell`. Documentation sync remains uncommitted; no push has occurred.
+Implemented in source, passed source/static review, and passed Mozfer-owned manual smoke; application implementation is committed locally as `74ceca7 feat(auth): add protected sessions and role-aware shell`; documentation is committed locally as `9a140d8 docs(auth): record protected session milestone`. Local `main` is ahead of `origin/main` by two commits; no push has occurred. The post-commit documentation-state correction remains uncommitted.
 
 - Auth Server Components and Server Actions use the existing request-scoped Supabase SSR client. Server Actions have the writable cookie adapter required by Supabase Auth.
 - Next.js Proxy refreshes Auth cookies and validates the user through `getUser()` on matched requests.

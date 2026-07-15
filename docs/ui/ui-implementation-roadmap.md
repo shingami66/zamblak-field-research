@@ -14,7 +14,7 @@ Source documents:
 
 ## 2. Current implemented UI foundation (`ZAM-AUTH-001D`)
 
-Status: **complete in source; source/static reviews passed; Mozfer-owned manual smoke passed; application committed locally as `74ceca7 feat(auth): add protected sessions and role-aware shell`; documentation sync remains uncommitted; no push has occurred.**
+Status: **complete in source; source/static reviews passed; Mozfer-owned manual smoke passed; application committed locally as `74ceca7 feat(auth): add protected sessions and role-aware shell`; documentation committed locally as `9a140d8 docs(auth): record protected session milestone`; local `main` ahead of `origin/main` by two commits; no push has occurred. The post-commit documentation-state correction remains uncommitted.**
 
 Implemented:
 
@@ -52,7 +52,7 @@ The controlled placeholders exist only to make navigation safe. They are tempora
 
 - Implementation and focused source/static reviews: passed.
 - Mozfer-owned responsive/manual smoke: passed.
-- Commit state: application committed locally as `74ceca7`; documentation sync remains uncommitted; no push has occurred.
+- Commit state: application committed locally as `74ceca7`; documentation committed locally as `9a140d8`; local `main` ahead of `origin/main` by two commits; no push has occurred. The post-commit documentation-state correction remains uncommitted.
 - Domain boundary: shell and controlled route safety only; no Companies, Projects, or Financials records or fake metrics.
 
 ## 4. Current route and role matrix
@@ -71,7 +71,7 @@ Support Helper must never see financial amounts, prices, payments, due amounts, 
 
 ## 5. Next product sequence
 
-Documentation commit-state correction, documentation commit, independent documentation-commit review, and push-only after explicit approval come first. The next UI/product milestone is the **real Companies module**, replacing the `/companies` placeholder.
+Post-commit documentation-state correction, independent review, exact correction commit if approved, and push-only after explicit approval come first. The next UI/product milestone is the **real Companies module**, replacing the `/companies` placeholder.
 
 Required domain sequence:
 
@@ -144,4 +144,4 @@ Every future UI batch must:
 
 ## 9. Recommended immediate next task
 
-`ZAM-AUTH-001D-DOCS-COMMIT-STATE-REVIEW-1`, followed by documentation commit, independent documentation-commit review, and push-only after explicit approval. After Auth closure, begin the real Companies domain slice.
+`ZAM-AUTH-001D-DOCS-POSTCOMMIT-STATE-REVIEW-1`, followed by exact correction commit if approved, and push-only after explicit approval. After Auth closure, begin the real Companies domain slice.

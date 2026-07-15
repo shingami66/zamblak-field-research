@@ -1,15 +1,15 @@
 # Project Status
 
-Current phase: `ZAM-AUTH-001D` application implementation is committed locally; documentation sync remains modified and uncommitted; no push has occurred.
+Current phase: `ZAM-AUTH-001D` application and documentation are both committed locally; no push has occurred.
 
-Next sequence: documentation commit-state correction → documentation commit → independent documentation-commit review → push-only after explicit approval. After Auth closure, the next product milestone is the real Companies domain slice.
+Next sequence: post-commit documentation-state correction → independent review → exact correction commit if approved → push-only after explicit approval. After Auth closure, the next product milestone is the real Companies domain slice.
 
 ## Current application state (`ZAM-AUTH-001D`)
 
 - **Implementation:** complete and committed locally as `74ceca7 feat(auth): add protected sessions and role-aware shell`.
 - **Review:** source/static implementation reviews passed, including the focused logout-scope, account-menu accessibility, final integration, and dead-navigation reviews. Independent application-commit review passed.
 - **Manual runtime evidence:** Mozfer-owned smoke passed for real Owner login, redirects, session persistence after refresh, unauthenticated root protection, responsive login/dashboard layouts, desktop/mobile account menu behavior, logout, and all controlled routes. These are Mozfer's runtime observations, not agent-performed browser claims.
-- **Commit state:** application commit present on local `main` (`74ceca7`); documentation sync remains uncommitted. Local `main` is ahead of `origin/main` by one commit before the documentation commit. No push has occurred.
+- **Commit state:** application committed locally as `74ceca7 feat(auth): add protected sessions and role-aware shell`; documentation committed locally as `9a140d8 docs(auth): record protected session milestone`. Local `main` is ahead of `origin/main` (`af7a68a`) by two commits. No push has occurred. The post-commit documentation-state correction remains uncommitted.
 
 Implemented behavior:
 
@@ -74,6 +74,6 @@ The three controlled routes are navigation-safety placeholders only. They preven
 
 ## Open work
 
-- Complete documentation commit-state correction, documentation commit, independent documentation-commit review, and separately approved push-only closure.
+- Complete post-commit documentation-state correction, independent review, exact correction commit if approved, and separately approved push-only closure.
 - Begin the real Companies domain module after Auth closure, preserving the sequence Company → Project → Respondent → Participation → Review → Financials.
 - Password recovery/change, invitation and Support Helper administration, Auth-user/profile relinking, account/profile settings, broader multi-device session controls, and sole-Owner recovery remain deferred.
