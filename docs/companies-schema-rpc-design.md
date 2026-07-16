@@ -1,12 +1,12 @@
 # Companies MVP — schema and RPC design
 
-**Status:** DESIGN RECORDED (implementation not started)
-**Task:** `ZAM-COMPANIES-SCHEMA-RPC-DESIGN-1`
-**Authority:** Mozfer-approved Companies MVP contract; live DEV/DEMO catalog PASS (`DWR-COMP-026`); `docs/roles-permissions.md`; `docs/database-schema.md`
+**Status:** DESIGN RECORDED; migration source complete; **DEV/DEMO apply COMPLETE (PASS)**
+**Task family:** `ZAM-COMPANIES-SCHEMA-RPC-DESIGN-1` → `…-MIGRATION-1` → param-order fix `6acc2e34` → DEV apply closeout
+**Authority:** Mozfer-approved Companies MVP contract; live DEV/DEMO catalog PASS (`DWR-COMP-026`); applied migration `20260716120000_companies_mvp_schema_rpc.sql`
 **Designated DEV/DEMO:** `gdegnwglakyblnmxgiwx` (PostgreSQL 17.6)
-**Next task after design review:** `ZAM-COMPANIES-SCHEMA-RPC-MIGRATION-1` (SQL draft only; not this task)
+**Next task:** `ZAM-COMPANIES-APP-CONTRACTS-1` (application wiring; not this document)
 
-This document freezes implementation-ready database and RPC decisions. It does **not** create migrations, apply SQL, or implement application code.
+This document freezes database and RPC decisions. Migration SQL exists and was applied on designated DEV/DEMO. It does **not** implement application code or claim runtime Owner/Support Helper smoke.
 
 ---
 
@@ -424,7 +424,16 @@ Application maps these tokens to Arabic UI strings (same pattern as auth profile
 5. Owner + Support Helper smoke (section 9)
 6. Docs/status sync + commit migration if not already committed
 
-**This design task creates no SQL file and executes no SQL.**
+**Migration + DEV/DEMO apply (completed after design):**
+
+| Step | Result |
+|---|---|
+| Source | `supabase/migrations/20260716120000_companies_mvp_schema_rpc.sql` (`f503c7ef`) |
+| First apply | **42P13** on `update_company` (required param after defaults); rolled back before COMMIT |
+| Fix | Parameter order: `p_company_id`, `p_name`, `p_expected_updated_at`, then optional defaults (`6acc2e34`) |
+| Retry apply | BEGIN→COMMIT success as `postgres` on `gdegnwglakyblnmxgiwx`; in-script postconditions PASS |
+| Object verify | Eight flags all true (helpers, four RPCs, two indexes) |
+| Corrective migration | **Not required** |
 
 ---
 
@@ -496,12 +505,12 @@ Application maps these tokens to Arabic UI strings (same pattern as auth profile
 
 ## 11. Explicit non-claims
 
-- No migration file exists yet.
-- No DEV/DEMO apply of this design.
-- No Companies UI/RPC implementation.
+- Migration file exists and is applied on designated DEV/DEMO only.
+- No Companies UI/application wiring.
+- No Owner/Support Helper runtime RPC smoke for Companies (catalog/object verification only).
 - No production readiness.
-- No Support Helper runtime smoke for Companies yet.
-- Live catalog PASS ≠ schema design implementation.
+- No Supabase migration-history registration claim.
+- Live catalog PASS was a pre-design gate; post-apply object verification is separate evidence above.
 
 ---
 
@@ -509,6 +518,7 @@ Application maps these tokens to Arabic UI strings (same pattern as auth profile
 
 - Live catalog: `docs/companies-live-catalog-verification.md`
 - Contract / roles: `docs/roles-permissions.md`, `docs/database-schema.md`
+- Applied migration: `supabase/migrations/20260716120000_companies_mvp_schema_rpc.sql`
 - Support RPC patterns: `supabase/migrations/202607130002_role_safe_read_surfaces.sql` (pagination, SECURITY DEFINER, search_path, EXECUTE matrix)
 - ACL posture: `supabase/migrations/20260715120000_harden_core_acl_defaults.sql`
 - Core table: `supabase/migrations/202607060001_zamblak_core_schema.sql`

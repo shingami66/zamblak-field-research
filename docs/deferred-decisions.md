@@ -64,15 +64,15 @@ The current `/companies`, `/projects`, and `/financials` pages are navigation-sa
 | **Packet status** | Executed and reviewed. Evidence recorded in `docs/companies-live-catalog-verification.md`. Raw export reviewed but not a repository migration artifact |
 | **Closed by** | Result-close documentation after Mozfer run + review (`docs(companies): record live catalog verification`) |
 | **Revisit trigger** | None for this gate. Re-run catalog verify only if DEV/DEMO schema diverges materially before/during Companies apply |
-| **Next task ID** | Schema/RPC design recorded (`docs/companies-schema-rpc-design.md`). Next: `ZAM-COMPANIES-SCHEMA-RPC-MIGRATION-1` |
+| **Next task ID** | Companies DB schema/RPC applied on DEV/DEMO. Next: `ZAM-COMPANIES-APP-CONTRACTS-1` |
 | **Dependencies** | Satisfied (approved contract; Mozfer DEV/DEMO SQL Editor run completed) |
-| **Product implications** | Schema/RPC design may proceed; implementation still requires design approval |
-| **Security implications** | Metadata only; no domain row dumps; no secret printing; no DML/DDL; production readiness not claimed |
-| **Schema implications** | Live columns/constraints/policies/grants reconciled; future uniqueness/phone/index/RPC remain design work |
+| **Product implications** | Catalog gate closed; DB RPCs applied; application wiring still required |
+| **Security implications** | Metadata-only catalog verify; production readiness not claimed |
+| **Schema implications** | Pre-design catalog reconciled; post-apply uniqueness/phone/index/RPCs exist on DEV/DEMO |
 | **UX implications** | None |
 | **Destination docs** | `docs/companies-live-catalog-verification.md`, `docs/project-status.md`, `docs/database-schema.md`, `docs/project-roadmap.md` |
 | **Priority** | P1 (closed) |
-| **Blocks current MVP implementation** | **No longer blocks design.** Still **blocks implementation** until schema/RPC design + independent design review PASS |
+| **Blocks current MVP implementation** | **No longer blocks DB design/apply.** Still **blocks product close** until application wiring + runtime smoke |
 
 ### Scheduled deferred features (Companies-related)
 

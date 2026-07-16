@@ -12,17 +12,19 @@
   - First-Owner bootstrap (`ZAM-AUTH-001C`): repository complete and verified on designated DEV/DEMO; bootstrap path consumed there. Production readiness is not claimed.
   - Live login, session, and authenticated shell milestone (`ZAM-AUTH-001D`): **CLOSED**. Application committed and pushed as `74ceca7 feat(auth): add protected sessions and role-aware shell`. Documentation committed and pushed as `9a140d8` and `ee44d66`. Controlled `/companies`, `/projects`, and Owner-only `/financials` remain navigation-safety placeholders only (no domain data).
 - Phase 3: Companies (**active product phase**)
-  - **Status:** Mozfer-approved lean Companies MVP contract and deferred-work register (`DWR-COMP-001`–`DWR-COMP-028`). Contract documentation is on remote main. Live DEV/DEMO catalog verification (`DWR-COMP-026`) is **CLOSED (PASS)**. **Implementation has not started** (no Companies migration or domain RPC). Core ACL hardening is closed.
+  - **Status:** Mozfer-approved lean Companies MVP contract and deferred-work register (`DWR-COMP-001`–`DWR-COMP-028`). Live catalog (`DWR-COMP-026`) **PASS**. Schema/RPC design complete. Migration source complete. **DEV/DEMO database apply complete** (`20260716120000_companies_mvp_schema_rpc.sql` on `gdegnwglakyblnmxgiwx`). **Application wiring has not started** (UI still placeholders). Core ACL hardening is closed.
   - **Approved MVP boundaries (summary):** operational fields only (`name`, `contact_person`, `phone`, `notes`); active-only list (no delete/restore UI); Support Helper finance-blind; SH reads via bounded support-safe RPCs; create/edit via Server Action → authenticated RPC; offset pagination; active project count on list; active/closed project sections on detail; routes `/companies`, `/companies/new`, `/companies/[id]`, `/companies/[id]/edit`.
-  - **Required sequence before any Companies implementation:**
+  - **Required sequence before Companies product close:**
     1. Mozfer contract + deferred-register approval (done)
     2. Companies contract + deferred-work documentation sync, review, commit, push (done)
-    3. Graphify refresh + freshness review after Companies docs / ACL commits (done for ACL-era HEADs through `846894ed` / docs-close `9083d3e7` / later docs commits)
+    3. Graphify refresh + freshness review after Companies docs / ACL commits (done for ACL-era HEADs through later docs commits)
     4. Core ACL hardening design → SQL draft → DEV/DEMO apply → verify → commit → push (`ZAM-SEC-ACL-001`) (done)
     5. Live DEV/DEMO catalog verification (`docs/companies-live-catalog-verification.md` / `DWR-COMP-026`) — **done (PASS)**
-    6. Schema/RPC design (`docs/companies-schema-rpc-design.md` / `ZAM-COMPANIES-SCHEMA-RPC-DESIGN-1`) — **recorded** (docs only; not implemented)
-    7. Independent schema/RPC design review (if required) → migration draft (`ZAM-COMPANIES-SCHEMA-RPC-MIGRATION-1`) — **next**
-    8. Migration review → DEV/DEMO apply/verify → app implementation only after gates pass
+    6. Schema/RPC design (`docs/companies-schema-rpc-design.md` / `ZAM-COMPANIES-SCHEMA-RPC-DESIGN-1`) — **done**
+    7. Migration draft + param-order fix (`20260716120000_companies_mvp_schema_rpc.sql`; commits `f503c7ef`, `6acc2e34`) — **done**
+    8. DEV/DEMO apply + object verification — **done (PASS)**; first 42P13 attempt rolled back; retry committed cleanly
+    9. Application contracts / Server Actions / UI (`ZAM-COMPANIES-APP-CONTRACTS-1` …) — **next**
+    10. Owner/Support Helper runtime smoke → product close only after app gates pass
   - Deferred Companies items and permanent non-goals: see `docs/deferred-decisions.md` (Companies register).
 - Phase 4: Projects
   - After Companies MVP is implemented and closed under its gates.

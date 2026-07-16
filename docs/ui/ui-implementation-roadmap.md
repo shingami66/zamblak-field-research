@@ -78,8 +78,9 @@ Required gates before Companies UI implementation:
 3. Independent docs review → docs commit → commit review (done for contract/catalog packet series)
 4. Graphify refresh + freshness review (done as part of authorized closeouts)
 5. Live DEV/DEMO catalog verification (`DWR-COMP-026`) — **done (PASS)**; see `docs/companies-live-catalog-verification.md`
-6. Schema/RPC design (`docs/companies-schema-rpc-design.md`) — **recorded** (docs only)
-7. Migration draft/review/apply + app implementation only after gates pass
+6. Schema/RPC design (`docs/companies-schema-rpc-design.md`) — **done**
+7. Migration + DEV/DEMO apply/object verify (`20260716120000_companies_mvp_schema_rpc.sql`) — **done (PASS)**
+8. Application contracts / UI implementation (`ZAM-COMPANIES-APP-CONTRACTS-1` …) — **next**; runtime smoke after wiring
 
 Required domain sequence:
 
@@ -222,7 +223,7 @@ Every future UI batch must:
 
 ## 8. Deferred UI work
 
-- Real Companies implementation after gates (contract approved; implementation not started).
+- Real Companies UI implementation after app gates (DB schema/RPC applied on DEV/DEMO; UI not started).
 - Deferred Companies metrics/filters/lifecycle: `docs/deferred-decisions.md`.
 - Real Projects, Respondent, Participation, Review, and Financials experiences.
 - Password recovery and password-change UI.

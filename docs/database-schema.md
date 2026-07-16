@@ -29,7 +29,7 @@
 - **Read-Surface Boundary**: DEV/DEMO database evidence only. No browser smoke, live application authorization, customer production readiness, or Supabase migration-history registration is claimed for the read-surface apply itself.
 - **Core ACL Hardening Applied (`ZAM-SEC-ACL-001`)**: `supabase/migrations/20260715120000_harden_core_acl_defaults.sql` committed/pushed as `846894e` and manually applied to designated DEV/DEMO `gdegnwglakyblnmxgiwx` as `postgres`. Post-apply verification: authenticated **SELECT only** on the ten core tables and two managed views; `anon` and `service_role` hold no privileges on those relations; RLS remains enabled; ten named trigger functions lose client/PUBLIC EXECUTE while attachments (22) are preserved; approved helpers/RPCs remain authenticated-only; internal identity helpers and bootstrap remain non-client-callable; `postgres` GLOBAL and `IN SCHEMA public` default privileges no longer auto-grant tables/sequences/functions to client roles or PUBLIC. Owner smoke passed after apply. Support Helper runtime smoke not performed (P2/nonblocking; support RPC EXECUTE catalog-verified). `supabase_admin` default ACLs intentionally out of scope. Production readiness unclaimed.
 
-## Companies data contract (approved design — not yet implemented)
+## Companies data contract (DB applied on DEV/DEMO; application not yet implemented)
 
 **Truth classes:**
 
@@ -70,19 +70,19 @@ Related:
 - Direct client **UPDATE** on `companies` is denied by design (state-smuggling control); operational mutations must go through controlled RPC/Server Actions.
 - Support Helper does **not** have broad Companies base-table SELECT.
 
-### Approved Companies design (design recorded — not implemented)
+### Companies design and DEV/DEMO database implementation
 
-Canonical design: **`docs/companies-schema-rpc-design.md`** (`ZAM-COMPANIES-SCHEMA-RPC-DESIGN-1`). Summary only below; design doc wins on conflicts with this summary.
+Canonical design: **`docs/companies-schema-rpc-design.md`**. Migration: **`supabase/migrations/20260716120000_companies_mvp_schema_rpc.sql`** — **applied and object-verified on designated DEV/DEMO** `gdegnwglakyblnmxgiwx` (PostgreSQL 17.6). Application wiring is **not** implemented.
 
 **User-managed fields (MVP):** `name` (required), `contact_person`, `phone`, `notes` (optional; blank → null).
 
 **Limits:** name ≤ 120; contact_person ≤ 80; phone 8–15 digits after normalization; notes ≤ 2000.
 
-**Name (frozen):** display = trim + collapse internal whitespace (case preserved); uniqueness key = `normalize_company_name(name)` = `lower(btrim(regexp_replace(...)))` IMMUTABLE helper; partial unique index `(account_id, normalize_company_name(name)) WHERE deleted_at IS NULL`; error `duplicate_company_name` / `invalid_company_name`.
+**Name (live DEV/DEMO):** IMMUTABLE `normalize_company_name`; partial unique index `idx_companies_account_norm_name_active` on `(account_id, normalize_company_name(name)) WHERE deleted_at IS NULL`.
 
-**Phone (frozen):** optional; strip spaces/`+`/`-`/`()`; digits only; Saudi `05xxxxxxxx` → `9665xxxxxxxx` only; length 8–15; no other country guessing; CHECK on stored form; error `invalid_company_phone`.
+**Phone (live DEV/DEMO):** IMMUTABLE `normalize_company_phone`; CHECK `chk_companies_phone_normalized` (NULL or `^[0-9]{8,15}$`); Saudi `05xxxxxxxx` → `9665xxxxxxxx` only in helper.
 
-**RPCs (planned):** `list_companies(p_search, p_limit default 25 max 50, p_offset)`, `get_company(p_company_id)`, `create_company(...)`, `update_company(..., p_expected_updated_at required)` — both roles; SECURITY DEFINER; authenticated EXECUTE only; finance-free; project counts active/closed only.
+**RPCs (live DEV/DEMO):** `list_companies(text,integer,integer)`, `get_company(uuid)`, `create_company(text,text,text,text)`, `update_company(uuid,text,timestamp with time zone,text,text,text)` — required `p_expected_updated_at` before optional defaults; SECURITY DEFINER; `search_path=pg_catalog, public`; authenticated EXECUTE only; finance-free; active/closed project counts.
 
 **Not in Companies MVP schema additions:**
 
@@ -103,7 +103,7 @@ Canonical design: **`docs/companies-schema-rpc-design.md`** (`ZAM-COMPANIES-SCHE
 **Reads (approved):**
 
 - Owner: server-side query helpers + request-scoped authenticated client; RLS authoritative.
-- Support Helper: bounded support-safe `SECURITY DEFINER` list/detail RPCs (to be designed); finance-blind; no broad base SELECT.
+- Support Helper: bounded Companies RPCs on DEV/DEMO (same four functions as Owner); finance-blind; no broad base SELECT.
 
 **Metrics (approved product, query-time only):**
 
@@ -113,4 +113,4 @@ Canonical design: **`docs/companies-schema-rpc-design.md`** (`ZAM-COMPANIES-SCHE
 
 **Project statuses (existing, authoritative):** `draft`, `active`, `closed`, `cancelled` only. Do not invent a stored `completed` status.
 
-**Implementation gate:** catalog verification (`DWR-COMP-026`) **PASS/closed**. Schema/RPC **design recorded** (`docs/companies-schema-rpc-design.md`). No Companies migration/RPC **exists** until `ZAM-COMPANIES-SCHEMA-RPC-MIGRATION-1` (and reviews/apply) complete. No app implementation until migration verified. See `docs/deferred-decisions.md` register `DWR-COMP-001`–`DWR-COMP-028`.
+**Implementation gate:** catalog verification **PASS/closed**. Schema/RPC design **complete**. Migration source **complete**. DEV/DEMO apply + eight-object verification **PASS**. **Next:** application contracts/UI (`ZAM-COMPANIES-APP-CONTRACTS-1`); Owner/Support Helper runtime smoke still pending. Production readiness unclaimed. See `docs/deferred-decisions.md` register `DWR-COMP-001`–`DWR-COMP-028`.

@@ -51,7 +51,7 @@ These placeholders prevent dead navigation; they do not represent completed doma
 
 ## Approved Companies permissions (planned — not yet runtime)
 
-Mozfer-approved Companies MVP contract. **Do not claim these RPCs, queries, or pages exist until implementation gates pass.**
+Mozfer-approved Companies MVP contract. **Database RPCs exist on designated DEV/DEMO** after `20260716120000_companies_mvp_schema_rpc.sql`. **Do not claim UI pages, Server Actions, or runtime smoke until application gates pass.**
 
 ### Owner (planned)
 
@@ -88,16 +88,17 @@ Mozfer-approved Companies MVP contract. **Do not claim these RPCs, queries, or p
 - Account isolation fails closed; active profile required.
 - Stable errors include `duplicate_company_name`, `invalid_company_phone`, `company_not_found`, `company_access_denied`, `invalid_company_name`, `invalid_pagination`, `stale_company_version`, plus contact/notes field codes in the design doc.
 - No lifecycle RPC in MVP.
-- Design recorded; RPCs not implemented until migration task.
+- Design recorded; DEV/DEMO database RPCs applied; application wiring pending (`ZAM-COMPANIES-APP-CONTRACTS-1`).
 
 ### Distinguishing planned vs current
 
 | Surface | Current (implemented) | Planned (approved contract) |
 | :--- | :--- | :--- |
+| Companies DB RPCs / indexes | Applied on DEV/DEMO (catalog-verified objects) | Same contracts used by app after wiring |
 | `/companies` page | Protected empty placeholder | List with search, pagination, active project count |
 | `/companies/new`, `/companies/[id]`, `/companies/[id]/edit` | Absent | Dedicated senior-friendly pages |
-| Support Helper company reads | Nav only; no data | Support-safe RPCs |
-| Support Helper company writes | Not implemented | Create/edit four fields via RPC |
+| Support Helper company reads | Nav only in app; DB RPCs available on DEV/DEMO | App calls support-safe RPCs |
+| Support Helper company writes | Not wired in app | Create/edit four fields via RPC |
 
 ## Verified database read surface (DEV/DEMO, `ZAM-WF-001F`)
 
@@ -111,7 +112,7 @@ Database evidence from the manually applied `202607130002_role_safe_read_surface
   - `support_project_directory(integer, integer)`
 - Support Helper must not receive broad base-table reads, pricing, payments, financial summaries, or review-only/sensitive respondent fields beyond that safe RPC surface.
 - The verified managed inventory remains 11 functions, 2 views, and 23 policies; managed manifest MD5 `f950c7ec5024dcf907d36f02df8c78b4` (8238 octets).
-- Boundaries: DEV/DEMO database evidence only; Companies domain RPCs are **planned under the approved contract** and are not yet implemented. Residual non-SELECT privilege cleanup remain separate future work.
+- Boundaries: DEV/DEMO database evidence only for read-surface apply. Companies domain RPCs were **later applied** on DEV/DEMO under `20260716120000_companies_mvp_schema_rpc.sql` (object-verified). Application wiring and runtime smoke remain separate.
 
 ## MVP access and onboarding authority
 
