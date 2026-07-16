@@ -1,10 +1,11 @@
 # Projects MVP — manual browser smoke plan (DEV/DEMO)
 
 **Task:** `ZAM-PROJECTS-MANUAL-SMOKE-PLAN-1`
-**Status:** PLAN FROZEN — **not executed**
-**Executor:** **Mozfer only** (agent prepares the plan; agent does **not** run browser smoke)
+**Status:** PLAN FROZEN — **executed by Mozfer**; result **PASS WITH WARN** (see `docs/projects-manual-smoke-result.md`)
+**Executor:** **Mozfer only** (agent prepared the plan; agent does **not** run browser smoke)
 **Target app commit (precondition):** `9a001086ab0c50265d4dc19ee86e57bdb05b9923`
-**Next task after Mozfer runs this plan:** `ZAM-PROJECTS-MANUAL-SMOKE-RUN-1` (or Mozfer execution of this plan under that ID)
+**Closeout task:** `ZAM-PROJECTS-MANUAL-SMOKE-CLOSE-1`
+**Next after closeout:** `ZAM-PROJECTS-UI-STITCH-POLISH-1`
 
 ---
 
@@ -640,21 +641,23 @@ WARN cannot override any HOLD.
 
 ## 29. Exact next task
 
-**`ZAM-PROJECTS-MANUAL-SMOKE-RUN-1`**
+**After plan authoring:** Mozfer execution (`ZAM-PROJECTS-MANUAL-SMOKE-RUN-1` or equivalent).
 
-Mozfer executes this plan on DEV/DEMO and records results using §28.
-Agent does **not** run the browser smoke as part of this plan document task.
+**After Mozfer execution (closeout recorded):** `docs/projects-manual-smoke-result.md` — **PASS WITH WARN**.
+
+**Next product/UI task:** `ZAM-PROJECTS-UI-STITCH-POLISH-1` (RTL date isolation + lifecycle button semantic colors + Stitch polish).
 
 ---
 
 ## Explicit non-claims (this document)
 
-- Manual browser smoke **not executed** by the agent.
-- Runtime PASS **not** claimed.
+- This file is the **plan**, not the result log. Result: `docs/projects-manual-smoke-result.md`.
+- Manual browser smoke was **not** executed by the agent.
+- Unconditional runtime PASS without warnings is **not** claimed (result is **PASS WITH WARN**).
 - Production readiness **not** claimed.
-- Cross-account smoke **not** claimed.
-- Branded loading mark: design may exist; **implementation not required** for this smoke.
-- Skeleton loaders are acceptable; branded mark is out of scope for Projects smoke.
+- Cross-account smoke **not** claimed as PASS.
+- Branded loading mark: design may exist; **implementation not claimed**.
+- Skeleton loaders were acceptable for smoke; branded mark is out of scope.
 
 ---
 

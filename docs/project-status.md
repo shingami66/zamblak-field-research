@@ -1,8 +1,8 @@
 # Project Status
 
-Current phase: **Projects MVP application surfaces complete** — schema/RPC applied and verified on designated DEV/DEMO; contracts complete; **list / create / detail / edit implemented** (`9a00108`). Companies MVP remains closed. **Manual browser smoke plan prepared** (`docs/projects-manual-smoke-plan.md`); smoke **not executed**. Runtime acceptance **not closed**. Production readiness is **not** claimed. Cross-account runtime isolation smoke remains deferred and non-blocking. Branded loading-mark **design approved** (`docs/brand-loading-mark-design.md`); implementation **not** started.
+Current phase: **Projects MVP runtime closed with nonblocking UI polish warnings** — schema/RPC applied and verified on designated DEV/DEMO; contracts complete; list/create/detail/edit implemented (`9a00108`). Companies MVP remains closed. **Mozfer manual browser smoke: PASS WITH WARN** (`docs/projects-manual-smoke-result.md`). Runtime acceptance **closed** with two nonblocking UI warnings (RTL date display; lifecycle button semantic colors). Production readiness is **not** claimed. Cross-account runtime isolation smoke remains deferred and non-blocking. Branded loading-mark **design approved**; implementation **not** started.
 
-Next product sequence: `ZAM-PROJECTS-MANUAL-SMOKE-RUN-1` (Mozfer executes `docs/projects-manual-smoke-plan.md`). Future brand task (not next product feature): `ZAM-BRAND-LOADING-MARK-IMPLEMENT-1`.
+Next product sequence: `ZAM-PROJECTS-UI-STITCH-POLISH-1` (RTL dates + lifecycle button colors + Stitch-aligned polish; no behavior/data boundary change). Separate brand task: `ZAM-BRAND-LOADING-MARK-IMPLEMENT-1`.
 
 ## Auth (`ZAM-AUTH-001D`) — CLOSED
 
@@ -229,10 +229,24 @@ Implemented Auth behavior (still current):
 | Detail UI | **Complete** — `/projects/[projectId]` (`50f4272` + presentation align `d6677fe`) |
 | Edit UI | **Complete** — `/projects/[projectId]/edit` (`9a00108`) |
 | Automated validation | **Complete** (unit tests / typecheck for contracts + pages as committed) |
-| Manual smoke plan | **Prepared** — `docs/projects-manual-smoke-plan.md` (`ZAM-PROJECTS-MANUAL-SMOKE-PLAN-1`) |
-| Browser / app smoke | **Not performed** (await Mozfer `ZAM-PROJECTS-MANUAL-SMOKE-RUN-1`) |
-| Runtime acceptance closed | **No** |
+| Manual smoke plan | **Prepared** — `docs/projects-manual-smoke-plan.md` |
+| Browser / app smoke | **PASS WITH WARN** (Mozfer; DEV/DEMO) — `docs/projects-manual-smoke-result.md` (`ZAM-PROJECTS-MANUAL-SMOKE-CLOSE-1`) |
+| Runtime acceptance closed | **Yes** (with two nonblocking UI WARNs) |
+| WARN-1 RTL date text display | **Open polish** — list/detail BiDi reorder; form date inputs OK |
+| WARN-2 Lifecycle button colors | **Open polish** — strengthen activate/cancel/close semantics without behavior change |
 | Production readiness | **Not claimed** |
+
+### Manual DEV/DEMO smoke (`ZAM-PROJECTS-MANUAL-SMOKE-CLOSE-1`) — CLOSED (PASS WITH WARN)
+
+- **Environment:** designated DEV/DEMO `gdegnwglakyblnmxgiwx`.
+- **Performer:** Mozfer (not agent browser automation).
+- **Agent role:** plan author / docs closeout only.
+- **Credentials / Auth UUIDs / profile UUIDs / screenshots:** not recorded in repository documentation.
+- **Result:** **PASS WITH WARN** — no HOLD.
+- **PASS:** list; Owner create/detail/edit; Owner draft→active→closed; terminal read-only; SH list/detail/edit operational; SH no lifecycle; finance-blind; no raw SQL errors; no cross-account disclosure observed.
+- **WARN-1:** RTL date **text** presentation BiDi reorder on list/detail (form date controls OK) → `ZAM-PROJECTS-UI-STITCH-POLISH-1`.
+- **WARN-2:** Lifecycle action colors should be stronger (activate green / cancel red / close neutral teal) with text still primary → same polish task.
+- **Not claimed:** production readiness; branded loader implemented; cross-account destructive probing PASS.
 
 ## Brand — loading mark (`ZAM-BRAND-LOADING-MARK-DESIGN-1`) — design approved; not implemented
 
@@ -271,9 +285,9 @@ Implemented Auth behavior (still current):
 
 ## Open work
 
-- **Projects** Mozfer manual browser smoke (`ZAM-PROJECTS-MANUAL-SMOKE-RUN-1`) using `docs/projects-manual-smoke-plan.md`; then smoke closeout when evidence is complete.
-- Branded loading mark implementation (`ZAM-BRAND-LOADING-MARK-IMPLEMENT-1`) — design frozen; **not** the next product feature.
-- Deferred **cross-account** Companies runtime isolation smoke (second account) — **non-blocking** security follow-up; not marked PASS.
+- **Projects UI polish** (`ZAM-PROJECTS-UI-STITCH-POLISH-1`): RTL date isolation + semantic lifecycle button colors + Stitch-aligned visual polish; preserve behavior/boundaries.
+- Branded loading mark implementation (`ZAM-BRAND-LOADING-MARK-IMPLEMENT-1`) — design frozen; not Projects runtime blocker.
+- Deferred **cross-account** Companies/Projects runtime isolation smoke (second account) — **non-blocking**; not marked PASS.
 - Deferred Companies lifecycle/metrics/import items: `docs/deferred-decisions.md`.
 - Deferred Support Helper **ACL-era** runtime smoke note remains historical P2 for that milestone only; Companies same-account SH smoke is closed above.
 - Deferred Auth admin: password recovery/change, invitation and Support Helper administration, Auth-user/profile relinking, account/profile settings, multi-device session controls, sole-Owner recovery.

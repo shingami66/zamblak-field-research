@@ -15,7 +15,7 @@ Source documents:
 
 ## 2. Current implemented UI foundation (`ZAM-AUTH-001D` — CLOSED; Companies MVP UI CLOSED)
 
-Status: Auth foundation **complete** (`74ceca7` application; docs through `ee44d66`). **Companies MVP list/create/detail/edit UI is implemented** and Mozfer-smoked on designated DEV/DEMO (see section 6). **Projects list/create/detail/edit UI is implemented** (through `9a00108`); Mozfer browser smoke plan prepared, **not** executed. Owner-only `/financials` remains a controlled placeholder. Branded loading-mark design is approved (`docs/brand-loading-mark-design.md`) and **not** implemented. Production readiness is **not** claimed.
+Status: Auth foundation **complete** (`74ceca7` application; docs through `ee44d66`). **Companies MVP list/create/detail/edit UI is implemented** and Mozfer-smoked on designated DEV/DEMO (see section 6). **Projects list/create/detail/edit UI is implemented** (through `9a00108`); Mozfer browser smoke **PASS WITH WARN** (`docs/projects-manual-smoke-result.md`). Nonblocking polish: RTL date text BiDi; lifecycle button semantic colors → `ZAM-PROJECTS-UI-STITCH-POLISH-1`. Owner-only `/financials` remains a controlled placeholder. Branded loading-mark design is approved and **not** implemented. Production readiness is **not** claimed.
 
 Implemented:
 
@@ -26,7 +26,7 @@ Implemented:
 - Accessible desktop/mobile account menu showing server-resolved profile context.
 - Current-session local logout with a fixed `/login` redirect.
 - **Companies MVP routes** `/companies`, `/companies/new`, `/companies/[id]`, `/companies/[id]/edit` (Arabic-first; Server Action → authenticated RPC).
-- Projects list/create/detail/edit routes implemented; Mozfer smoke plan prepared (not executed).
+- Projects list/create/detail/edit routes implemented; Mozfer smoke **PASS WITH WARN** (see `docs/projects-manual-smoke-result.md`).
 - Controlled Owner-only `/financials` placeholder; Support Helper direct access redirects to `/` without financial wording or data.
 - Branded loading mark: **design only** (no shared loader component yet).
 
@@ -77,7 +77,7 @@ Support Helper must never see financial amounts, prices, payments, due amounts, 
 
 ## 5. Next product sequence
 
-**Companies MVP CRUD: CLOSED** on designated DEV/DEMO (application + Mozfer smoke). **Projects:** contracts + list/create/detail/edit complete; automated checks committed. **Manual smoke plan prepared** (`docs/projects-manual-smoke-plan.md`); **not executed**. **Next product task: `ZAM-PROJECTS-MANUAL-SMOKE-RUN-1`** (Mozfer). Separate future brand task: `ZAM-BRAND-LOADING-MARK-IMPLEMENT-1` (design frozen; not next product feature).
+**Companies MVP CRUD: CLOSED** on designated DEV/DEMO (application + Mozfer smoke). **Projects MVP runtime: CLOSED PASS WITH WARN** (Mozfer smoke; `docs/projects-manual-smoke-result.md`). **Next product task: `ZAM-PROJECTS-UI-STITCH-POLISH-1`** (RTL dates, lifecycle button colors, Stitch-aligned polish; no behavior/data changes). Separate future brand task: `ZAM-BRAND-LOADING-MARK-IMPLEMENT-1` (design frozen).
 
 Completed Companies gates:
 
