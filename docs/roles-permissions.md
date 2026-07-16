@@ -24,7 +24,7 @@ Can:
 
 Can:
 
-- Add/edit companies and non-financial project details (see approved Companies plan below; **not fully runtime-enforced yet**).
+- Add/edit companies and non-financial project details (Companies MVP create/edit **runtime-verified** on designated DEV/DEMO for same-account Support Helper; Projects domain not yet implemented).
 - Add/edit respondents and add a respondent to a project.
 - Import Excel and export operational reports.
 - Open a WhatsApp link and confirm a manual WhatsApp send.
@@ -41,23 +41,26 @@ Cannot:
 | Capability | `owner` | `support_helper` | Current boundary |
 | :--- | :---: | :---: | :--- |
 | Protected dashboard `/` | Yes | Yes | Responsive authenticated shell; no fake metrics. |
-| Controlled `/companies` | Yes | Yes | **Navigation-safety placeholder only**; real Companies UI/data not implemented. |
+| `/companies` list | Yes | Yes | **Implemented** MVP list + search + pagination. |
+| `/companies/new` | Yes | Yes | **Implemented** create (Server Action → RPC). |
+| `/companies/[id]` | Yes | Yes | **Implemented** detail (operational fields + counts). |
+| `/companies/[id]/edit` | Yes | Yes | **Implemented** edit + optimistic concurrency. |
 | Controlled `/projects` | Yes | Yes | Navigation-safety placeholder only. |
 | Account menu | Yes | Yes | Server-resolved profile context. |
 | Logout | Yes | Yes | Current browser session only (`scope: "local"`) → `/login`. |
 | Controlled `/financials` | Yes | No | Owner-only placeholder; Support Helper redirects to `/`; no financial wording or data. |
 
-These placeholders prevent dead navigation; they do not represent completed domain modules or final domain permission enforcement.
+`/projects` and `/financials` placeholders prevent dead navigation; they do not represent completed domain modules. Companies MVP is implemented and Mozfer-smoked on designated DEV/DEMO only.
 
-## Approved Companies permissions (planned — not yet runtime)
+## Companies permissions (MVP — implemented + DEV/DEMO smoke)
 
-Mozfer-approved Companies MVP contract. **Database RPCs exist on designated DEV/DEMO** after `20260716120000_companies_mvp_schema_rpc.sql`. **Do not claim UI pages, Server Actions, or runtime smoke until application gates pass.**
+Mozfer-approved Companies MVP contract. **Database RPCs applied** on designated DEV/DEMO (`20260716120000_companies_mvp_schema_rpc.sql`). **Application list/create/detail/edit wired**. **Owner and same-account Support Helper Mozfer smoke PASS**. **Finance-blind Support Helper UI PASS**. **Cross-account runtime isolation NOT TESTED** (deferred, non-blocking). Production readiness **not** claimed.
 
-### Owner (planned)
+### Owner (implemented)
 
-| Action | Allowed | Enforcement (planned) |
+| Action | Allowed | Enforcement |
 | :--- | :---: | :--- |
-| List / search companies | Yes | Server-side query helpers + request-scoped authenticated Supabase client; RLS remains authoritative |
+| List / search companies | Yes | Server-side helpers + request-scoped authenticated Supabase client; RLS remains authoritative |
 | View company detail | Yes | Same |
 | Create company | Yes | Server Action → authenticated RPC |
 | Edit `name`, `contact_person`, `phone`, `notes` | Yes | Server Action → authenticated RPC |
@@ -65,40 +68,38 @@ Mozfer-approved Companies MVP contract. **Database RPCs exist on designated DEV/
 | Companies financial ledger | **No** | Finance stays off Companies UI |
 | View operational project summaries | Yes | Non-financial project aggregates only |
 
-### Support Helper (planned)
+### Support Helper (implemented; same-account smoke PASS)
 
-| Action | Allowed | Enforcement (planned) |
+| Action | Allowed | Enforcement |
 | :--- | :---: | :--- |
-| List / search companies | Yes | **Bounded support-safe SECURITY DEFINER list/detail RPCs** only |
+| List / search companies | Yes | Authenticated Companies list/detail RPCs (bounded; finance-free) |
 | View company detail | Yes | Same RPCs |
 | Create company | Yes | Server Action → authenticated RPC |
 | Edit the same four operational fields | Yes | Server Action → authenticated RPC |
 | Soft-delete / restore | **No** | — |
 | Broad Companies base-table SELECT | **No** | Owner-only base SELECT posture remains |
 | Direct base-table mutation / UPDATE | **No** | Denied by design |
-| Finance (prices, payments, due amounts, summaries) | **No** | **Finance-blind** |
+| Finance (prices, payments, due amounts, summaries) | **No** | **Finance-blind** (Mozfer UI smoke PASS) |
 | Operational notes view/edit | Yes | Explicit Mozfer approval recorded for MVP |
 
-### Companies mutation and authority invariants (planned)
+### Companies mutation and authority invariants
 
 - All create/edit mutations: **Server Action → authenticated RPC**.
 - List/detail MVP path: unified RPCs for Owner and Support Helper (see `docs/companies-schema-rpc-design.md`). Owner-only base-table SELECT (`sel_companies`) remains; Support Helper must not gain broad Companies SELECT.
 - No direct client or direct base-table UPDATE path; authenticated relation privileges remain SELECT-only.
 - No browser-supplied trusted `account_id`, role, profile, ownership, or finance authority.
-- Account isolation fails closed; active profile required.
-- Stable errors include `duplicate_company_name`, `invalid_company_phone`, `company_not_found`, `company_access_denied`, `invalid_company_name`, `invalid_pagination`, `stale_company_version`, plus contact/notes field codes in the design doc.
+- Account isolation fails closed at RPC design; **cross-account runtime smoke with a second account remains NOT TESTED**.
+- Stable errors include `duplicate_company_name`, `invalid_company_phone`, `company_not_found`, `company_access_denied`, `invalid_company_name`, `invalid_pagination`, `stale_company_version`, plus contact/notes field codes.
 - No lifecycle RPC in MVP.
-- Design recorded; DEV/DEMO database RPCs applied; application wiring pending (`ZAM-COMPANIES-APP-CONTRACTS-1`).
 
 ### Distinguishing planned vs current
 
-| Surface | Current (implemented) | Planned (approved contract) |
+| Surface | Current (implemented + DEV/DEMO smoke) | Still deferred / not claimed |
 | :--- | :--- | :--- |
-| Companies DB RPCs / indexes | Applied on DEV/DEMO (catalog-verified objects) | Same contracts used by app after wiring |
-| `/companies` page | Protected empty placeholder | List with search, pagination, active project count |
-| `/companies/new`, `/companies/[id]`, `/companies/[id]/edit` | Absent | Dedicated senior-friendly pages |
-| Support Helper company reads | Nav only in app; DB RPCs available on DEV/DEMO | App calls support-safe RPCs |
-| Support Helper company writes | Not wired in app | Create/edit four fields via RPC |
+| Companies DB RPCs / indexes | Applied on DEV/DEMO; used by app | Production readiness |
+| `/companies` page | List with search, pagination, operational counts | Lifecycle filters, finance KPIs |
+| `/companies/new`, `/companies/[id]`, `/companies/[id]/edit` | Dedicated senior-friendly pages | Delete/restore UI |
+| Support Helper company reads/writes | Same-account smoke PASS | Cross-account second-account smoke |
 
 ## Verified database read surface (DEV/DEMO, `ZAM-WF-001F`)
 

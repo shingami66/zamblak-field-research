@@ -1,12 +1,12 @@
 # Companies MVP — schema and RPC design
 
-**Status:** DESIGN RECORDED; migration source complete; **DEV/DEMO apply COMPLETE (PASS)**
+**Status:** DESIGN RECORDED; migration source complete; **DEV/DEMO apply COMPLETE (PASS)**; application MVP CRUD and Mozfer smoke closed separately (see `docs/project-status.md`)
 **Task family:** `ZAM-COMPANIES-SCHEMA-RPC-DESIGN-1` → `…-MIGRATION-1` → param-order fix `6acc2e34` → DEV apply closeout
 **Authority:** Mozfer-approved Companies MVP contract; live DEV/DEMO catalog PASS (`DWR-COMP-026`); applied migration `20260716120000_companies_mvp_schema_rpc.sql`
 **Designated DEV/DEMO:** `gdegnwglakyblnmxgiwx` (PostgreSQL 17.6)
-**Next task:** `ZAM-COMPANIES-APP-CONTRACTS-1` (application wiring; not this document)
+**Next product phase (after Companies app closeout):** `ZAM-PROJECTS-MVP-SCOPE-REVIEW-1`
 
-This document freezes database and RPC decisions. Migration SQL exists and was applied on designated DEV/DEMO. It does **not** implement application code or claim runtime Owner/Support Helper smoke.
+This document freezes **database and RPC decisions**. Application wiring, UI, and Mozfer runtime smoke are recorded in `docs/project-status.md` and related product docs — not as claims invented here.
 
 ---
 
@@ -503,14 +503,15 @@ Application maps these tokens to Arabic UI strings (same pattern as auth profile
 
 ---
 
-## 11. Explicit non-claims
+## 11. Explicit non-claims (this design document)
 
 - Migration file exists and is applied on designated DEV/DEMO only.
-- No Companies UI/application wiring.
-- No Owner/Support Helper runtime RPC smoke for Companies (catalog/object verification only).
+- This document alone does not restate every application commit; application MVP CRUD + Mozfer smoke evidence lives in `docs/project-status.md`.
 - No production readiness.
 - No Supabase migration-history registration claim.
+- Cross-account runtime isolation with a second account is **not** claimed PASS (deferred, non-blocking).
 - Live catalog PASS was a pre-design gate; post-apply object verification is separate evidence above.
+- No delete/restore/lifecycle RPC or project CRUD is claimed.
 
 ---
 

@@ -29,17 +29,17 @@
 - **Read-Surface Boundary**: DEV/DEMO database evidence only. No browser smoke, live application authorization, customer production readiness, or Supabase migration-history registration is claimed for the read-surface apply itself.
 - **Core ACL Hardening Applied (`ZAM-SEC-ACL-001`)**: `supabase/migrations/20260715120000_harden_core_acl_defaults.sql` committed/pushed as `846894e` and manually applied to designated DEV/DEMO `gdegnwglakyblnmxgiwx` as `postgres`. Post-apply verification: authenticated **SELECT only** on the ten core tables and two managed views; `anon` and `service_role` hold no privileges on those relations; RLS remains enabled; ten named trigger functions lose client/PUBLIC EXECUTE while attachments (22) are preserved; approved helpers/RPCs remain authenticated-only; internal identity helpers and bootstrap remain non-client-callable; `postgres` GLOBAL and `IN SCHEMA public` default privileges no longer auto-grant tables/sequences/functions to client roles or PUBLIC. Owner smoke passed after apply. Support Helper runtime smoke not performed (P2/nonblocking; support RPC EXECUTE catalog-verified). `supabase_admin` default ACLs intentionally out of scope. Production readiness unclaimed.
 
-## Companies data contract (DB applied on DEV/DEMO; application not yet implemented)
+## Companies data contract (DB applied on DEV/DEMO; application MVP CRUD implemented)
 
 **Truth classes:**
 
-1. **Existing committed/applied facts** (core schema + role-safe read surfaces + ACL hardening, DEV/DEMO apply evidence as above).
-2. **Approved future design** (Mozfer Companies MVP contract) — planned; not implemented.
-3. **Live catalog state (DEV/DEMO)** — **reconciled PASS** under `DWR-COMP-026` (Mozfer metadata-only run on `gdegnwglakyblnmxgiwx`, PostgreSQL 17.6). Full evidence: `docs/companies-live-catalog-verification.md`. Production readiness not claimed. Companies CRUD RPCs and future uniqueness/phone objects are still **not** present live.
+1. **Existing committed/applied facts** (core schema + role-safe read surfaces + ACL hardening + Companies schema/RPC apply, DEV/DEMO evidence as above and below).
+2. **Approved Companies MVP design** (Mozfer contract) — **DB applied** and **application wired** for list/create/detail/edit; Mozfer Owner + same-account Support Helper smoke **PASS** (see `docs/project-status.md`).
+3. **Live catalog state (DEV/DEMO)** — **reconciled PASS** under `DWR-COMP-026` (pre-design gate). Full evidence: `docs/companies-live-catalog-verification.md`. Production readiness not claimed.
 
-### Existing companies table facts (source + live DEV/DEMO catalog PASS)
+### Existing companies table facts (source + live DEV/DEMO)
 
-`public.companies` includes (source migration **and** live catalog):
+`public.companies` includes:
 
 - `id` (uuid PK)
 - `account_id` (uuid NOT NULL → accounts)
@@ -51,28 +51,26 @@
 - `created_at` / `updated_at` (timestamptz)
 - `deleted_at` (timestamptz) — **foundation only** for soft-delete storage
 
-Live catalog confirmed additionally:
+Stable posture (core + Companies apply):
 
 - Owner `postgres`; RLS enabled; forced false; **no financial columns**.
-- Indexes: `companies_pkey` only (no secondary indexes).
 - FKs NO ACTION to `accounts` / `profiles`.
 - Trigger `trg_companies_updated_at` → `set_updated_at()`; Companies audit trigger **absent**.
 - Authenticated relation privileges: **SELECT only** (INSERT/UPDATE/DELETE/… false for authenticated, PUBLIC, anon, service_role).
 - `sel_companies` Owner-only, account-scoped, non-deleted; `ins_companies` policy exists but authenticated lacks INSERT privilege — do not treat policies as direct client mutation authorization.
-- Normalized active name uniqueness, name/phone normalization: **absent** (expected; future design).
-- No Companies CRUD RPC name collision; support RPCs that join companies remain finance-blind and authenticated-EXECUTE only.
+- After `20260716120000_companies_mvp_schema_rpc.sql` apply: normalized-name helper/index, phone helper/CHECK, and four Companies RPCs **exist** on designated DEV/DEMO (see subsection below). Pre-apply catalog (`DWR-COMP-026`) correctly reported those objects as absent.
 
 Related:
 
 - `projects.company_id` is required (`projects_company_id_fkey` → `companies(id)`, ON UPDATE/DELETE NO ACTION); account-consistency with companies fails closed (`check_project_account_consistency`, SECURITY DEFINER, non-client-callable).
 - Project status vocabulary live: `draft`, `active`, `closed`, `cancelled`.
-- Packet returned no secondary project indexes on `company_id` / `account_id` / `status` / `deleted_at` — **nonblocking** design requirement for company-scoped lookup/count.
+- Company-scoped projects live index exists on DEV/DEMO after Companies migration apply.
 - Direct client **UPDATE** on `companies` is denied by design (state-smuggling control); operational mutations must go through controlled RPC/Server Actions.
 - Support Helper does **not** have broad Companies base-table SELECT.
 
 ### Companies design and DEV/DEMO database implementation
 
-Canonical design: **`docs/companies-schema-rpc-design.md`**. Migration: **`supabase/migrations/20260716120000_companies_mvp_schema_rpc.sql`** — **applied and object-verified on designated DEV/DEMO** `gdegnwglakyblnmxgiwx` (PostgreSQL 17.6). Application wiring is **not** implemented.
+Canonical design: **`docs/companies-schema-rpc-design.md`**. Migration: **`supabase/migrations/20260716120000_companies_mvp_schema_rpc.sql`** — **applied and object-verified on designated DEV/DEMO** `gdegnwglakyblnmxgiwx` (PostgreSQL 17.6). Application MVP list/create/detail/edit is **implemented** and Mozfer-smoked on DEV/DEMO; production readiness **not** claimed.
 
 **User-managed fields (MVP):** `name` (required), `contact_person`, `phone`, `notes` (optional; blank → null).
 
@@ -113,4 +111,4 @@ Canonical design: **`docs/companies-schema-rpc-design.md`**. Migration: **`supab
 
 **Project statuses (existing, authoritative):** `draft`, `active`, `closed`, `cancelled` only. Do not invent a stored `completed` status.
 
-**Implementation gate:** catalog verification **PASS/closed**. Schema/RPC design **complete**. Migration source **complete**. DEV/DEMO apply + eight-object verification **PASS**. **Next:** application contracts/UI (`ZAM-COMPANIES-APP-CONTRACTS-1`); Owner/Support Helper runtime smoke still pending. Production readiness unclaimed. See `docs/deferred-decisions.md` register `DWR-COMP-001`–`DWR-COMP-028`.
+**Implementation gate:** catalog verification **PASS/closed**. Schema/RPC design **complete**. Migration source **complete**. DEV/DEMO apply + eight-object verification **PASS**. Application contracts/UI **complete**. Owner + same-account Support Helper Mozfer smoke **PASS**. Companies MVP CRUD phase **closed** (DEV/DEMO only). Cross-account runtime isolation **NOT TESTED** (deferred, non-blocking). Production readiness unclaimed. See `docs/deferred-decisions.md` register `DWR-COMP-001`–`DWR-COMP-028`. **Next product phase:** `ZAM-PROJECTS-MVP-SCOPE-REVIEW-1`.

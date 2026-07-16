@@ -20,7 +20,7 @@ Implemented in source, passed source/static review, and passed Mozfer-owned manu
 - User-initiated logout is explicitly local to the current browser session (`supabase.auth.signOut({ scope: "local" })`) and redirects to the fixed `/login` destination. Errors remain sanitized.
 - Redirect destinations are fixed by the server; no browser-supplied redirect authority is accepted.
 - `/financials` performs a server-side Owner check. A Support Helper direct request redirects to `/` and receives no financial wording or data.
-- `/companies`, `/projects`, and `/financials` are controlled placeholders only. Their presence prevents dead navigation and does not claim domain data integration or completed domain permissions.
+- Companies MVP list/create/detail/edit are implemented application routes on designated DEV/DEMO evidence only; production readiness is not claimed. Cross-account runtime isolation smoke is not claimed. `/projects` and `/financials` remain controlled placeholders only and do not claim completed domain permissions.
 
 ## Preserved database and onboarding controls
 

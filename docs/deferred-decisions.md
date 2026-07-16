@@ -25,14 +25,14 @@
 
 Deleting and recreating Auth users is **not** an approved recovery or relinking procedure. Any future recovery/relinking capability must be a controlled administrative design that preserves tenant, profile, audit, and authorization integrity.
 
-## Domain modules after the controlled placeholders
+## Domain modules after controlled placeholders
 
-- Replace `/companies` with the real Companies module under the **Mozfer-approved** Companies MVP contract (see register below). Implementation has **not** started; docs sync and gates first.
-- Replace `/projects` with the real Projects module.
+- **Companies MVP CRUD:** implemented and Mozfer-smoked on designated DEV/DEMO (list/create/detail/edit). Lifecycle/delete/restore and advanced metrics remain deferred in the register below. Cross-account runtime isolation smoke remains deferred and non-blocking.
+- Replace `/projects` with the real Projects module (next product phase after Companies MVP CRUD close).
 - Replace Owner-only `/financials` with the real Financials module and server-authorized data integration.
-- Implement the remaining sequence: Company → Project → Respondent → Participation → Review → Financials.
+- Implement the remaining sequence: Project → Respondent → Participation → Review → Financials.
 
-The current `/companies`, `/projects`, and `/financials` pages are navigation-safety placeholders with no fake data. They are not completed domain pages or final domain permission implementations.
+The current `/projects` and `/financials` pages are navigation-safety placeholders with no fake data. They are not completed domain pages or final domain permission implementations. Companies is no longer a placeholder for MVP operational CRUD.
 
 ## Preserved onboarding deferrals
 
@@ -64,15 +64,15 @@ The current `/companies`, `/projects`, and `/financials` pages are navigation-sa
 | **Packet status** | Executed and reviewed. Evidence recorded in `docs/companies-live-catalog-verification.md`. Raw export reviewed but not a repository migration artifact |
 | **Closed by** | Result-close documentation after Mozfer run + review (`docs(companies): record live catalog verification`) |
 | **Revisit trigger** | None for this gate. Re-run catalog verify only if DEV/DEMO schema diverges materially before/during Companies apply |
-| **Next task ID** | Companies DB schema/RPC applied on DEV/DEMO. Next: `ZAM-COMPANIES-APP-CONTRACTS-1` |
+| **Next task ID** | Gate closed. Companies MVP CRUD application + Mozfer smoke closed. Next product phase: `ZAM-PROJECTS-MVP-SCOPE-REVIEW-1` |
 | **Dependencies** | Satisfied (approved contract; Mozfer DEV/DEMO SQL Editor run completed) |
-| **Product implications** | Catalog gate closed; DB RPCs applied; application wiring still required |
+| **Product implications** | Catalog gate closed; DB RPCs applied; application MVP CRUD closed on DEV/DEMO |
 | **Security implications** | Metadata-only catalog verify; production readiness not claimed |
 | **Schema implications** | Pre-design catalog reconciled; post-apply uniqueness/phone/index/RPCs exist on DEV/DEMO |
-| **UX implications** | None |
+| **UX implications** | None for this gate |
 | **Destination docs** | `docs/companies-live-catalog-verification.md`, `docs/project-status.md`, `docs/database-schema.md`, `docs/project-roadmap.md` |
 | **Priority** | P1 (closed) |
-| **Blocks current MVP implementation** | **No longer blocks DB design/apply.** Still **blocks product close** until application wiring + runtime smoke |
+| **Blocks current MVP implementation** | **No.** Companies MVP CRUD closed for designated DEV/DEMO. Cross-account runtime smoke remains separately deferred and non-blocking |
 
 ### Scheduled deferred features (Companies-related)
 

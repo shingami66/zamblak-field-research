@@ -13,9 +13,9 @@ Source documents:
 - `docs/security-foundation.md`
 - `docs/deferred-decisions.md` (Companies deferred register)
 
-## 2. Current implemented UI foundation (`ZAM-AUTH-001D` — CLOSED)
+## 2. Current implemented UI foundation (`ZAM-AUTH-001D` — CLOSED; Companies MVP UI CLOSED)
 
-Status: **complete in source; reviews and Mozfer-owned manual smoke passed; committed and pushed** (`74ceca7` application; docs through `ee44d66`). Auth milestone closed. Domain modules remain placeholders.
+Status: Auth foundation **complete** (`74ceca7` application; docs through `ee44d66`). **Companies MVP list/create/detail/edit UI is implemented** and Mozfer-smoked on designated DEV/DEMO (see section 6). `/projects` and Owner-only `/financials` remain controlled placeholders. Production readiness is **not** claimed.
 
 Implemented:
 
@@ -25,10 +25,11 @@ Implemented:
 - Desktop and mobile navigation with role-filtered destinations.
 - Accessible desktop/mobile account menu showing server-resolved profile context.
 - Current-session local logout with a fixed `/login` redirect.
-- Controlled authenticated placeholders for `/companies` and `/projects`.
+- **Companies MVP routes** `/companies`, `/companies/new`, `/companies/[id]`, `/companies/[id]/edit` (Arabic-first; Server Action → authenticated RPC).
+- Controlled authenticated placeholder for `/projects`.
 - Controlled Owner-only `/financials` placeholder; Support Helper direct access redirects to `/` without financial wording or data.
 
-Mozfer's manual smoke covered real Owner login, redirects, session persistence, responsive layouts, account menu, logout, and controlled routes. This roadmap does not claim agent-performed browser smoke.
+Mozfer's Auth manual smoke covered real Owner login, redirects, session persistence, responsive layouts, account menu, logout, and controlled routes. Companies Owner + Support Helper smoke is recorded in `docs/project-status.md`. This roadmap does not claim agent-performed browser smoke.
 
 ## 3. Completed foundation batches
 
@@ -59,28 +60,33 @@ Mozfer's manual smoke covered real Owner login, redirects, session persistence, 
 | :--- | :---: | :---: | :--- |
 | `/login` | Yes | Yes | Live responsive login; authenticated users redirect to `/`. |
 | `/` | Yes | Yes | Protected responsive empty dashboard shell. |
-| `/companies` | Yes | Yes | **Controlled placeholder** only. |
+| `/companies` | Yes | Yes | **Implemented** list + search + pagination (MVP). |
+| `/companies/new` | Yes | Yes | **Implemented** create form (Server Action → RPC). |
+| `/companies/[id]` | Yes | Yes | **Implemented** detail (operational fields + counts). |
+| `/companies/[id]/edit` | Yes | Yes | **Implemented** edit form + optimistic concurrency. |
 | `/projects` | Yes | Yes | Controlled placeholder only. |
 | `/financials` | Yes | No | Owner-only controlled placeholder; Support Helper redirects to `/`. |
 | Account menu | Yes | Yes | Accessible desktop/mobile menu. |
 | Local logout | Yes | Yes | Ends current browser session and redirects to `/login`. |
 
-Support Helper must never see financial amounts, prices, payments, due amounts, summaries, cards, wording, or hidden/locked/blurred financial placeholders.
+Support Helper must never see financial amounts, prices, payments, due amounts, summaries, cards, wording, or hidden/locked/blurred financial placeholders. Companies screens remain **finance-blind** for Support Helper (Mozfer DEV/DEMO smoke **PASS**).
 
 ## 5. Next product sequence
 
-**Active phase: Companies** after closed Auth.
+**Companies MVP CRUD: CLOSED** on designated DEV/DEMO (application + Mozfer smoke). **Next active phase: Projects** scope review.
 
-Required gates before Companies UI implementation:
+Completed Companies gates:
 
 1. Mozfer contract + deferred-register approval (done)
 2. Documentation sync of contract and deferred register (done)
 3. Independent docs review → docs commit → commit review (done for contract/catalog packet series)
 4. Graphify refresh + freshness review (done as part of authorized closeouts)
-5. Live DEV/DEMO catalog verification (`DWR-COMP-026`) — **done (PASS)**; see `docs/companies-live-catalog-verification.md`
-6. Schema/RPC design (`docs/companies-schema-rpc-design.md`) — **done**
-7. Migration + DEV/DEMO apply/object verify (`20260716120000_companies_mvp_schema_rpc.sql`) — **done (PASS)**
-8. Application contracts / UI implementation (`ZAM-COMPANIES-APP-CONTRACTS-1` …) — **next**; runtime smoke after wiring
+5. Live DEV/DEMO catalog verification (`DWR-COMP-026`) — **done (PASS)**
+6. Schema/RPC design — **done**
+7. Migration + DEV/DEMO apply/object verify — **done (PASS)**
+8. Application contracts / UI (list, create, detail, edit) — **done**
+9. Visual foundation polish (`aa2f6b4`) — **done**
+10. Owner + Support Helper runtime smoke + docs closeout — **done (PASS)**
 
 Required domain sequence:
 
@@ -93,9 +99,9 @@ Required domain sequence:
 
 ## 6. Planned domain batches
 
-### Companies — approved MVP UI contract (not implemented)
+### Companies — MVP UI implemented and closed (DEV/DEMO)
 
-**Status:** Mozfer-approved product/UX contract. Application remains a placeholder. **No Companies CRUD UI has been built.**
+**Status:** Mozfer-approved product/UX contract **implemented** for list/create/detail/edit. Visual foundation polish `aa2f6b4`. Owner and same-account Support Helper Mozfer smoke **PASS** on designated DEV/DEMO. **No** delete/restore/lifecycle UI. Production readiness **not** claimed. Cross-account runtime isolation **not** claimed.
 
 #### Approved routes (dedicated pages, not dense modals)
 
@@ -175,18 +181,17 @@ Visual references only (do not copy HTML/CSS):
 - Desktop/mobile parity for critical actions.
 - No fake company records.
 
-#### Roles (planned UI behavior)
+#### Roles (implemented UI behavior — DEV/DEMO smoke)
 
 - Owner and Support Helper both use Companies routes under the approved contract.
-- Support Helper remains **finance-blind** on all Companies screens.
-- Support Helper reads via bounded support-safe RPCs (not base-table SELECT); create/edit via Server Action → authenticated RPC.
-- No soft-delete/restore UI in MVP.
+- Support Helper remains **finance-blind** on all Companies screens (Mozfer verified).
+- Create/edit via Server Action → authenticated RPC; no soft-delete/restore UI in MVP.
 
 Deferred Companies UI items: see `docs/deferred-decisions.md` (`DWR-COMP-001`–`DWR-COMP-028`).
 
 ### Projects
 
-- Projects list and owner/support-safe project detail after Companies MVP.
+- Projects list and owner/support-safe project detail after Companies MVP CRUD close.
 - Support Helper receives operational content only; pricing and financial hints remain absent.
 
 ### Respondent
@@ -223,8 +228,7 @@ Every future UI batch must:
 
 ## 8. Deferred UI work
 
-- Real Companies UI implementation after app gates (DB schema/RPC applied on DEV/DEMO; UI not started).
-- Deferred Companies metrics/filters/lifecycle: `docs/deferred-decisions.md`.
+- Deferred Companies metrics/filters/lifecycle (soft-delete, restore, advanced cards): `docs/deferred-decisions.md`.
 - Real Projects, Respondent, Participation, Review, and Financials experiences.
 - Password recovery and password-change UI.
 - Invitation and Support Helper administration.
@@ -234,4 +238,4 @@ Every future UI batch must:
 
 ## 9. Recommended immediate next task
 
-`ZAM-COMPANIES-001-CONTRACT-DEFERRED-DOCS-REVIEW-1` (independent review of this documentation sync). Do not implement Companies CRUD until all implementation gates pass.
+`ZAM-PROJECTS-MVP-SCOPE-REVIEW-1` — Projects MVP scope/contract review after closed Companies MVP CRUD.
