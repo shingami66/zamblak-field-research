@@ -1,8 +1,9 @@
 # Projects MVP — manual browser smoke result (DEV/DEMO)
 
-**Task:** `ZAM-PROJECTS-MANUAL-SMOKE-CLOSE-1`
+**Primary closeout task:** `ZAM-PROJECTS-CREATE-FORM-ERROR-STATE-SMOKE-CLOSE-1`
+**Related prior closeouts:** `ZAM-PROJECTS-MANUAL-SMOKE-CLOSE-1`, UI polish smoke (Mozfer after `fc13d92`), create-form preservation smoke (Mozfer after `7cb47d90`)
 **Plan authority:** `docs/projects-manual-smoke-plan.md`
-**Final verdict:** **PASS WITH WARN**
+**Final overall verdict:** **PASS**
 **HOLD conditions:** **None observed**
 
 ---
@@ -12,7 +13,7 @@
 | Actor | Role |
 |---|---|
 | **Mozfer** | Performed all manual browser smoke actions in designated DEV/DEMO |
-| **Agent** | Authored the smoke plan earlier; this closeout documents Mozfer’s reported results only — **no** browser automation, **no** SQL, **no** agent-executed smoke |
+| **Agent** | Authored plans/fixes earlier; this closeout documents Mozfer’s reported results only — **no** browser automation, **no** SQL, **no** agent-executed smoke |
 
 Runtime results remain **Mozfer evidence**, not agent-executed verification.
 
@@ -26,24 +27,31 @@ Runtime results remain **Mozfer evidence**, not agent-executed verification.
 | Supabase project ref | `gdegnwglakyblnmxgiwx` |
 | PostgreSQL | 17.6 (per prior apply/docs authority) |
 | App surfaces under test | `/projects`, `/projects/new`, `/projects/[projectId]`, `/projects/[projectId]/edit` |
-| Plan baseline commit (app) | `9a001086ab0c50265d4dc19ee86e57bdb05b9923` (Projects edit complete) |
-| Docs plan commit | `d5fd330628358fbe55e0a3b829856f91afca72d7` |
+| Initial app baseline (edit complete) | `9a001086ab0c50265d4dc19ee86e57bdb05b9923` |
+| UI polish fix commit | `fc13d9248a974a11caa4778a05f91593bb304ac5` |
+| Create-form preservation fix commit | `7cb47d9007d07e2894cd96ef526aef8726732e79` |
 
 No passwords, emails, Auth IDs, profile IDs, tokens, or business-row identifiers are recorded here.
 No screenshots are committed to the repository.
 
 ---
 
-## Final verdict
+## Final overall verdict
 
-### **PASS WITH WARN**
+### **PASS**
 
-Mandatory functional and security scenarios **passed**.
-Two **nonblocking UI polish** warnings remain (see § Warnings). They do **not** reopen Projects runtime implementation and do **not** constitute HOLD.
+Mandatory functional, role, finance-boundary, UI polish, and create-form error-state scenarios **passed** under Mozfer manual browser verification on designated DEV/DEMO.
+
+- Original runtime smoke (`ZAM-PROJECTS-MANUAL-SMOKE-CLOSE-1`) closed functional acceptance with two nonblocking UI polish warnings.
+- Those polish warnings are **closed** after Mozfer re-smoke of the Stitch polish fix.
+- Create-form value-preservation defect is **closed** after Mozfer re-smoke of the error-state fix.
+
+**Production readiness is not claimed.**
+**Branded loading mark remains design-only (not implemented).**
 
 ---
 
-## Confirmed runtime results
+## Confirmed runtime results (original MVP smoke)
 
 ### 1. Projects list — PASS
 
@@ -102,7 +110,7 @@ Also:
 
 **Cross-account destructive probing:** **not claimed** (deferred / nonblocking when not run).
 
-### 7. Arabic / RTL — PASS (with WARN-1 on date *display*)
+### 7. Arabic / RTL — PASS
 
 - Arabic-first RTL layout operational
 - Labels, cards, detail sections, forms readable
@@ -110,46 +118,58 @@ Also:
 
 ---
 
-## Nonblocking warnings
+## Follow-up A — UI polish smoke (Mozfer) — PASS
 
-### WARN-1 — RTL date display
+**Fix commit:** `fc13d9248a974a11caa4778a05f91593bb304ac5`
+**Tasks:** `ZAM-PROJECTS-UI-STITCH-POLISH-1` (implementation) + Mozfer manual visual re-check
 
-**Severity:** nonblocking UI polish
+| Former warning | Result | Evidence summary |
+|---|---|---|
+| WARN-1 RTL date text BiDi reorder | **Closed — PASS** | Project dates display as readable isolated **DD/MM/YYYY** tokens; reordering defect not observed |
+| WARN-2 Lifecycle action colors | **Closed — PASS** | **Activate Project** visually green; **Cancel Project** visually red; Close remains distinct; Arabic labels and lifecycle behavior unchanged |
 
-Date-only values are stored and shown correctly **inside date form controls**, but list/detail **text** presentation can visually reorder characters under RTL.
+These polish items no longer block Projects MVP acceptance.
 
-Observed visual examples (display only; not storage corruption):
+---
 
-- resembles `172026/07/`
-- resembles `242026/07/`
+## Follow-up B — Create-form error-state preservation smoke (Mozfer) — PASS
 
-**Future correction** (`ZAM-PROJECTS-UI-STITCH-POLISH-1`):
+**Fix commit:** `7cb47d9007d07e2894cd96ef526aef8726732e79`
+**Closeout task:** `ZAM-PROJECTS-CREATE-FORM-ERROR-STATE-SMOKE-CLOSE-1`
 
-- isolate date text direction safely (e.g. LTR / bidi-isolated wrapper)
-- preserve date-only semantics
-- no timezone conversion
-- repository-approved date formatting
+### Confirmed user scenario
 
-### WARN-2 — Lifecycle action colors
+1. Opened `/projects/new`.
+2. Filled the full Project form, including Company and Project domain.
+3. Submitted with end date earlier than start date.
+4. Safe date validation error appeared.
+5. **All submitted values remained populated** after the error.
+6. **Company selection remained populated.**
+7. **Project domain remained populated.**
+8. Date, number, text, resident, and warning-checkbox values remained populated.
+9. Corrected **only** the invalid date.
+10. Submitted again successfully.
+11. Project was created and the flow returned normally to `/projects`.
 
-**Severity:** nonblocking UI polish
+### Defects closed
 
-Lifecycle buttons are readable and correctly labelled, but visual semantics should be strengthened:
-
-| Action | Desired visual cue |
+| Defect | Status |
 |---|---|
-| Activate Project | green positive action |
-| Cancel Project | red destructive action |
-| Close Project | dark teal or clear neutral terminal action |
+| Create-form error-state value loss | **Closed** |
+| Company selection reset after validation error | **Closed** |
+| Project domain reset after validation error | **Closed** |
+| Need to reselect Company/domain or retype unrelated fields | **Not required** (confirmed) |
 
-**Requirements for future polish:**
+### Additional confirmations
 
-- text remains visible
-- color is not the only meaning
-- accessible contrast and focus states
-- **no** behavior or lifecycle-rule changes
+- No raw database / Supabase / PostgREST error text appeared
+- Server-side validation remained authoritative
+- Success behavior remained list redirect (`/projects`)
+- Agent did **not** perform SQL or browser automation for this smoke
 
-These warnings **do not** reopen Projects runtime implementation.
+### Create-form smoke verdict
+
+**PASS**
 
 ---
 
@@ -162,23 +182,7 @@ These warnings **do not** reopen Projects runtime implementation.
 | Smoke loaders | Existing skeleton/loading behavior only |
 | Claim | **Do not** claim branded loader implemented |
 
-Future implementation remains `ZAM-BRAND-LOADING-MARK-IMPLEMENT-1` (separate from Projects polish).
-
----
-
-## Next UI polish task
-
-**`ZAM-PROJECTS-UI-STITCH-POLISH-1`**
-
-Intended scope (not executed here):
-
-- Zamblak Stitch design system as visual authority
-- Impeccable / applicable design skills
-- Fix RTL date presentation (WARN-1)
-- Semantic lifecycle button styling (WARN-2)
-- Spacing, badges, focus, hover, responsive polish
-- Preserve current behavior and data boundaries
-- Avoid literal copying of Stitch screens
+Future implementation remains `ZAM-BRAND-LOADING-MARK-IMPLEMENT-1` (separate from Projects MVP closeout).
 
 ---
 
@@ -186,25 +190,31 @@ Intended scope (not executed here):
 
 | Gate | Result |
 |---|---|
-| Manual browser smoke | **Completed** (Mozfer) |
-| Final result | **PASS WITH WARN** |
-| Runtime acceptance | **Closed** with two nonblocking UI warnings |
+| Manual browser smoke (original MVP) | **Completed** (Mozfer) — functional **PASS**; polish WARNs later closed |
+| UI polish re-smoke (dates + lifecycle colors) | **PASS** (Mozfer) |
+| Create-form error-state preservation re-smoke | **PASS** (Mozfer) |
+| Final overall result | **PASS** |
+| Runtime acceptance | **Closed** |
+| Value preservation defect | **Closed** |
+| Company/domain reset defect | **Closed** |
+| RTL date polish | **PASS / closed** |
+| Lifecycle semantic-color polish | **PASS / closed** |
 | Support Helper role isolation | **PASS** |
 | Owner lifecycle matrix | **PASS** |
 | Terminal read-only | **PASS** |
 | Finance blindness | **PASS** |
-| RTL date formatting | **WARN** → polish task |
-| Lifecycle semantic colors | **WARN** → polish task |
 | Production readiness | **Not claimed** |
 | Cross-account destructive probing | **Not claimed** |
+| Branded loading mark | **Design only; not implemented** |
 | Automated browser execution | **Not claimed** (none performed by agent) |
+| Agent SQL execution for smoke | **Not performed** |
 
 ---
 
 ## Explicit non-claims
 
-- Unconditional **PASS** without warnings is **not** recorded.
 - Production readiness is **not** claimed.
 - Branded loading mark is **not** implemented.
-- Agent did **not** run browser or SQL for this smoke.
+- Agent did **not** run browser or SQL for these smoke closeouts.
 - No secrets or raw identity evidence committed.
+- Cross-account isolation PASS is **not** claimed.
