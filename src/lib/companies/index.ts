@@ -73,3 +73,17 @@ export {
   toCompanyDetailView,
 } from "./detail-view-model";
 export type { CompanyDetailView } from "./detail-view-model";
+
+export { companiesEditCopy } from "./edit-copy";
+export {
+  editCompanySuccessRedirectPath,
+  editCompanySuccessRevalidatePaths,
+  initialEditCompanyState,
+  mapEditCompanyErrorPresentation,
+  readEditCompanyFormValues,
+} from "./edit-form";
+export type {
+  EditCompanyActionState,
+  EditCompanyFieldErrors,
+  EditCompanyFormValues,
+} from "./edit-form";
