@@ -59,7 +59,8 @@ export function projectDomainLabel(domain: ProjectDomain): string {
 
 /**
  * Formats a date-only YYYY-MM-DD without timezone day-shift.
- * Uses UTC calendar components so local offset cannot move the date.
+ * Emits a pure Latin-digit LTR token (DD/MM/YYYY) so RTL layout cannot
+ * reorder the calendar day. Does not construct a Date for display.
  */
 export function formatProjectDateOnly(value: string | null): string {
   if (value === null || value.trim() === "") {
@@ -75,18 +76,22 @@ export function formatProjectDateOnly(value: string | null): string {
   if (
     !Number.isInteger(year) ||
     !Number.isInteger(month) ||
-    !Number.isInteger(day)
+    !Number.isInteger(day) ||
+    month < 1 ||
+    month > 12 ||
+    day < 1 ||
+    day > 31
   ) {
     return projectsListCopy.notSpecified;
   }
-  try {
-    return new Intl.DateTimeFormat("ar-SA-u-nu-latn", {
-      dateStyle: "medium",
-      timeZone: "UTC",
-    }).format(new Date(Date.UTC(year, month - 1, day, 12, 0, 0)));
-  } catch {
-    return projectsListCopy.notSpecified;
-  }
+  const dd = String(day).padStart(2, "0");
+  const mm = String(month).padStart(2, "0");
+  return `${dd}/${mm}/${year}`;
+}
+
+/** True when the label is a numeric date token that needs LTR isolation. */
+export function isProjectDateDisplayToken(label: string): boolean {
+  return /^\d{2}\/\d{2}\/\d{4}$/.test(label);
 }
 
 /**

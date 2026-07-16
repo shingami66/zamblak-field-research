@@ -4,6 +4,7 @@ import { projectsListCopy } from "./list-copy";
 import {
   formatProjectDateOnly,
   formatProjectQuota,
+  isProjectDateDisplayToken,
   projectDomainLabel,
   projectStatusLabel,
   projectsListErrorMessage,
@@ -42,13 +43,15 @@ describe("Arabic status and domain labels", () => {
 });
 
 describe("date and quota fallbacks", () => {
-  it("uses null date fallback without shifting YYYY-MM-DD", () => {
+  it("formats date-only as isolated DD/MM/YYYY without timezone shift", () => {
     assert.equal(formatProjectDateOnly(null), projectsListCopy.notSpecified);
-    const label = formatProjectDateOnly("2026-01-15");
-    assert.notEqual(label, projectsListCopy.notSpecified);
-    assert.equal(label.includes("2026") || label.includes("15"), true);
-    // Must not produce the previous local calendar day from UTC midnight shift.
-    assert.equal(label.includes("14"), false);
+    assert.equal(formatProjectDateOnly("2026-01-15"), "15/01/2026");
+    assert.equal(formatProjectDateOnly("2026-07-17"), "17/07/2026");
+    assert.equal(formatProjectDateOnly("2026-07-24"), "24/07/2026");
+    // No BiDi-reordered fragments like 172026/07/
+    assert.equal(formatProjectDateOnly("2026-07-17").includes("172026"), false);
+    assert.equal(isProjectDateDisplayToken("17/07/2026"), true);
+    assert.equal(isProjectDateDisplayToken(projectsListCopy.notSpecified), false);
   });
 
   it("uses null quota fallback", () => {

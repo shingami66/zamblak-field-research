@@ -78,6 +78,7 @@ export {
   formatProjectDateOnly,
   formatProjectQuota,
   formatProjectTimestamp,
+  isProjectDateDisplayToken,
   projectDomainLabel,
   projectStatusLabel,
   projectsListErrorMessage,

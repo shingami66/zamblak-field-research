@@ -95,24 +95,29 @@
   white-space: nowrap;
 }
 
+/* Semantic badges: Stitch teal/lime/error intent; text remains primary meaning. */
 .statusDraft {
+  border: 1px solid #c0c8c8;
   background: #eef2f5;
   color: #2f3d47;
 }
 
 .statusActive {
-  background: #e5f4ee;
-  color: #0f4d36;
+  border: 1px solid #4b6700;
+  background: #a8e10c;
+  color: #102a2b;
 }
 
 .statusClosed {
-  background: #ebeff5;
-  color: #2a3a55;
+  border: 1px solid #0f3d3e;
+  background: #d8e6e6;
+  color: #0f3d3e;
 }
 
 .statusCancelled {
-  background: #f7eceb;
-  color: #6a2f2a;
+  border: 1px solid #ba1a1a;
+  background: #ffdad6;
+  color: #93000a;
 }
 
 .headerActions {
@@ -190,13 +195,46 @@
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
+  transition: background-color 150ms ease-out, border-color 150ms ease-out;
 }
 
-.lifecycleAction:hover {
-  background: #edf3f3;
+/* Positive activate — Stitch lime with dark readable text (never lime body text). */
+.lifecycleActivate {
+  border-color: #4b6700;
+  background: #a8e10c;
+  color: #102a2b;
 }
 
-.lifecycleAction:disabled {
+.lifecycleActivate:hover {
+  background: #98d00a;
+}
+
+/* Destructive cancel — error container tokens. */
+.lifecycleCancel {
+  border-color: #ba1a1a;
+  background: #ffdad6;
+  color: #93000a;
+}
+
+.lifecycleCancel:hover {
+  background: #ffcdc7;
+}
+
+/* Terminal close — deep teal primary. */
+.lifecycleClose {
+  border-color: #0f3d3e;
+  background: #0f3d3e;
+  color: #ffffff;
+}
+
+.lifecycleClose:hover {
+  background: #082f30;
+}
+
+.lifecycleAction:disabled,
+.lifecycleActivate:disabled,
+.lifecycleCancel:disabled,
+.lifecycleClose:disabled {
   cursor: not-allowed;
   border-color: #9aabb0;
   color: #6a7575;
@@ -254,15 +292,20 @@
   overflow-wrap: anywhere;
 }
 
+/* LTR isolation for numeric date/time tokens inside RTL (BiDi-safe). */
 .dateLtr {
   display: inline-block;
   direction: ltr;
   unicode-bidi: isolate;
+  text-align: start;
+  white-space: nowrap;
 }
 
 .timestampValue {
-  display: block;
+  display: inline-block;
+  direction: ltr;
   unicode-bidi: isolate;
+  text-align: start;
 }
 
 .textBlock {

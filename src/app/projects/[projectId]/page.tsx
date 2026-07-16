@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ProjectLifecycleActions } from "@/components/projects/ProjectLifecycleActions";
+import { ProjectLtrToken } from "@/components/projects/ProjectLtrToken";
 import { requireAppSession } from "@/lib/auth/session";
 import { projectsDetailCopy } from "@/lib/projects/detail-copy";
 import { parseProjectIdParam } from "@/lib/projects/detail-params";
@@ -125,17 +126,17 @@ export default async function ProjectDetailPage({
           <div className={styles.metaItem}>
             <dt className={styles.metaLabel}>{projectsDetailCopy.startDate}</dt>
             <dd className={styles.metaValue}>
-              <span dir="ltr" className={styles.dateLtr}>
+              <ProjectLtrToken className={styles.dateLtr}>
                 {view.startDateLabel}
-              </span>
+              </ProjectLtrToken>
             </dd>
           </div>
           <div className={styles.metaItem}>
             <dt className={styles.metaLabel}>{projectsDetailCopy.endDate}</dt>
             <dd className={styles.metaValue}>
-              <span dir="ltr" className={styles.dateLtr}>
+              <ProjectLtrToken className={styles.dateLtr}>
                 {view.endDateLabel}
-              </span>
+              </ProjectLtrToken>
             </dd>
           </div>
           <div className={styles.metaItem}>
@@ -235,17 +236,17 @@ export default async function ProjectDetailPage({
           <div className={styles.metaItem}>
             <dt className={styles.metaLabel}>{projectsDetailCopy.createdAt}</dt>
             <dd className={styles.metaValue}>
-              <span className={styles.timestampValue}>
+              <ProjectLtrToken className={styles.timestampValue}>
                 {view.createdAtLabel}
-              </span>
+              </ProjectLtrToken>
             </dd>
           </div>
           <div className={styles.metaItem}>
             <dt className={styles.metaLabel}>{projectsDetailCopy.updatedAt}</dt>
             <dd className={styles.metaValue}>
-              <span className={styles.timestampValue}>
+              <ProjectLtrToken className={styles.timestampValue}>
                 {view.updatedAtLabel}
-              </span>
+              </ProjectLtrToken>
             </dd>
           </div>
         </dl>

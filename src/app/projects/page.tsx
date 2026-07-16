@@ -16,6 +16,7 @@ import {
 } from "@/lib/projects/list-view-model";
 import { listProjects } from "@/lib/projects/rpc";
 import type { ProjectStatus } from "@/lib/projects/types";
+import { ProjectLtrToken } from "@/components/projects/ProjectLtrToken";
 import { createClient } from "@/lib/supabase/server";
 import styles from "./projects-list.module.css";
 
@@ -161,9 +162,9 @@ export default async function ProjectsPage({
                       {projectsListCopy.startDate}
                     </dt>
                     <dd className={styles.metaValue}>
-                      <span dir="ltr" className={styles.dateLtr}>
+                      <ProjectLtrToken className={styles.dateLtr}>
                         {item.startDateLabel}
-                      </span>
+                      </ProjectLtrToken>
                     </dd>
                   </div>
                   <div className={styles.metaItem}>
@@ -171,9 +172,9 @@ export default async function ProjectsPage({
                       {projectsListCopy.endDate}
                     </dt>
                     <dd className={styles.metaValue}>
-                      <span dir="ltr" className={styles.dateLtr}>
+                      <ProjectLtrToken className={styles.dateLtr}>
                         {item.endDateLabel}
-                      </span>
+                      </ProjectLtrToken>
                     </dd>
                   </div>
                   <div className={styles.metaItem}>
@@ -187,9 +188,9 @@ export default async function ProjectsPage({
                       {projectsListCopy.updatedAt}
                     </dt>
                     <dd className={styles.metaValue}>
-                      <span dir="ltr" className={styles.dateLtr}>
+                      <ProjectLtrToken className={styles.dateLtr}>
                         {item.updatedAtLabel}
-                      </span>
+                      </ProjectLtrToken>
                     </dd>
                   </div>
                 </dl>

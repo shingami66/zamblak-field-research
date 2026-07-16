@@ -8,6 +8,7 @@ import {
   EMPTY_TRANSITION_PROJECT_STATE,
 } from "@/lib/projects/detail-transition";
 import type { ProjectLifecycleActionView } from "@/lib/projects/detail-view-model";
+import type { ProjectStatus } from "@/lib/projects/types";
 import styles from "@/app/projects/[projectId]/project-detail.module.css";
 
 type ProjectLifecycleActionsProps = {
@@ -16,12 +17,43 @@ type ProjectLifecycleActionsProps = {
   actions: ProjectLifecycleActionView[];
 };
 
-function TransitionSubmitButton({ label }: { label: string }) {
+type LifecycleVariant = "activate" | "cancel" | "close";
+
+function lifecycleVariant(target: ProjectStatus): LifecycleVariant {
+  if (target === "active") {
+    return "activate";
+  }
+  if (target === "cancelled") {
+    return "cancel";
+  }
+  return "close";
+}
+
+function lifecycleButtonClass(variant: LifecycleVariant): string {
+  switch (variant) {
+    case "activate":
+      return `${styles.lifecycleAction} ${styles.lifecycleActivate}`;
+    case "cancel":
+      return `${styles.lifecycleAction} ${styles.lifecycleCancel}`;
+    case "close":
+      return `${styles.lifecycleAction} ${styles.lifecycleClose}`;
+    default:
+      return styles.lifecycleAction;
+  }
+}
+
+function TransitionSubmitButton({
+  label,
+  variant,
+}: {
+  label: string;
+  variant: LifecycleVariant;
+}) {
   const { pending } = useFormStatus();
   return (
     <button
       type="submit"
-      className={styles.lifecycleAction}
+      className={lifecycleButtonClass(variant)}
       disabled={pending}
       aria-busy={pending}
     >
@@ -89,7 +121,10 @@ export function ProjectLifecycleActions({
               name="target_status"
               value={action.targetStatus}
             />
-            <TransitionSubmitButton label={action.label} />
+            <TransitionSubmitButton
+              label={action.label}
+              variant={lifecycleVariant(action.targetStatus)}
+            />
           </form>
         ))}
       </div>
