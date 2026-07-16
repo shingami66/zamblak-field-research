@@ -1,5 +1,6 @@
+/* Centered content column (~672px) so create/edit do not pin to the RTL edge on wide screens. */
 .page {
-  width: min(100%, 80rem);
+  width: min(100%, 42rem);
   margin-inline: auto;
   padding-block: 2rem 3rem;
   padding-inline-start: max(1rem, env(safe-area-inset-right));
@@ -41,7 +42,6 @@
 }
 
 .pageDescription {
-  max-width: 48rem;
   margin-block: 0.35rem 1.5rem;
   color: #404848;
   font-size: 1.0625rem;
@@ -50,7 +50,7 @@
 }
 
 .surface {
-  width: min(100%, 40rem);
+  width: 100%;
   border: 1px solid #c0c8c8;
   border-radius: 1rem;
   background: #ffffff;
@@ -110,9 +110,11 @@
   resize: vertical;
 }
 
+/* LTR digit order, right-aligned under Arabic labels in RTL forms. */
 .inputLtr {
   direction: ltr;
-  text-align: start;
+  unicode-bidi: isolate;
+  text-align: right;
 }
 
 .fieldError {

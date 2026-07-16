@@ -76,21 +76,31 @@ export default async function CompanyDetailPage({
           </div>
           <div className={styles.metaItem}>
             <dt className={styles.metaLabel}>{companiesDetailCopy.phone}</dt>
-            <dd
-              className={`${styles.metaValue} ${
-                view.phoneIsLtr ? styles.phoneLtr : ""
-              }`}
-            >
-              {view.phoneLabel}
+            <dd className={styles.metaValue}>
+              {view.phoneIsLtr ? (
+                <span dir="ltr" className={styles.phoneLtr}>
+                  {view.phoneLabel}
+                </span>
+              ) : (
+                view.phoneLabel
+              )}
             </dd>
           </div>
           <div className={styles.metaItem}>
             <dt className={styles.metaLabel}>{companiesDetailCopy.createdAt}</dt>
-            <dd className={styles.metaValue}>{view.createdAtLabel}</dd>
+            <dd className={styles.metaValue}>
+              <span className={styles.timestampValue}>
+                {view.createdAtLabel}
+              </span>
+            </dd>
           </div>
           <div className={styles.metaItem}>
             <dt className={styles.metaLabel}>{companiesDetailCopy.updatedAt}</dt>
-            <dd className={styles.metaValue}>{view.updatedAtLabel}</dd>
+            <dd className={styles.metaValue}>
+              <span className={styles.timestampValue}>
+                {view.updatedAtLabel}
+              </span>
+            </dd>
           </div>
         </dl>
 

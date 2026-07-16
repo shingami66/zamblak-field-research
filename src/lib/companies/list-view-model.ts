@@ -1,4 +1,5 @@
 import { companiesListCopy } from "./list-copy";
+import { companyPhoneDisplayText } from "./presentation";
 import type { CompanyErrorCode, CompanySummary } from "./types";
 
 export type CompanyListItemView = {
@@ -17,7 +18,10 @@ export type CompanyListItemView = {
 export function toCompanyListItemView(
   company: CompanySummary
 ): CompanyListItemView {
-  const hasPhone = Boolean(company.phone && company.phone.trim() !== "");
+  const phone = companyPhoneDisplayText(
+    company.phone,
+    companiesListCopy.noPhone
+  );
   return {
     companyId: company.companyId,
     name: company.name,
@@ -25,8 +29,8 @@ export function toCompanyListItemView(
       company.contactPerson && company.contactPerson.trim() !== ""
         ? company.contactPerson
         : companiesListCopy.noContact,
-    phoneLabel: hasPhone ? company.phone! : companiesListCopy.noPhone,
-    phoneIsLtr: hasPhone,
+    phoneLabel: phone.text,
+    phoneIsLtr: phone.isLtr,
     activeProjectsCount: company.activeProjectsCount,
     completedProjectsCount: company.completedProjectsCount,
     detailHref: `/companies/${company.companyId}`,

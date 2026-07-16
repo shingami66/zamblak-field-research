@@ -70,9 +70,15 @@ export { companiesDetailCopy } from "./detail-copy";
 export { parseCompanyIdParam } from "./detail-params";
 export {
   companiesDetailErrorBehavior,
+  formatCompanyTimestamp,
   toCompanyDetailView,
 } from "./detail-view-model";
 export type { CompanyDetailView } from "./detail-view-model";
+
+export {
+  companyPhoneDisplayText,
+  companyPhonePresentation,
+} from "./presentation";
 
 export { companiesEditCopy } from "./edit-copy";
 export {

@@ -3,6 +3,7 @@ import { describe, it } from "node:test";
 import { companiesDetailCopy } from "./detail-copy";
 import {
   companiesDetailErrorBehavior,
+  formatCompanyTimestamp,
   toCompanyDetailView,
 } from "./detail-view-model";
 import type { CompanyDetail } from "./types";
@@ -54,6 +55,35 @@ describe("toCompanyDetailView", () => {
     assert.equal(v.notesLabel, "line1\nline2");
     assert.equal(v.notesIsEmpty, false);
     assert.equal(v.activeProjectsCount, 2);
+  });
+
+  it("formats timestamps without exposing raw ISO", () => {
+    const v = toCompanyDetailView(base);
+    assert.notEqual(v.createdAtLabel, base.createdAt);
+    assert.notEqual(v.updatedAtLabel, base.updatedAt);
+    assert.equal(v.createdAtLabel.includes("T"), false);
+    assert.ok(v.createdAtLabel.length > 0);
+    assert.ok(v.updatedAtLabel.length > 0);
+  });
+});
+
+describe("formatCompanyTimestamp", () => {
+  it("returns non-empty locale-aware text for valid ISO", () => {
+    const label = formatCompanyTimestamp("2026-07-02T15:30:00.000Z");
+    assert.ok(label.length > 0);
+    assert.notEqual(label, "2026-07-02T15:30:00.000Z");
+    assert.equal(label.includes("2026-07-02T"), false);
+  });
+
+  it("fails safely for malformed timestamps", () => {
+    assert.equal(
+      formatCompanyTimestamp("not-a-date"),
+      companiesDetailCopy.notProvided
+    );
+    assert.equal(
+      formatCompanyTimestamp(""),
+      companiesDetailCopy.notProvided
+    );
   });
 });
 

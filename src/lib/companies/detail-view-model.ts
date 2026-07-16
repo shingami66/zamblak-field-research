@@ -1,4 +1,5 @@
 import { companiesDetailCopy } from "./detail-copy";
+import { companyPhoneDisplayText } from "./presentation";
 import type { CompanyDetail, CompanyErrorCode } from "./types";
 
 export type CompanyDetailView = {
@@ -17,24 +18,33 @@ export type CompanyDetailView = {
   editHref: string;
 };
 
-function formatTimestamp(iso: string): string {
+/**
+ * Locale-aware timestamp for Arabic-first UI.
+ * Latin digits (nu-latn) keep phone/date digit order stable; callers wrap
+ * the result in a bidi-isolated container for mixed-script safety.
+ * Never returns raw ISO when formatting fails.
+ */
+export function formatCompanyTimestamp(iso: string): string {
   const ms = Date.parse(iso);
   if (Number.isNaN(ms)) {
     return companiesDetailCopy.notProvided;
   }
   try {
-    return new Intl.DateTimeFormat("ar-SA", {
+    return new Intl.DateTimeFormat("ar-SA-u-nu-latn", {
       dateStyle: "medium",
       timeStyle: "short",
     }).format(new Date(ms));
   } catch {
-    return iso;
+    return companiesDetailCopy.notProvided;
   }
 }
 
 /** Maps CompanyDetail to presentation fields (no account_id, no finance). */
 export function toCompanyDetailView(company: CompanyDetail): CompanyDetailView {
-  const hasPhone = Boolean(company.phone && company.phone.trim() !== "");
+  const phone = companyPhoneDisplayText(
+    company.phone,
+    companiesDetailCopy.notProvided
+  );
   const hasContact = Boolean(
     company.contactPerson && company.contactPerson.trim() !== ""
   );
@@ -46,14 +56,14 @@ export function toCompanyDetailView(company: CompanyDetail): CompanyDetailView {
     contactPersonLabel: hasContact
       ? company.contactPerson!
       : companiesDetailCopy.notProvided,
-    phoneLabel: hasPhone ? company.phone! : companiesDetailCopy.notProvided,
-    phoneIsLtr: hasPhone,
+    phoneLabel: phone.text,
+    phoneIsLtr: phone.isLtr,
     notesLabel: hasNotes ? company.notes! : companiesDetailCopy.notProvided,
     notesIsEmpty: !hasNotes,
     activeProjectsCount: company.activeProjectsCount,
     completedProjectsCount: company.completedProjectsCount,
-    createdAtLabel: formatTimestamp(company.createdAt),
-    updatedAtLabel: formatTimestamp(company.updatedAt),
+    createdAtLabel: formatCompanyTimestamp(company.createdAt),
+    updatedAtLabel: formatCompanyTimestamp(company.updatedAt),
     backHref: "/companies",
     editHref: `/companies/${company.companyId}/edit`,
   };

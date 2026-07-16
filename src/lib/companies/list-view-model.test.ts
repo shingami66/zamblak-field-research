@@ -38,13 +38,15 @@ describe("toCompanyListItemView", () => {
     );
   });
 
-  it("shows phone LTR when present", () => {
+  it("shows phone LTR when present without mutating digits", () => {
+    const phone = "966512345678";
     const v = toCompanyListItemView({
       ...base,
-      phone: "966512345678",
+      phone,
       contactPerson: "Ali",
     });
-    assert.equal(v.phoneLabel, "966512345678");
+    assert.equal(v.phoneLabel, phone);
+    assert.equal(v.phoneLabel.includes(" "), false);
     assert.equal(v.phoneIsLtr, true);
     assert.equal(v.contactPersonLabel, "Ali");
   });

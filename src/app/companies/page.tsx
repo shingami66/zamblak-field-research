@@ -102,12 +102,14 @@ export default async function CompaniesPage({
                     <dt className={styles.metaLabel}>
                       {companiesListCopy.phone}
                     </dt>
-                    <dd
-                      className={`${styles.metaValue} ${
-                        item.phoneIsLtr ? styles.phoneLtr : ""
-                      }`}
-                    >
-                      {item.phoneLabel}
+                    <dd className={styles.metaValue}>
+                      {item.phoneIsLtr ? (
+                        <span dir="ltr" className={styles.phoneLtr}>
+                          {item.phoneLabel}
+                        </span>
+                      ) : (
+                        item.phoneLabel
+                      )}
                     </dd>
                   </div>
                   <div className={styles.metaItem}>
