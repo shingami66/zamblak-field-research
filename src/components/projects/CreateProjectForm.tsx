@@ -70,8 +70,11 @@ export function CreateProjectForm({
   const hasFormError = Boolean(state.formError);
   const noCompanies = companyOptions.length === 0;
 
+  // Remount after every error revision so uncontrolled defaultValue/defaultChecked
+  // re-apply the full returned action-state values (not the initial empty defaults).
   return (
     <form
+      key={state.revision}
       action={formAction}
       className={styles.form}
       noValidate

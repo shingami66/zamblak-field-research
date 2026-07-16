@@ -97,6 +97,7 @@ export {
   mapCreateProjectErrorPresentation,
   readCheckboxField,
   readCreateProjectFormValues,
+  withCreateProjectFormRevision,
 } from "./create-form";
 export type {
   CreateProjectActionState,

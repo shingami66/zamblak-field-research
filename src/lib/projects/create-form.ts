@@ -47,6 +47,12 @@ export type CreateProjectActionState = {
   formError: string | null;
   fieldErrors: CreateProjectFieldErrors;
   values: CreateProjectFormValues;
+  /**
+   * Increments on every returned error so the client form can remount and
+   * re-apply defaultValue/defaultChecked from the latest submitted values.
+   * Uncontrolled controls ignore default* updates without remount.
+   */
+  revision: number;
 };
 
 export const EMPTY_CREATE_PROJECT_STATE: CreateProjectActionState = {
@@ -54,6 +60,7 @@ export const EMPTY_CREATE_PROJECT_STATE: CreateProjectActionState = {
   code: null,
   formError: null,
   fieldErrors: {},
+  revision: 0,
   values: {
     name: "",
     companyId: "",
@@ -251,5 +258,21 @@ export function mapCreateProjectErrorPresentation(
     formError,
     fieldErrors,
     values,
+    revision: 0,
+  };
+}
+
+/**
+ * Attaches a monotonically increasing revision so the create form remounts
+ * after each error and reapplies every returned field as the new default.
+ * Does not alter validation rules or error copy.
+ */
+export function withCreateProjectFormRevision(
+  state: CreateProjectActionState,
+  prev: CreateProjectActionState
+): CreateProjectActionState {
+  return {
+    ...state,
+    revision: prev.revision + 1,
   };
 }

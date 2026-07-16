@@ -102,5 +102,23 @@ describe("Projects create page source boundary", () => {
     assert.equal(form.includes('name="status"'), false);
     assert.equal(form.includes("accountId"), false);
     assert.equal(form.includes("expectedUpdatedAt"), false);
+    // Error recovery remounts from latest action-state values, not empty defaults.
+    assert.equal(form.includes("key={state.revision}"), true);
+    assert.equal(form.includes("defaultValue={values.companyId}"), true);
+    assert.equal(form.includes("defaultValue={values.domain}"), true);
+    assert.equal(form.includes("defaultValue={values.startDate}"), true);
+    assert.equal(form.includes("defaultValue={values.endDate}"), true);
+    assert.equal(form.includes("defaultValue={values.name}"), true);
+    assert.equal(form.includes("defaultValue={values.quota}"), true);
+    assert.equal(form.includes("defaultValue={values.minAge}"), true);
+    assert.equal(form.includes("defaultValue={values.maxAge}"), true);
+    assert.equal(
+      form.includes("defaultChecked={values.requiresThreeMonthWarning}"),
+      true
+    );
+    assert.equal(form.includes("EMPTY_CREATE_PROJECT_STATE"), true);
+    assert.equal(actions.includes("withCreateProjectFormRevision"), true);
+    assert.equal(actions.includes("CREATE_PROJECT_SUCCESS_REDIRECT_PATH"), true);
+    assert.equal(actions.includes("redirect("), true);
   });
 });

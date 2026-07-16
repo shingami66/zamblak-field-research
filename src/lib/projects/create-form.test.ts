@@ -4,10 +4,12 @@ import { projectsCreateCopy } from "./create-copy";
 import {
   CREATE_PROJECT_SUCCESS_REDIRECT_PATH,
   CREATE_PROJECT_SUCCESS_REVALIDATE_PATH,
+  EMPTY_CREATE_PROJECT_STATE,
   formValuesToCreateInputRaw,
   mapCreateProjectErrorPresentation,
   readCheckboxField,
   readCreateProjectFormValues,
+  withCreateProjectFormRevision,
 } from "./create-form";
 import {
   buildCreateProjectRpcArgs,
@@ -346,6 +348,132 @@ describe("create success navigation targets", () => {
     assert.equal(CREATE_PROJECT_SUCCESS_REDIRECT_PATH, "/projects");
     assert.equal(
       CREATE_PROJECT_SUCCESS_REDIRECT_PATH.includes("/projects/"),
+      false
+    );
+  });
+});
+
+describe("create form error value preservation", () => {
+  const filled = baseValues({
+    name: "Full Field Survey",
+    companyId,
+    domain: "banking",
+    startDate: "2026-05-01",
+    endDate: "2026-04-01",
+    quota: "12",
+    minAge: "18",
+    maxAge: "55",
+    requiredResidentType: "saudi",
+    eligibilityNotes: "eligible only",
+    requiresThreeMonthWarning: false,
+    whatsappTemplateAr: "مرحبا",
+    whatsappTemplateEn: "hello",
+    notes: "field notes",
+  });
+
+  it("first error state retains every submitted value", () => {
+    const first = withCreateProjectFormRevision(
+      mapCreateProjectErrorPresentation("invalid_project_dates", filled),
+      EMPTY_CREATE_PROJECT_STATE
+    );
+
+    assert.equal(first.status, "error");
+    assert.equal(first.code, "invalid_project_dates");
+    assert.equal(first.revision, 1);
+    assert.notEqual(first.revision, EMPTY_CREATE_PROJECT_STATE.revision);
+    assert.deepEqual(first.values, filled);
+    assert.equal(first.values.companyId, companyId);
+    assert.equal(first.values.domain, "banking");
+    assert.equal(first.values.startDate, "2026-05-01");
+    assert.equal(first.values.endDate, "2026-04-01");
+    assert.equal(first.values.requiresThreeMonthWarning, false);
+    assert.equal(first.values.requiredResidentType, "saudi");
+    assert.equal(first.fieldErrors.startDate, projectsCreateCopy.errorInvalidDates);
+    assert.equal(first.fieldErrors.endDate, projectsCreateCopy.errorInvalidDates);
+  });
+
+  it("consecutive errors advance revision and keep latest submitted values", () => {
+    const first = withCreateProjectFormRevision(
+      mapCreateProjectErrorPresentation("invalid_project_dates", filled),
+      EMPTY_CREATE_PROJECT_STATE
+    );
+
+    // User corrected dates but left another invalid field (quota).
+    const secondSubmission = {
+      ...filled,
+      startDate: "2026-04-01",
+      endDate: "2026-05-01",
+      quota: "1.5",
+    };
+    const second = withCreateProjectFormRevision(
+      mapCreateProjectErrorPresentation("invalid_project_quota", secondSubmission),
+      first
+    );
+
+    assert.equal(second.revision, 2);
+    assert.equal(second.revision > first.revision, true);
+    assert.deepEqual(second.values, secondSubmission);
+    // Company/domain must survive a later non-company error (user bug).
+    assert.equal(second.values.companyId, companyId);
+    assert.equal(second.values.domain, "banking");
+    assert.equal(second.values.startDate, "2026-04-01");
+    assert.equal(second.values.endDate, "2026-05-01");
+    assert.equal(second.values.quota, "1.5");
+    assert.equal(second.values.name, "Full Field Survey");
+    assert.equal(second.values.minAge, "18");
+    assert.equal(second.values.maxAge, "55");
+    assert.equal(second.values.requiredResidentType, "saudi");
+    assert.equal(second.values.eligibilityNotes, "eligible only");
+    assert.equal(second.values.requiresThreeMonthWarning, false);
+    assert.equal(second.values.whatsappTemplateAr, "مرحبا");
+    assert.equal(second.values.whatsappTemplateEn, "hello");
+    assert.equal(second.values.notes, "field notes");
+    assert.equal(second.fieldErrors.quota, projectsCreateCopy.errorInvalidQuota);
+    // Defaults are not reintroduced as empty strings for filled fields.
+    assert.notEqual(second.values.companyId, "");
+    assert.notEqual(second.values.domain, "");
+    assert.notEqual(second.values.companyId, "null");
+    assert.notEqual(second.values.domain, "undefined");
+  });
+
+  it("RPC-safe error presentation preserves values without raw DB text", () => {
+    const rpcError = withCreateProjectFormRevision(
+      mapCreateProjectErrorPresentation("project_company_not_found", filled),
+      EMPTY_CREATE_PROJECT_STATE
+    );
+    assert.equal(rpcError.revision, 1);
+    assert.deepEqual(rpcError.values, filled);
+    assert.equal(rpcError.formError, projectsCreateCopy.errorCompanyNotFound);
+    assert.equal(rpcError.formError?.includes("SQLSTATE"), false);
+    assert.equal(rpcError.formError?.includes("PostgREST"), false);
+    assert.equal(rpcError.formError?.includes("create_project"), false);
+  });
+
+  it("after date fix, corrected payload can parse and succeed mapping", () => {
+    const corrected = {
+      ...filled,
+      startDate: "2026-04-01",
+      endDate: "2026-05-01",
+    };
+    // Simulate error recovery path values surviving then mapping cleanly.
+    const preserved = withCreateProjectFormRevision(
+      mapCreateProjectErrorPresentation("invalid_project_dates", filled),
+      EMPTY_CREATE_PROJECT_STATE
+    );
+    assert.deepEqual(preserved.values.companyId ? corrected.companyId : "", companyId);
+
+    const mapped = formValuesToCreateInputRaw(corrected);
+    assert.equal(mapped.ok, true);
+    if (!mapped.ok) return;
+    const parsed = parseCreateProjectInput(mapped.data);
+    assert.equal(parsed.ok, true);
+    if (!parsed.ok) return;
+    assert.equal(parsed.data.companyId, companyId);
+    assert.equal(parsed.data.domain, "banking");
+    assert.equal(parsed.data.startDate, "2026-04-01");
+    assert.equal(parsed.data.endDate, "2026-05-01");
+    assert.equal(
+      Object.prototype.hasOwnProperty.call(parsed.data, "status"),
       false
     );
   });

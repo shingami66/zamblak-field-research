@@ -9,6 +9,7 @@ import {
   formValuesToCreateInputRaw,
   mapCreateProjectErrorPresentation,
   readCreateProjectFormValues,
+  withCreateProjectFormRevision,
   type CreateProjectActionState,
 } from "@/lib/projects/create-form";
 import { parseCreateProjectInput } from "@/lib/projects/input";
@@ -19,10 +20,12 @@ import { createClient } from "@/lib/supabase/server";
  * Creates a project via create_project RPC only.
  * Session gate + authenticated client; DB remains authorization authority.
  * Never submits status, account, or audit fields.
- * On success: revalidate list and redirect to /projects (detail not implemented).
+ * On success: revalidate list and redirect to /projects.
+ * On validation/RPC error: return all submitted values with a bumped revision
+ * so the client form remounts and preserves every field.
  */
 export async function createProjectAction(
-  _prevState: CreateProjectActionState,
+  prevState: CreateProjectActionState,
   formData: FormData
 ): Promise<CreateProjectActionState> {
   await requireAppSession();
@@ -31,22 +34,31 @@ export async function createProjectAction(
   const rawMapped = formValuesToCreateInputRaw(values);
 
   if (!rawMapped.ok) {
-    return mapCreateProjectErrorPresentation(rawMapped.code, values);
+    return withCreateProjectFormRevision(
+      mapCreateProjectErrorPresentation(rawMapped.code, values),
+      prevState
+    );
   }
 
   const parsed = parseCreateProjectInput(rawMapped.data);
   if (!parsed.ok) {
-    return mapCreateProjectErrorPresentation(parsed.code, values);
+    return withCreateProjectFormRevision(
+      mapCreateProjectErrorPresentation(parsed.code, values),
+      prevState
+    );
   }
 
   const supabase = await createClient();
   const created = await createProject(supabase, parsed.data);
 
   if (!created.ok) {
-    return mapCreateProjectErrorPresentation(created.code, values);
+    return withCreateProjectFormRevision(
+      mapCreateProjectErrorPresentation(created.code, values),
+      prevState
+    );
   }
 
-  // Detail route not implemented — id unused for navigation.
+  // Success navigates to list — id unused for navigation.
   void created.data.projectId;
 
   revalidatePath(CREATE_PROJECT_SUCCESS_REVALIDATE_PATH);
