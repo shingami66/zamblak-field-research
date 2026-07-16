@@ -452,6 +452,11 @@ After a clean run:
 -- No business-row SELECT from domain tables.
 -- Runner: Mozfer only. DEV/DEMO only. PostgreSQL 17.x.
 -- Output: one ordered result set (section_order, section_key, item_key, payload)
+--
+-- PUBLIC ACL note:
+--   PostgreSQL PUBLIC is ACL grantee OID 0 (not a role).
+--   Never pass 'PUBLIC'/'public' to has_table_privilege / has_function_privilege.
+--   Use aclexplode(COALESCE(relacl/proacl, acldefault(...))) WHERE grantee = 0.
 -- =============================================================================
 
 WITH
@@ -747,7 +752,17 @@ section_c_consistency AS (
         WHERE cfg LIKE 'search_path=%'
         LIMIT 1
       ),
-      'execute_public', has_function_privilege('public', p.oid, 'EXECUTE'),
+      -- PUBLIC is ACL grantee OID 0; never pass role name 'PUBLIC'/'public' to has_*_privilege
+      'execute_public', (
+        SELECT EXISTS (
+          SELECT 1
+          FROM pg_catalog.aclexplode(
+            COALESCE(p.proacl, pg_catalog.acldefault('f', p.proowner))
+          ) AS acl
+          WHERE acl.grantee = 0
+            AND acl.privilege_type = 'EXECUTE'
+        )
+      ),
       'execute_anon', has_function_privilege('anon', p.oid, 'EXECUTE'),
       'execute_authenticated', has_function_privilege('authenticated', p.oid, 'EXECUTE'),
       'execute_service_role', has_function_privilege('service_role', p.oid, 'EXECUTE'),
@@ -824,7 +839,16 @@ section_c_updated_at AS (
         WHERE cfg LIKE 'search_path=%'
         LIMIT 1
       ),
-      'execute_public', has_function_privilege('public', p.oid, 'EXECUTE'),
+      'execute_public', (
+        SELECT EXISTS (
+          SELECT 1
+          FROM pg_catalog.aclexplode(
+            COALESCE(p.proacl, pg_catalog.acldefault('f', p.proowner))
+          ) AS acl
+          WHERE acl.grantee = 0
+            AND acl.privilege_type = 'EXECUTE'
+        )
+      ),
       'execute_anon', has_function_privilege('anon', p.oid, 'EXECUTE'),
       'execute_authenticated', has_function_privilege('authenticated', p.oid, 'EXECUTE'),
       'execute_service_role', has_function_privilege('service_role', p.oid, 'EXECUTE'),
@@ -959,14 +983,22 @@ section_d_pfs_grants AS (
   SELECT
     15 AS section_order,
     'D_pfs_grants'::text AS section_key,
-    r.rolname || ':' || p.privilege AS item_key,
+    r.rolname || ':' || priv.privilege AS item_key,
     jsonb_build_object(
       'relation', 'public.project_financial_settings',
       'grantee', r.rolname,
-      'privilege', p.privilege,
+      'privilege', priv.privilege,
       'has_privilege', CASE
-        WHEN to_regclass('public.project_financial_settings') IS NULL THEN NULL
-        ELSE has_table_privilege(r.rolname, 'public.project_financial_settings', p.privilege)
+        WHEN rel.oid IS NULL THEN NULL
+        WHEN r.rolname = 'PUBLIC' THEN EXISTS (
+          SELECT 1
+          FROM pg_catalog.aclexplode(
+            COALESCE(rel.relacl, pg_catalog.acldefault('r', rel.relowner))
+          ) AS acl
+          WHERE acl.grantee = 0
+            AND acl.privilege_type = priv.privilege
+        )
+        ELSE has_table_privilege(r.rolname, rel.oid, priv.privilege)
       END
     ) AS payload
   FROM (VALUES
@@ -984,7 +1016,9 @@ section_d_pfs_grants AS (
     ('TRUNCATE'),
     ('REFERENCES'),
     ('TRIGGER')
-  ) AS p(privilege)
+  ) AS priv(privilege)
+  LEFT JOIN pg_catalog.pg_class AS rel
+    ON rel.oid = to_regclass('public.project_financial_settings')
 ),
 
 -- ---------------------------------------------------------------------------
@@ -1027,14 +1061,22 @@ section_e_grants AS (
   SELECT
     17 AS section_order,
     'E_grants_projects'::text AS section_key,
-    r.rolname || ':' || p.privilege AS item_key,
+    r.rolname || ':' || priv.privilege AS item_key,
     jsonb_build_object(
       'relation', 'public.projects',
       'grantee', r.rolname,
-      'privilege', p.privilege,
+      'privilege', priv.privilege,
       'has_privilege', CASE
-        WHEN to_regclass('public.projects') IS NULL THEN NULL
-        ELSE has_table_privilege(r.rolname, 'public.projects', p.privilege)
+        WHEN rel.oid IS NULL THEN NULL
+        WHEN r.rolname = 'PUBLIC' THEN EXISTS (
+          SELECT 1
+          FROM pg_catalog.aclexplode(
+            COALESCE(rel.relacl, pg_catalog.acldefault('r', rel.relowner))
+          ) AS acl
+          WHERE acl.grantee = 0
+            AND acl.privilege_type = priv.privilege
+        )
+        ELSE has_table_privilege(r.rolname, rel.oid, priv.privilege)
       END
     ) AS payload
   FROM (VALUES
@@ -1052,7 +1094,9 @@ section_e_grants AS (
     ('TRUNCATE'),
     ('REFERENCES'),
     ('TRIGGER')
-  ) AS p(privilege)
+  ) AS priv(privilege)
+  LEFT JOIN pg_catalog.pg_class AS rel
+    ON rel.oid = to_regclass('public.projects')
 ),
 
 -- ---------------------------------------------------------------------------
@@ -1075,6 +1119,16 @@ section_f_views AS (
         FROM unnest(COALESCE(c.reloptions, ARRAY[]::text[])) AS opt
         WHERE opt LIKE 'security_invoker%'
         LIMIT 1
+      ),
+      'select_public', (
+        SELECT EXISTS (
+          SELECT 1
+          FROM pg_catalog.aclexplode(
+            COALESCE(c.relacl, pg_catalog.acldefault('r', c.relowner))
+          ) AS acl
+          WHERE acl.grantee = 0
+            AND acl.privilege_type = 'SELECT'
+        )
       ),
       'select_anon', has_table_privilege('anon', c.oid, 'SELECT'),
       'select_authenticated', has_table_privilege('authenticated', c.oid, 'SELECT'),
@@ -1181,7 +1235,17 @@ section_g_execute_acls AS (
       'function_name', p.proname,
       'identity_arguments', pg_catalog.pg_get_function_identity_arguments(p.oid),
       'grantee', r.rolname,
-      'execute', has_function_privilege(r.rolname, p.oid, 'EXECUTE')
+      'execute', CASE
+        WHEN r.rolname = 'PUBLIC' THEN EXISTS (
+          SELECT 1
+          FROM pg_catalog.aclexplode(
+            COALESCE(p.proacl, pg_catalog.acldefault('f', p.proowner))
+          ) AS acl
+          WHERE acl.grantee = 0
+            AND acl.privilege_type = 'EXECUTE'
+        )
+        ELSE has_function_privilege(r.rolname, p.oid, 'EXECUTE')
+      END
     ) AS payload
   FROM pg_catalog.pg_proc AS p
   JOIN pg_catalog.pg_namespace AS pn
@@ -1336,7 +1400,16 @@ section_j_companies_selector AS (
         WHERE cfg LIKE 'search_path=%'
         LIMIT 1
       ),
-      'execute_public', has_function_privilege('public', p.oid, 'EXECUTE'),
+      'execute_public', (
+        SELECT EXISTS (
+          SELECT 1
+          FROM pg_catalog.aclexplode(
+            COALESCE(p.proacl, pg_catalog.acldefault('f', p.proowner))
+          ) AS acl
+          WHERE acl.grantee = 0
+            AND acl.privilege_type = 'EXECUTE'
+        )
+      ),
       'execute_anon', has_function_privilege('anon', p.oid, 'EXECUTE'),
       'execute_authenticated', has_function_privilege('authenticated', p.oid, 'EXECUTE'),
       'execute_service_role', has_function_privilege('service_role', p.oid, 'EXECUTE'),
@@ -1400,7 +1473,16 @@ section_k_participation_guard AS (
         WHERE cfg LIKE 'search_path=%'
         LIMIT 1
       ),
-      'execute_public', has_function_privilege('public', p.oid, 'EXECUTE'),
+      'execute_public', (
+        SELECT EXISTS (
+          SELECT 1
+          FROM pg_catalog.aclexplode(
+            COALESCE(p.proacl, pg_catalog.acldefault('f', p.proowner))
+          ) AS acl
+          WHERE acl.grantee = 0
+            AND acl.privilege_type = 'EXECUTE'
+        )
+      ),
       'execute_anon', has_function_privilege('anon', p.oid, 'EXECUTE'),
       'execute_authenticated', has_function_privilege('authenticated', p.oid, 'EXECUTE'),
       'execute_service_role', has_function_privilege('service_role', p.oid, 'EXECUTE'),
@@ -1464,7 +1546,8 @@ section_z AS (
         'Do not pre-label soft-deleted company rejection as PASS',
         'Do not treat support_project_directory as full Projects list API',
         'project_financial_summary is outside Projects MVP',
-        'Do not EXECUTE list_companies/get_company in this gate'
+        'Do not EXECUTE list_companies/get_company in this gate',
+        'PUBLIC ACL uses grantee OID 0 via aclexplode; never has_*_privilege role name PUBLIC'
       ]
     ) AS payload
 )
