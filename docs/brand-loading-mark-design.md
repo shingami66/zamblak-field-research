@@ -1,16 +1,21 @@
 # Zamblak branded loading mark — design freeze
 
-**Status:** DESIGN APPROVED — documentation complete
+**Status:** DESIGN CLOSED · IMPLEMENTATION CLOSED · MANUAL SMOKE **PASS WITH WARN**
 
-**Task:** `ZAM-BRAND-LOADING-MARK-DESIGN-1`
+**Design task:** `ZAM-BRAND-LOADING-MARK-DESIGN-1`
 
-**Implementation:** **not started** (no React component, SVG asset, CSS animation, or route integration in source)
+**Implementation task:** `ZAM-BRAND-LOADING-MARK-IMPLEMENT-1` — **CLOSED**
 
-**Future implementation task:** `ZAM-BRAND-LOADING-MARK-IMPLEMENT-1`
+**Implementation commit:** `96505757f444c20ad0b8331b681a221bf2ea4935`
+(`feat(brand): add Zamblak loading mark`)
 
-**Exact next product feature task:** `ZAM-PROJECTS-CREATE-PAGE-1`
+**Manual smoke closeout:** `ZAM-BRAND-LOADING-MARK-SMOKE-CLOSE-1`
+**Manual runner:** Mozfer
+**Smoke verdict:** **PASS WITH WARN** (no application HOLD)
 
-This document freezes the approved **concept, motion, variants, accessibility, and technical direction** for a Zamblak branded loading mark. It does **not** implement UI, commit artwork, or claim production readiness.
+**Exact next product phase task:** `ZAM-RESPONDENTS-MVP-SCOPE-REVIEW-1` (Respondent Registry)
+
+This document freezes the approved **concept, motion, variants, accessibility, and technical direction** for a Zamblak branded loading mark. Implementation and Mozfer runtime smoke are recorded below. Production readiness is **not** claimed.
 
 ---
 
@@ -400,28 +405,106 @@ This design freeze is complete when:
 
 ---
 
-## 21. Future implementation task
+## 21. Implementation status (CLOSED)
 
-**`ZAM-BRAND-LOADING-MARK-IMPLEMENT-1`**
+**Task:** `ZAM-BRAND-LOADING-MARK-IMPLEMENT-1`
+**Commit:** `96505757f444c20ad0b8331b681a221bf2ea4935`
 
-Implement the reusable branded loading mark and wire it only where authorized by a later task scope. That task must **not** expand into unrelated domain feature work unless explicitly authorized.
+Delivered in source (summary):
 
-Do **not** treat this design document as runtime evidence of an implemented component.
+- Reusable `ZamblakLoadingMark` (inline SVG + CSS modules; server-compatible)
+- Variants: compact / standard / full
+- CSS transform seconds-hand cycle (~1.05s) with rebound + pause
+- `prefers-reduced-motion: reduce` static fallback
+- Projects list/detail/edit loading integrations (skeletons retained)
+- Projects create/edit/lifecycle pending compact mark (labels retained)
+- Safe root `src/app/loading.tsx` full variant inside layout `<main>` (header preserved)
 
 ---
 
-## 22. Exact next product task
+## 22. Manual runtime smoke (Mozfer) — PASS WITH WARN
 
-**`ZAM-PROJECTS-CREATE-PAGE-1`**
+**Closeout task:** `ZAM-BRAND-LOADING-MARK-SMOKE-CLOSE-1`
+**Runner:** Mozfer (not agent browser automation)
+**Environment:** designated DEV/DEMO
+**Final verdict:** **PASS WITH WARN**
+**Application HOLD:** **none observed**
 
-Continue the Projects MVP UI sequence (create page) after the completed list page. Brand loading implementation remains a separate future task and must not block or replace Projects create work unless product prioritization changes under a new authorized task.
+### Confirmed results
+
+| Topic | Result |
+|---|---|
+| Conditional route loading | Mark appeared on **some** route transitions; **not** every transition |
+| Fast / prefetched transitions | Absence of the mark is **expected** |
+| Loading lifecycle | Appeared only while waiting; disappeared when destination completed |
+| Stuck loader | **Not** reported |
+| Navigation after load | Continued successfully |
+| Performance | Fast transitions were allowed to complete without delaying the user |
+| Forced minimum display duration | **Rejected** — not required and not approved |
+| Fake progress / forced wait | **Not** introduced |
+| Skeleton strategy | Branded loader **complements** skeletons; does not require replacing them solely for exposure |
+
+### Browser-extension hydration warning (external, nonblocking)
+
+Mozfer observed a React/Next.js hydration warning whose DOM diff included:
+
+`data-immersive-translate-page-theme="light"`
+
+Classification:
+
+- **Browser-extension DOM interference** (translation extension mutating root HTML before React hydration)
+- **Not** attributed to Zamblak application source
+- **Not** attributed to the branded loading mark
+- Does **not** justify an application code change
+- **`suppressHydrationWarning` is not approved**
+- **`layout.tsx` modification for this warning is not approved**
+- Appropriate verification: extension disabled or a clean browser profile
+
+Unrelated console noise (not product defects):
+
+- Chrome Built-In AI informational console output
+- React DevTools development output
+
+### Nonblocking manual coverage limits
+
+Not exhaustively verified in this smoke (remain covered by source + automated tests; **not** claimed as manual PASS):
+
+- exact spring/rebound visual timing under prolonged observation
+- compact loader inside every pending button type
+- `prefers-reduced-motion` behavior
+- dark-surface appearance
+
+These do **not** reopen implementation solely for this closeout.
+
+### Phase closure
+
+| Gate | Status |
+|---|---|
+| Design | **CLOSED** |
+| Implementation | **CLOSED** (`96505757…`) |
+| Manual runtime smoke | **PASS WITH WARN** |
+| Conditional appearance | **Expected** |
+| Artificial delay | **Rejected** |
+| Application hydration defect | **Not found** |
+| Browser-extension interference | **External nonblocking warning** |
+| Production readiness | **Not claimed** |
+
+---
+
+## 23. Exact next product task
+
+**`ZAM-RESPONDENTS-MVP-SCOPE-REVIEW-1`**
+
+Product sequence remains: **Company → Project → Respondent → Participation → Review → Financials**.
 
 ---
 
 ## Explicit non-claims
 
-- Branded loading mark is **not implemented** in application source.
-- No SVG asset, CSS animation module, or shared loader component is delivered by this task.
-- No browser/manual smoke was performed for the mark.
 - Production readiness is **not** claimed.
-- Projects create/detail/edit pages are **not** claimed complete by this document.
+- Every route transition is **not** required to display the branded loader.
+- Minimum forced display duration is **not** approved.
+- Application hydration defect is **not** claimed from the extension warning.
+- `suppressHydrationWarning` and `layout.tsx` workarounds for extension interference are **not** approved.
+- Compact / reduced-motion / dark-surface exhaustive manual verification is **not** claimed by this smoke.
+- Agent did **not** run browser automation or SQL for this smoke closeout.

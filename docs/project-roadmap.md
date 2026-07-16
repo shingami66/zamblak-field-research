@@ -38,11 +38,13 @@
   - Mozfer overall manual smoke result: **PASS** — `docs/projects-manual-smoke-result.md`.
   - Closed follow-ups: RTL date polish; lifecycle semantic colors; create-form value preservation (Company/domain and all fields survive validation errors).
   - Production readiness not claimed.
-- Brand / loading mark (cross-cutting, design only → next implement task)
-  - Design freeze: `docs/brand-loading-mark-design.md` (`ZAM-BRAND-LOADING-MARK-DESIGN-1`).
-  - Implementation **not** started.
-  - **Next product task:** `ZAM-BRAND-LOADING-MARK-IMPLEMENT-1`.
-- Phase 5: Respondent Registry
+- Brand / loading mark (cross-cutting) — **CLOSED (PASS WITH WARN)**
+  - Design: `docs/brand-loading-mark-design.md` (`ZAM-BRAND-LOADING-MARK-DESIGN-1`) — closed.
+  - Implementation: `ZAM-BRAND-LOADING-MARK-IMPLEMENT-1` — closed at `96505757f444c20ad0b8331b681a221bf2ea4935`.
+  - Mozfer manual smoke: **PASS WITH WARN** (`ZAM-BRAND-LOADING-MARK-SMOKE-CLOSE-1`) — conditional route appearance expected; no artificial delay; browser-extension hydration noise external; no application HOLD.
+  - Production readiness not claimed.
+- Phase 5: Respondent Registry (**next**)
+  - **Next product task:** `ZAM-RESPONDENTS-MVP-SCOPE-REVIEW-1`.
 - Phase 6: Participation
 - Phase 7: Review
 - Phase 8: Financials

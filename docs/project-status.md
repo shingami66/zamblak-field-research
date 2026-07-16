@@ -1,8 +1,8 @@
 # Project Status
 
-Current phase: **Projects MVP runtime acceptance closed (PASS)** — schema/RPC applied and verified on designated DEV/DEMO; contracts complete; list/create/detail/edit implemented; Stitch polish (`fc13d92`) and create-form error-state preservation (`7cb47d90`) implemented. Companies MVP remains closed. **Mozfer overall manual browser smoke: PASS** (`docs/projects-manual-smoke-result.md`). RTL date polish, lifecycle semantic colors, and create-form value preservation are **closed**. Production readiness is **not** claimed. Cross-account runtime isolation smoke remains deferred and non-blocking. Branded loading-mark **design approved**; implementation **not** started.
+Current phase: **Brand loading mark closed (PASS WITH WARN)**; **Projects MVP runtime acceptance closed (PASS)**; Companies MVP closed. Branded loading-mark design, implementation (`96505757`), and Mozfer manual smoke are **closed** — smoke **PASS WITH WARN** (conditional route appearance expected; browser-extension hydration noise external; no application HOLD). Projects smoke remains PASS (`docs/projects-manual-smoke-result.md`). Production readiness is **not** claimed. Cross-account runtime isolation smoke remains deferred and non-blocking.
 
-Next product sequence: `ZAM-BRAND-LOADING-MARK-IMPLEMENT-1` (branded loading mark implementation; design frozen in `docs/brand-loading-mark-design.md`).
+Next product sequence: **Phase 5 Respondent Registry** — `ZAM-RESPONDENTS-MVP-SCOPE-REVIEW-1`. Product order remains Company → Project → Respondent → Participation → Review → Financials.
 
 ## Auth (`ZAM-AUTH-001D`) — CLOSED
 
@@ -269,18 +269,32 @@ Implemented Auth behavior (still current):
 - **Result:** **PASS**
 - **Not claimed:** production readiness; branded loader implemented; cross-account destructive probing PASS.
 
-## Brand — loading mark (`ZAM-BRAND-LOADING-MARK-DESIGN-1`) — design approved; not implemented
+## Brand — loading mark — CLOSED (smoke PASS WITH WARN)
 
 | Milestone | Status |
 |---|---|
-| Design documentation | **Complete** — `docs/brand-loading-mark-design.md` |
-| Original stopwatch / seconds-hand concept | **Approved** (design only) |
-| Animation contract (≈0.9–1.2s + rebound) | **Documented** |
-| Full-page / compact / reduced-motion variants | **Documented** |
-| Token/color + accessibility contracts | **Documented** |
-| Implementation (SVG/CSS/React) | **Not started** |
-| Assets / components in source | **None** |
-| Future task | `ZAM-BRAND-LOADING-MARK-IMPLEMENT-1` |
+| Design documentation | **CLOSED** — `docs/brand-loading-mark-design.md` (`ZAM-BRAND-LOADING-MARK-DESIGN-1`) |
+| Original stopwatch / seconds-hand concept | **Approved** |
+| Animation contract (≈0.9–1.2s + rebound) | **Implemented** (CSS ~1.05s) |
+| Full-page / compact / reduced-motion variants | **Implemented** |
+| Token/color + accessibility contracts | **Implemented** |
+| Implementation (SVG/CSS/React) | **CLOSED** — `ZAM-BRAND-LOADING-MARK-IMPLEMENT-1` |
+| Implementation commit | `96505757f444c20ad0b8331b681a221bf2ea4935` |
+| Source surface | `src/components/brand/ZamblakLoadingMark.tsx` + CSS module; Projects loading/pending + root `loading.tsx` |
+| Manual smoke | **PASS WITH WARN** (Mozfer; `ZAM-BRAND-LOADING-MARK-SMOKE-CLOSE-1`) |
+| Production readiness | **Not claimed** |
+
+### Manual smoke summary (`ZAM-BRAND-LOADING-MARK-SMOKE-CLOSE-1`)
+
+- **Runner:** Mozfer (not agent browser automation).
+- **Verdict:** **PASS WITH WARN** — no application HOLD.
+- **Conditional appearance:** loader shown on some slower route waits; **not** every transition (fast/prefetched absence **expected**).
+- **Lifecycle:** appears while waiting; disappears when destination completes; no stuck loader reported.
+- **Performance policy:** no minimum forced display duration; no artificial delay; no fake progress.
+- **Skeletons:** remain complementary; not replaced solely to increase brand exposure.
+- **Hydration warning:** `data-immersive-translate-page-theme` attributed to a **browser translation extension**, not Zamblak source or the branded loader. No `suppressHydrationWarning` and no `layout.tsx` change approved. Verify with extension off / clean profile.
+- **Unrelated console noise:** Chrome Built-In AI info and React DevTools messages are not product defects.
+- **Nonblocking coverage not exhaustively manual:** spring/rebound timing detail; every compact pending button; reduced-motion; dark surfaces (source + automated tests remain).
 
 ### Installed product RPCs (DEV/DEMO, after correction)
 
@@ -306,7 +320,7 @@ Implemented Auth behavior (still current):
 
 ## Open work
 
-- Branded loading mark implementation (`ZAM-BRAND-LOADING-MARK-IMPLEMENT-1`) — design frozen in `docs/brand-loading-mark-design.md`; **not implemented**; next product task after Projects MVP smoke closeout.
+- **Next product phase:** Respondent Registry — `ZAM-RESPONDENTS-MVP-SCOPE-REVIEW-1`.
 - Deferred **cross-account** Companies/Projects runtime isolation smoke (second account) — **non-blocking**; not marked PASS.
 - Deferred Companies lifecycle/metrics/import items: `docs/deferred-decisions.md`.
 - Deferred Support Helper **ACL-era** runtime smoke note remains historical P2 for that milestone only; Companies same-account SH smoke is closed above.
