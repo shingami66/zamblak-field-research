@@ -104,3 +104,30 @@ export type {
   CreateProjectFormValues,
   FormValuesToCreateInputResult,
 } from "./create-form";
+
+export { projectsDetailCopy } from "./detail-copy";
+export type { ProjectsDetailCopy } from "./detail-copy";
+export { parseProjectIdParam } from "./detail-params";
+export type { ParseProjectIdResult } from "./detail-params";
+export {
+  projectResidentLabel,
+  projectTransitionActionLabel,
+  projectsDetailErrorBehavior,
+  projectsTransitionErrorMessage,
+  toProjectDetailView,
+} from "./detail-view-model";
+export type {
+  ProjectDetailView,
+  ProjectLifecycleActionView,
+} from "./detail-view-model";
+export {
+  EMPTY_TRANSITION_PROJECT_STATE,
+  isProjectStatusValue,
+  mapTransitionProjectErrorPresentation,
+  readTransitionFormFields,
+  transitionOwnerDeniedState,
+} from "./detail-transition";
+export type {
+  TransitionFormFields,
+  TransitionProjectActionState,
+} from "./detail-transition";

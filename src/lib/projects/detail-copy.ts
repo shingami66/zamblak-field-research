@@ -1,0 +1,71 @@
+/**
+ * Arabic-first Projects detail page copy.
+ */
+export const projectsDetailCopy = {
+  backToList: "العودة إلى قائمة المشاريع",
+  editProject: "تعديل المشروع",
+  lifecycleHeading: "تغيير حالة المشروع",
+  lifecycleHint:
+    "متاح للمالك فقط. تُطبَّق القواعد النهائية في قاعدة البيانات. يُستخدم وقت آخر تحديث المحمّل من التفاصيل دون تغييره في المتصفح.",
+  transitionToActive: "تفعيل المشروع",
+  transitionToClosed: "إغلاق المشروع",
+  transitionToCancelled: "إلغاء المشروع",
+  transitioning: "جارٍ تحديث الحالة…",
+  sectionBasic: "المعلومات الأساسية",
+  sectionSchedule: "الجدول الزمني والعدد المستهدف",
+  sectionParticipants: "معايير المشاركين",
+  sectionTemplates: "قوالب التواصل",
+  sectionNotes: "الملاحظات",
+  sectionAudit: "سجل التحديث",
+  companyName: "الشركة",
+  domain: "المجال",
+  status: "الحالة",
+  startDate: "تاريخ البداية",
+  endDate: "تاريخ النهاية",
+  quota: "العدد المستهدف",
+  minAge: "الحد الأدنى للعمر",
+  maxAge: "الحد الأعلى للعمر",
+  residentType: "نوع الإقامة المطلوب",
+  eligibilityNotes: "ملاحظات الأهلية",
+  threeMonthWarning: "تنبيه المشاركة خلال ثلاثة أشهر",
+  threeMonthYes: "مفعّل",
+  threeMonthNo: "غير مفعّل",
+  whatsappAr: "قالب واتساب بالعربية",
+  whatsappEn: "قالب واتساب بالإنجليزية",
+  notes: "ملاحظات",
+  createdAt: "تاريخ الإنشاء",
+  updatedAt: "آخر تحديث",
+  notProvided: "غير متوفر",
+  notSpecified: "غير محدد",
+  quotaUnspecified: "غير محددة",
+  loading: "جاري تحميل بيانات المشروع…",
+  formErrorHeading: "تعذّر تحديث حالة المشروع",
+  errorAccess:
+    "لا يمكن عرض هذا المشروع حالياً. تحقق من صلاحية الحساب أو أعد تسجيل الدخول.",
+  errorProfile:
+    "تعذّر التحقق من ملف الحساب. أعد تسجيل الدخول ثم حاول مرة أخرى.",
+  errorUnexpected: "تعذّر تحميل بيانات المشروع. حاول مرة أخرى لاحقاً.",
+  errorTransitionAccess:
+    "لا يمكن تغيير حالة المشروع بهذا الحساب. الإجراء مخصّص للمالك.",
+  errorTransitionInvalid:
+    "الانتقال المطلوب غير مسموح لحالة المشروع الحالية.",
+  errorStale:
+    "تم تعديل المشروع من مكان آخر. حدّث الصفحة ثم أعد المحاولة.",
+  errorNotEditable: "لا يمكن تعديل حالة هذا المشروع حالياً.",
+  errorCompanyLocked: "تعذّر قفل بيانات الشركة المرتبطة. حاول مرة أخرى.",
+  statusDraft: "مسودة",
+  statusActive: "نشط",
+  statusClosed: "مغلق",
+  statusCancelled: "ملغي",
+  domainTelecom: "اتصالات",
+  domainBanking: "بنوك",
+  domainInsurance: "تأمين",
+  domainProduct: "منتجات",
+  domainOther: "أخرى",
+  residentAny: "الجميع",
+  residentSaudi: "سعودي",
+  residentNonSaudi: "غير سعودي",
+  residentUnknown: "غير محدد",
+} as const;
+
+export type ProjectsDetailCopy = typeof projectsDetailCopy;
