@@ -17,10 +17,10 @@
   - **Required sequence before any Companies implementation:**
     1. Mozfer contract + deferred-register approval (done)
     2. Companies contract + deferred-work documentation sync, review, commit, push (done)
-    3. Graphify refresh + freshness review after Companies docs / ACL commits (done for current HEAD `846894ed`)
+    3. Graphify refresh + freshness review after Companies docs / ACL commits (done for ACL-era HEADs through `846894ed` / docs-close `9083d3e7`)
     4. Core ACL hardening design → SQL draft → DEV/DEMO apply → verify → commit → push (`ZAM-SEC-ACL-001`) (done)
-    5. Live DEV/DEMO catalog verification (`ZAM-COMPANIES-001-LIVE-CATALOG-VERIFY-1` / `DWR-COMP-026`) (**next mandatory gate**)
-    6. Schema/RPC design task
+    5. Live DEV/DEMO catalog verification packet **prepared** (`docs/companies-live-catalog-verification.md` / `DWR-COMP-026`) — **next:** Mozfer manual SQL Editor run + result review
+    6. Schema/RPC design task (only after catalog review PASS)
     7. Independent schema/RPC design review
     8. Implementation only after design approval
   - Deferred Companies items and permanent non-goals: see `docs/deferred-decisions.md` (Companies register).

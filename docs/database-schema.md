@@ -35,7 +35,7 @@
 
 1. **Existing committed/applied facts** (core schema + role-safe read surfaces, DEV/DEMO apply evidence as above).
 2. **Approved future design** (Mozfer Companies MVP contract) — planned only until gates pass.
-3. **Live catalog state** — **unknown for this phase** until `ZAM-COMPANIES-001-LIVE-CATALOG-VERIFY-1` / `DWR-COMP-026` completes metadata-only reconciliation against DEV/DEMO. Do not claim indexes, new constraints, new policies, grants, or Companies RPCs exist before that verification and implementation.
+3. **Live catalog state** — **unknown until Mozfer runs and results are reviewed** for `DWR-COMP-026`. The metadata-only verification packet is prepared at `docs/companies-live-catalog-verification.md` (not executed by the packet-prep docs task). Do not claim live indexes, new constraints, new policies, grants, or Companies RPCs from source alone.
 
 ### Existing companies table facts (source: core schema)
 
@@ -96,4 +96,4 @@ Related:
 
 **Project statuses (existing, authoritative):** `draft`, `active`, `closed`, `cancelled` only. Do not invent a stored `completed` status.
 
-**Implementation gate:** no Companies migration/RPC implementation until live catalog verification and schema/RPC design reviews pass. See `docs/deferred-decisions.md` register `DWR-COMP-001`–`DWR-COMP-028`.
+**Implementation gate:** no Companies migration/RPC implementation until live catalog verification packet is **manually run** (Mozfer), **reviewed PASS**, and schema/RPC design reviews pass. Packet: `docs/companies-live-catalog-verification.md`. See `docs/deferred-decisions.md` register `DWR-COMP-001`–`DWR-COMP-028`.

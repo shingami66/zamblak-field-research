@@ -61,16 +61,17 @@ The current `/companies`, `/projects`, and `/financials` pages are navigation-sa
 | **Classification** | **Mandatory pre-implementation verification gate** (not an optional enhancement) |
 | **Reason** | Live catalog was not re-verified against committed migrations before Companies design |
 | **Current MVP behavior** | Contract grounded in committed migrations and docs only |
+| **Packet status** | **Prepared** in `docs/companies-live-catalog-verification.md` (metadata-only SQL; not yet executed). Manual Mozfer run on DEV/DEMO `gdegnwglakyblnmxgiwx` only |
 | **Revisit trigger** | **Before** any Companies migration or RPC design/apply task (after docs sync, commit, Graphify, and Mozfer contract approval) |
-| **Future task ID** | `ZAM-COMPANIES-001-LIVE-CATALOG-VERIFY-1` |
-| **Dependencies** | Approved contract; authorized metadata-only Supabase access (no `.env` secrets in agent output) |
+| **Future task ID** | `ZAM-COMPANIES-LIVE-CATALOG-MANUAL-RUN-1` (execute packet) → result review → then schema/RPC design |
+| **Dependencies** | Approved contract; Mozfer SQL Editor access to designated DEV/DEMO (no `.env` secrets in agent output) |
 | **Product implications** | Confirms schema readiness for design |
-| **Security implications** | Metadata only; no domain row dumps; no secret printing |
+| **Security implications** | Metadata only; no domain row dumps; no secret printing; no DML/DDL |
 | **Schema implications** | Reconcile columns, constraints, indexes, policies, grants vs source |
 | **UX implications** | None |
-| **Destination docs** | `docs/project-status.md`, `docs/database-schema.md` (after run) |
+| **Destination docs** | Packet: `docs/companies-live-catalog-verification.md`. After run/review: `docs/project-status.md`, `docs/database-schema.md` |
 | **Priority** | P1 |
-| **Blocks current MVP implementation** | **Yes** (blocks migration/RPC design). Does **not** block docs or Mozfer approval |
+| **Blocks current MVP implementation** | **Yes** (blocks migration/RPC design until packet run + review PASS). Does **not** block docs or Mozfer approval |
 
 ### Scheduled deferred features (Companies-related)
 

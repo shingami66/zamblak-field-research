@@ -1,8 +1,8 @@
 # Project Status
 
-Current phase: **Companies product phase** after closed Auth and closed core ACL hardening. Companies MVP contract and deferred-work register are **Mozfer-approved**. Local `main` and `origin/main` are aligned at `846894ed3ccfad21545a5f9e451814dbc8edfa16`. Companies UI remains a protected placeholder. **No Companies implementation has begun.**
+Current phase: **Companies product phase** after closed Auth and closed core ACL hardening. Companies MVP contract and deferred-work register are **Mozfer-approved**. Companies UI remains a protected placeholder. **No Companies implementation has begun.**
 
-Next sequence: live DEV/DEMO catalog verification (`ZAM-COMPANIES-001-LIVE-CATALOG-VERIFY-1` / `DWR-COMP-026`) → schema/RPC design → independent design review → implementation only after design approval. Core ACL hardening no longer blocks that sequence.
+Next sequence: Mozfer **manual run** of the live DEV/DEMO catalog verification packet (`docs/companies-live-catalog-verification.md`, `DWR-COMP-026`) → result review → schema/RPC design → independent design review → implementation only after design approval. Core ACL hardening is closed and does not block that sequence. The verification packet is **prepared and not yet executed**.
 
 ## Auth (`ZAM-AUTH-001D`) — CLOSED
 
@@ -67,8 +67,9 @@ Implemented Auth behavior (still current):
 - **Deferred register:** `DWR-COMP-001` through `DWR-COMP-028` recorded in `docs/deferred-decisions.md`.
 - **Docs commits:** contract/deferred register and post-commit sync are on remote history through `d45bd95` (and prior Companies docs commits).
 - **Application today:** `/companies` remains a protected placeholder (`requireAppSession` + empty pending module). No list, detail, create, edit, query, server action, RPC, or fake company data.
-- **Mandatory before schema/RPC design:** live DEV/DEMO catalog verification (`DWR-COMP-026` / `ZAM-COMPANIES-001-LIVE-CATALOG-VERIFY-1`). Metadata only; no domain row dumps; no `.env` secret access.
-- **ACL remediation is closed** and does **not** block Companies gates. Companies implementation still requires catalog verification and design approval.
+- **Mandatory before schema/RPC design:** live DEV/DEMO catalog verification (`DWR-COMP-026`).
+- **Verification packet:** prepared in `docs/companies-live-catalog-verification.md` (metadata-only SQL; ordered JSON sections A–G + meta). **Manual Mozfer run only** on designated DEV/DEMO `gdegnwglakyblnmxgiwx`. Not executed in this docs task. No domain row dumps; no `.env` secret access; no DML/DDL.
+- **ACL remediation is closed** and does **not** block Companies gates. Companies implementation still requires catalog verification **results review** and design approval.
 
 ### Approved Companies MVP summary (not runtime)
 
@@ -127,8 +128,8 @@ Implemented Auth behavior (still current):
 
 ## Open work
 
-- Complete live DEV/DEMO catalog verification (`DWR-COMP-026`) before Companies schema/RPC design.
-- Design then implement Companies MVP only after catalog verify and design approval.
+- Mozfer manual run of `docs/companies-live-catalog-verification.md` SQL packet (`DWR-COMP-026`), then result review PASS before Companies schema/RPC design.
+- Design then implement Companies MVP only after catalog verify review and design approval.
 - Then Projects and remaining domain sequence.
 - Deferred Support Helper **runtime** smoke for ACL milestone (P2/nonblocking; catalog EXECUTE contracts already verified).
 - Deferred Auth admin: password recovery/change, invitation and Support Helper administration, Auth-user/profile relinking, account/profile settings, multi-device session controls, sole-Owner recovery.
