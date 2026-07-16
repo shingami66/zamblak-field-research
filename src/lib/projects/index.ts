@@ -133,3 +133,24 @@ export type {
   TransitionFormFields,
   TransitionProjectActionState,
 } from "./detail-transition";
+
+export { projectsEditCopy } from "./edit-copy";
+export type { ProjectsEditCopy } from "./edit-copy";
+export {
+  editProjectSuccessRedirectPath,
+  editProjectSuccessRevalidatePaths,
+  formValuesToUpdateInputRaw,
+  initialEditProjectState,
+  isCompanyLockedStatus,
+  isEditableProjectStatus,
+  mapEditProjectErrorPresentation,
+  projectStatusEditLabel,
+  readEditProjectFormValues,
+} from "./edit-form";
+export type {
+  EditProjectActionState,
+  EditProjectFieldErrors,
+  EditProjectFieldKey,
+  EditProjectFormValues,
+  FormValuesToUpdateInputResult,
+} from "./edit-form";
