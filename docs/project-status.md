@@ -1,15 +1,14 @@
 # Project Status
 
-Current phase: **Companies product phase** after closed Auth. Companies MVP contract and deferred-work register are **Mozfer-approved** and recorded in local commit `1fb6a08 docs(companies): record MVP contract and deferred work`. Local `main` is ahead of `origin/main` by **1** commit (not pushed). Companies UI remains a protected placeholder. **No Companies implementation has begun.**
+Current phase: **Companies product phase** after closed Auth and closed core ACL hardening. Companies MVP contract and deferred-work register are **Mozfer-approved**. Local `main` and `origin/main` are aligned at `846894ed3ccfad21545a5f9e451814dbc8edfa16`. Companies UI remains a protected placeholder. **No Companies implementation has begun.**
 
-Next sequence: Graphify refresh → independent Graphify freshness review → live DEV/DEMO catalog verification (`ZAM-COMPANIES-001-LIVE-CATALOG-VERIFY-1`) → schema/RPC design → implementation only after design approval. Docs commit review may complete before Graphify if still open.
+Next sequence: live DEV/DEMO catalog verification (`ZAM-COMPANIES-001-LIVE-CATALOG-VERIFY-1` / `DWR-COMP-026`) → schema/RPC design → independent design review → implementation only after design approval. Core ACL hardening no longer blocks that sequence.
 
 ## Auth (`ZAM-AUTH-001D`) — CLOSED
 
 - **Status:** closed, committed, and pushed.
 - **Application commit:** `74ceca7 feat(auth): add protected sessions and role-aware shell`.
 - **Documentation commits:** `9a140d8 docs(auth): record protected session milestone`; `ee44d66 docs(auth): sync post-commit milestone state`.
-- **Remote:** local `main` and `origin/main` aligned at `ee44d6663eac2a08ca0559c15db81dfc44cb6f02`.
 - **Manual runtime evidence:** Mozfer-owned smoke passed for real Owner login, redirects, session persistence after refresh, unauthenticated root protection, responsive login/dashboard layouts, desktop/mobile account menu behavior, logout, and controlled routes. Not agent-performed browser smoke.
 - Production readiness is **not** claimed.
 
@@ -25,14 +24,51 @@ Implemented Auth behavior (still current):
 - Controlled authenticated placeholders for `/companies` and `/projects`.
 - Controlled Owner-only `/financials` placeholder; Support Helper direct access redirects to `/` without financial wording or data.
 
+## Security — core database ACL hardening (`ZAM-SEC-ACL-001`) — CLOSED (DEV/DEMO)
+
+- **Status:** designed, SQL-draft reviewed, manually applied to designated DEV/DEMO, post-apply verified, Owner-smoked, committed, and pushed.
+- **Migration:** `supabase/migrations/20260715120000_harden_core_acl_defaults.sql`.
+- **Commit:** `846894e fix(security): harden core database ACLs` (`846894ed3ccfad21545a5f9e451814dbc8edfa16`).
+- **Remote:** local `main` = `origin/main` = actual remote `main` at that SHA.
+- **Apply surface:** Supabase SQL Editor on designated DEV/DEMO project `gdegnwglakyblnmxgiwx`, PostgreSQL **17.6**, session `current_user` = `postgres`. `MAINTAIN` privilege vocabulary supported.
+- **Issue discovered:** residual client-role non-SELECT privileges (for example `TRUNCATE`, `REFERENCES`, `TRIGGER`, `MAINTAIN`) on core relations and open `postgres` default privileges after `ZAM-WF-001F` SELECT hardening. Classified as **P1** security posture before Companies implementation expanded the write surface.
+- **Remediation:** least-privilege ACL hardening only (no RLS/policy rewrites, no Companies schema/RPC, no domain-row mutation).
+
+### Verified post-apply outcomes (DEV/DEMO catalog)
+
+1. **Relations:** 10 core tables and 2 managed views (`project_operational_summary`, `project_financial_summary`): `authenticated` **SELECT only**; `anon` no privileges; `service_role` no privileges; table owner `postgres`; RLS still enabled on all 10 tables.
+2. **Trigger functions:** 10 named trigger functions: `PUBLIC` / `anon` / `authenticated` / `service_role` EXECUTE false; explicit ACLs materialized.
+3. **Trigger preservation:** expected attachments **22**, actual **22**, missing none, unexpected none.
+4. **Approved callable contracts:** nine approved helpers/RPCs remain **authenticated-only** (`resolve_current_profile`, four `support_*` RPCs, `is_owner`, `is_support_helper`, `current_account_matches`, `current_profile_matches`); `anon` / `PUBLIC` / `service_role` EXECUTE false.
+5. **Internal functions:** `current_profile_id()`, `current_account_id()`, `current_profile_role()`, and `bootstrap_first_owner(uuid, text, text, text)` remain non-client-callable.
+6. **Default privileges:** `postgres` **GLOBAL** and `IN SCHEMA public` defaults hardened for tables, sequences, and functions — no remaining client/`PUBLIC` automatic grants for those object types. **`supabase_admin` default ACLs were intentionally out of scope** and may still exist.
+
+### Runtime smoke (Mozfer)
+
+- Owner login: **PASS**
+- Profile/session resolution (`resolve_current_profile`): **PASS**
+- Dashboard/app shell: **PASS**
+- Companies / Projects / Financials placeholders: **PASS**
+- Support Helper runtime smoke: **NOT TESTED** (no Support Helper account available). Classified **deferred P2 / nonblocking** because the four support-safe RPC EXECUTE contracts were catalog-verified as authenticated-only.
+- No business-row INSERT/UPDATE/DELETE smoke was performed for this milestone.
+
+### Boundaries that remain true
+
+- Evidence is **DEV/DEMO only**, never production readiness.
+- Authenticated **SELECT** on core tables remains intentional and RLS-constrained.
+- Support Helper domain access remains through **bounded support-safe RPCs**, not broad base-table SELECT.
+- Normal runtime must not use `service_role` for direct core relation access.
+- Future public objects require **explicit** privilege design (defaults no longer auto-expose client roles).
+- No rollback or corrective migration was required after apply.
+
 ## Companies (`ZAM-COMPANIES-001`) — contract approved; implementation not started
 
 - **Contract:** Mozfer-approved lean Companies MVP (fields, phone, duplicates, lifecycle active-only, roles, RPC read/mutation, pagination, metrics, routes).
 - **Deferred register:** `DWR-COMP-001` through `DWR-COMP-028` recorded in `docs/deferred-decisions.md`.
-- **Docs commit:** contract and deferred register committed locally as `1fb6a08 docs(companies): record MVP contract and deferred work`; not yet pushed.
+- **Docs commits:** contract/deferred register and post-commit sync are on remote history through `d45bd95` (and prior Companies docs commits).
 - **Application today:** `/companies` remains a protected placeholder (`requireAppSession` + empty pending module). No list, detail, create, edit, query, server action, RPC, or fake company data.
 - **Mandatory before schema/RPC design:** live DEV/DEMO catalog verification (`DWR-COMP-026` / `ZAM-COMPANIES-001-LIVE-CATALOG-VERIFY-1`). Metadata only; no domain row dumps; no `.env` secret access.
-- **Next workflow stage after docs commit review:** Graphify refresh (index is currently stale relative to `1fb6a08`; marker still `ee44d666`) and independent freshness review.
+- **ACL remediation is closed** and does **not** block Companies gates. Companies implementation still requires catalog verification and design approval.
 
 ### Approved Companies MVP summary (not runtime)
 
@@ -82,12 +118,18 @@ Implemented Auth behavior (still current):
 - Mozfer manually applied the frozen migration to designated DEV/DEMO; post-apply packet passed.
 - Verified inventory: 11 functions, 2 views, and 23 policies; managed manifest MD5 `f950c7ec5024dcf907d36f02df8c78b4` (8238 octets).
 - Owner base-table SELECT remains Owner-scoped. Support Helper limited to four support-safe `SECURITY DEFINER` RPCs (no broad base-table, pricing, payment, or financial-summary access).
-- Boundaries: DEV/DEMO database evidence only. Domain Companies RPCs are **planned under the approved contract**, not yet implemented. Residual non-SELECT privilege cleanup remains deferred.
+- Boundaries: DEV/DEMO database evidence only. Domain Companies RPCs are **planned under the approved contract**, not yet implemented.
+- Residual non-SELECT privilege cleanup on the **core public tables, managed views, named trigger functions, and postgres default privileges** was completed later under `ZAM-SEC-ACL-001` (see above). That residual item is **closed** for those surfaces.
+
+### `ZAM-SEC-ACL-001` — Core ACL and default-privilege hardening
+
+- See **Security — core database ACL hardening** section above for full evidence and boundaries.
 
 ## Open work
 
-- Complete Graphify refresh and independent freshness review after the local Companies docs commit (`1fb6a08`).
-- Complete live DEV/DEMO catalog verification (`DWR-COMP-026`) before schema/RPC design.
-- Design then implement Companies MVP only after those gates pass (docs commit is local; push is a later authorized task).
+- Complete live DEV/DEMO catalog verification (`DWR-COMP-026`) before Companies schema/RPC design.
+- Design then implement Companies MVP only after catalog verify and design approval.
 - Then Projects and remaining domain sequence.
+- Deferred Support Helper **runtime** smoke for ACL milestone (P2/nonblocking; catalog EXECUTE contracts already verified).
 - Deferred Auth admin: password recovery/change, invitation and Support Helper administration, Auth-user/profile relinking, account/profile settings, multi-device session controls, sole-Owner recovery.
+- Residual platform note: `supabase_admin`-owned default ACLs remain intentionally out of scope (hosted project-owner limitation).

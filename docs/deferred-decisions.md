@@ -11,7 +11,7 @@
 - Complex rules engine.
 - Refunds/adjustments.
 - Generated Supabase Database TypeScript types.
-- Residual non-SELECT privilege cleanup after `ZAM-WF-001F`, including any remaining `MAINTAIN`, `REFERENCES`, `TRIGGER`, or `TRUNCATE` grants on residual catalog surfaces.
+- Residual non-SELECT privilege cleanup after `ZAM-WF-001F` on the **ten core public tables, two managed views, named core trigger functions, and `postgres` GLOBAL/`public` default privileges** is **closed** under `ZAM-SEC-ACL-001` (migration `20260715120000_harden_core_acl_defaults.sql`, DEV/DEMO apply verified, commit `846894e`). Intentionally remaining out of scope: `supabase_admin`-owned default ACLs (hosted project-owner limitation) and any future non-core public objects (require explicit grants).
 
 ## Auth and account administration after `ZAM-AUTH-001D`
 
