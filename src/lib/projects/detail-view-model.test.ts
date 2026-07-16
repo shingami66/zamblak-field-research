@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { projectsDetailCopy } from "./detail-copy";
 import {
+  formatProjectAgeRange,
+  isTerminalProjectStatus,
   projectResidentLabel,
   projectTransitionActionLabel,
   projectsDetailErrorBehavior,
@@ -32,6 +34,15 @@ const base: ProjectDetail = {
   updatedAt: "2026-07-02T12:00:00.000Z",
 };
 
+describe("formatProjectAgeRange", () => {
+  it("formats null, min-only, max-only, and both", () => {
+    assert.equal(formatProjectAgeRange(null, null), "غير محدد");
+    assert.equal(formatProjectAgeRange(18, null), "من 18 سنة");
+    assert.equal(formatProjectAgeRange(null, 60), "حتى 60 سنة");
+    assert.equal(formatProjectAgeRange(18, 60), "من 18 إلى 60 سنة");
+  });
+});
+
 describe("toProjectDetailView", () => {
   it("maps labels, null fallbacks, hrefs, and expectedUpdatedAt", () => {
     const v = toProjectDetailView(base);
@@ -39,19 +50,33 @@ describe("toProjectDetailView", () => {
     assert.equal(v.companyName, "شركة أكمي");
     assert.equal(v.domainLabel, "اتصالات");
     assert.equal(v.statusLabel, "مسودة");
-    assert.equal(v.endDateLabel, projectsDetailCopy.notSpecified);
-    assert.equal(v.quotaLabel, projectsDetailCopy.quotaUnspecified);
+    assert.equal(v.endDateLabel, "غير محدد");
+    assert.equal(v.quotaLabel, "غير محددة");
+    assert.equal(v.ageRangeLabel, "من 18 سنة");
     assert.equal(v.residentLabel, "الجميع");
     assert.equal(v.threeMonthLabel, projectsDetailCopy.threeMonthYes);
     assert.equal(v.eligibilityIsEmpty, true);
+    assert.equal(v.eligibilityNotesLabel, projectsDetailCopy.emptyText);
     assert.equal(v.whatsappEnIsEmpty, false);
     assert.equal(v.expectedUpdatedAt, base.updatedAt);
     assert.equal(v.backHref, "/projects");
     assert.equal(v.editHref, `/projects/${base.projectId}/edit`);
+    assert.equal(v.canEdit, true);
+    assert.equal(v.isTerminal, false);
     assert.deepEqual(
       v.lifecycleActions.map((a) => a.targetStatus),
       ["active", "cancelled"]
     );
+  });
+
+  it("false warning copy and empty whatsapp AR", () => {
+    const v = toProjectDetailView({
+      ...base,
+      requiresThreeMonthWarning: false,
+      whatsappTemplateAr: null,
+    });
+    assert.equal(v.threeMonthLabel, projectsDetailCopy.threeMonthNo);
+    assert.equal(v.whatsappArLabel, projectsDetailCopy.emptyText);
   });
 
   it("does not expose finance or raw UUID labels", () => {
@@ -71,24 +96,32 @@ describe("toProjectDetailView", () => {
     assert.equal(v.companyName.includes(base.companyId), false);
   });
 
-  it("terminal statuses have no lifecycle actions", () => {
+  it("terminal statuses: no lifecycle, no edit", () => {
     const closed = toProjectDetailView({ ...base, status: "closed" });
     assert.deepEqual(closed.lifecycleActions, []);
+    assert.equal(closed.canEdit, false);
+    assert.equal(closed.isTerminal, true);
+    assert.equal(isTerminalProjectStatus("closed"), true);
+
     const cancelled = toProjectDetailView({ ...base, status: "cancelled" });
     assert.deepEqual(cancelled.lifecycleActions, []);
+    assert.equal(cancelled.canEdit, false);
+    assert.equal(isTerminalProjectStatus("cancelled"), true);
   });
 
-  it("active status allows closed and cancelled", () => {
+  it("active status allows closed and cancelled and remains editable", () => {
     const v = toProjectDetailView({ ...base, status: "active" });
     assert.deepEqual(
       v.lifecycleActions.map((a) => a.targetStatus),
       ["closed", "cancelled"]
     );
+    assert.equal(v.canEdit, true);
   });
 });
 
 describe("Arabic label helpers", () => {
   it("maps resident and transition labels", () => {
+    assert.equal(projectResidentLabel("any"), "الجميع");
     assert.equal(projectResidentLabel("saudi"), "سعودي");
     assert.equal(projectResidentLabel("non_saudi"), "غير سعودي");
     assert.equal(projectResidentLabel("unknown"), "غير محدد");
@@ -108,13 +141,17 @@ describe("Arabic label helpers", () => {
 });
 
 describe("projectsDetailErrorBehavior", () => {
-  it("maps not found and access safely", () => {
+  it("maps not found cases safely without leaking account existence", () => {
     assert.equal(
       projectsDetailErrorBehavior("project_not_found").kind,
       "not_found"
     );
     assert.equal(
       projectsDetailErrorBehavior("invalid_project_id").kind,
+      "not_found"
+    );
+    assert.equal(
+      projectsDetailErrorBehavior("project_company_not_found").kind,
       "not_found"
     );
     const access = projectsDetailErrorBehavior("project_access_denied");

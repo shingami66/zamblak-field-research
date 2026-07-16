@@ -1,7 +1,5 @@
 import { projectsDetailCopy } from "./detail-copy";
-import {
-  getAllowedProjectTransitions,
-} from "./lifecycle";
+import { getAllowedProjectTransitions } from "./lifecycle";
 import {
   formatProjectDateOnly,
   formatProjectQuota,
@@ -31,8 +29,7 @@ export type ProjectDetailView = {
   startDateLabel: string;
   endDateLabel: string;
   quotaLabel: string;
-  minAgeLabel: string;
-  maxAgeLabel: string;
+  ageRangeLabel: string;
   residentLabel: string;
   eligibilityNotesLabel: string;
   eligibilityIsEmpty: boolean;
@@ -49,13 +46,14 @@ export type ProjectDetailView = {
   expectedUpdatedAt: string;
   backHref: string;
   editHref: string;
+  /** draft/active only — closed/cancelled are read-only in UI. */
+  canEdit: boolean;
+  isTerminal: boolean;
   /** Structural edges only; caller must also require Owner role. */
   lifecycleActions: ProjectLifecycleActionView[];
 };
 
-export function projectResidentLabel(
-  value: ProjectResidentType
-): string {
+export function projectResidentLabel(value: ProjectResidentType): string {
   switch (value) {
     case "any":
       return projectsDetailCopy.residentAny;
@@ -72,9 +70,7 @@ export function projectResidentLabel(
   }
 }
 
-export function projectTransitionActionLabel(
-  target: ProjectStatus
-): string {
+export function projectTransitionActionLabel(target: ProjectStatus): string {
   switch (target) {
     case "active":
       return projectsDetailCopy.transitionToActive;
@@ -91,29 +87,47 @@ export function projectTransitionActionLabel(
   }
 }
 
-function formatNullableText(value: string | null): {
+/**
+ * Age range presentation per approved detail contract.
+ * Does not invent eligibility beyond stored min/max.
+ */
+export function formatProjectAgeRange(
+  minAge: number | null,
+  maxAge: number | null
+): string {
+  if (minAge === null && maxAge === null) {
+    return projectsDetailCopy.notSpecified;
+  }
+  if (minAge !== null && maxAge === null) {
+    return `من ${minAge} سنة`;
+  }
+  if (minAge === null && maxAge !== null) {
+    return `حتى ${maxAge} سنة`;
+  }
+  return `من ${minAge} إلى ${maxAge} سنة`;
+}
+
+function formatOptionalText(value: string | null): {
   label: string;
   isEmpty: boolean;
 } {
   if (value === null || value.trim() === "") {
-    return { label: projectsDetailCopy.notProvided, isEmpty: true };
+    return { label: projectsDetailCopy.emptyText, isEmpty: true };
   }
   return { label: value, isEmpty: false };
 }
 
-function formatNullableAge(value: number | null): string {
-  if (value === null) {
-    return projectsDetailCopy.notSpecified;
-  }
-  return String(value);
+export function isTerminalProjectStatus(status: ProjectStatus): boolean {
+  return status === "closed" || status === "cancelled";
 }
 
 /** Maps ProjectDetail to presentation fields (no UUIDs as labels, no finance). */
 export function toProjectDetailView(project: ProjectDetail): ProjectDetailView {
-  const eligibility = formatNullableText(project.eligibilityNotes);
-  const notes = formatNullableText(project.notes);
-  const waAr = formatNullableText(project.whatsappTemplateAr);
-  const waEn = formatNullableText(project.whatsappTemplateEn);
+  const eligibility = formatOptionalText(project.eligibilityNotes);
+  const notes = formatOptionalText(project.notes);
+  const waAr = formatOptionalText(project.whatsappTemplateAr);
+  const waEn = formatOptionalText(project.whatsappTemplateEn);
+  const terminal = isTerminalProjectStatus(project.status);
 
   const lifecycleActions = getAllowedProjectTransitions(project.status).map(
     (targetStatus) => ({
@@ -132,8 +146,7 @@ export function toProjectDetailView(project: ProjectDetail): ProjectDetailView {
     startDateLabel: formatProjectDateOnly(project.startDate),
     endDateLabel: formatProjectDateOnly(project.endDate),
     quotaLabel: formatProjectQuota(project.quota),
-    minAgeLabel: formatNullableAge(project.minAge),
-    maxAgeLabel: formatNullableAge(project.maxAge),
+    ageRangeLabel: formatProjectAgeRange(project.minAge, project.maxAge),
     residentLabel: projectResidentLabel(project.requiredResidentType),
     eligibilityNotesLabel: eligibility.label,
     eligibilityIsEmpty: eligibility.isEmpty,
@@ -151,6 +164,8 @@ export function toProjectDetailView(project: ProjectDetail): ProjectDetailView {
     expectedUpdatedAt: project.updatedAt,
     backHref: "/projects",
     editHref: `/projects/${project.projectId}/edit`,
+    canEdit: !terminal,
+    isTerminal: terminal,
     lifecycleActions,
   };
 }
@@ -166,7 +181,8 @@ export function projectsDetailErrorBehavior(code: ProjectErrorCode): {
 } {
   if (
     code === "project_not_found" ||
-    code === "invalid_project_id"
+    code === "invalid_project_id" ||
+    code === "project_company_not_found"
   ) {
     return { kind: "not_found" };
   }
@@ -180,9 +196,7 @@ export function projectsDetailErrorBehavior(code: ProjectErrorCode): {
 }
 
 /** Safe Arabic messages for transition action errors. */
-export function projectsTransitionErrorMessage(
-  code: ProjectErrorCode
-): string {
+export function projectsTransitionErrorMessage(code: ProjectErrorCode): string {
   switch (code) {
     case "project_access_denied":
       return projectsDetailCopy.errorTransitionAccess;
@@ -197,6 +211,7 @@ export function projectsTransitionErrorMessage(
       return projectsDetailCopy.errorCompanyLocked;
     case "project_not_found":
     case "invalid_project_id":
+    case "project_company_not_found":
       return projectsDetailCopy.errorUnexpected;
     case "project_profile_unavailable":
       return projectsDetailCopy.errorProfile;

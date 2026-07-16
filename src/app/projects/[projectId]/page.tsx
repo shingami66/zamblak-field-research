@@ -73,11 +73,19 @@ export default async function ProjectDetailPage({
           </div>
         </div>
         <div className={styles.headerActions}>
-          <Link href={view.editHref} className={styles.editAction}>
-            {projectsDetailCopy.editProject}
-          </Link>
+          {view.canEdit ? (
+            <Link href={view.editHref} className={styles.editAction}>
+              {projectsDetailCopy.editProject}
+            </Link>
+          ) : null}
         </div>
       </header>
+
+      {view.isTerminal ? (
+        <p className={styles.readOnlyNotice} role="status">
+          {projectsDetailCopy.readOnlyNotice}
+        </p>
+      ) : null}
 
       {isOwner && view.lifecycleActions.length > 0 ? (
         <ProjectLifecycleActions
@@ -146,12 +154,8 @@ export default async function ProjectDetailPage({
         </h2>
         <dl className={styles.metaList}>
           <div className={styles.metaItem}>
-            <dt className={styles.metaLabel}>{projectsDetailCopy.minAge}</dt>
-            <dd className={styles.metaValue}>{view.minAgeLabel}</dd>
-          </div>
-          <div className={styles.metaItem}>
-            <dt className={styles.metaLabel}>{projectsDetailCopy.maxAge}</dt>
-            <dd className={styles.metaValue}>{view.maxAgeLabel}</dd>
+            <dt className={styles.metaLabel}>{projectsDetailCopy.ageRange}</dt>
+            <dd className={styles.metaValue}>{view.ageRangeLabel}</dd>
           </div>
           <div className={styles.metaItem}>
             <dt className={styles.metaLabel}>

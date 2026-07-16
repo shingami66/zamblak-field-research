@@ -110,6 +110,8 @@ export type { ProjectsDetailCopy } from "./detail-copy";
 export { parseProjectIdParam } from "./detail-params";
 export type { ParseProjectIdResult } from "./detail-params";
 export {
+  formatProjectAgeRange,
+  isTerminalProjectStatus,
   projectResidentLabel,
   projectTransitionActionLabel,
   projectsDetailErrorBehavior,
