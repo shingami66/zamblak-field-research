@@ -24,7 +24,8 @@ Can:
 
 Can:
 
-- Add/edit companies and non-financial project details (Companies MVP create/edit **runtime-verified** on designated DEV/DEMO for same-account Support Helper; Projects domain not yet implemented).
+- Add/edit companies (Companies MVP create/edit **runtime-verified** on designated DEV/DEMO for same-account Support Helper).
+- Add/edit **non-financial** project details and list/view projects under the frozen Projects MVP design (`docs/projects-schema-rpc-design.md`) — **not implemented in app yet**; Support Helper **must not** transition project lifecycle and remains **finance-blind**.
 - Add/edit respondents and add a respondent to a project.
 - Import Excel and export operational reports.
 - Open a WhatsApp link and confirm a manual WhatsApp send.

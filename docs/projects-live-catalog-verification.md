@@ -1,11 +1,27 @@
 # Projects live DEV/DEMO catalog verification gate
 
-- **Task:** `ZAM-PROJECTS-LIVE-CATALOG-VERIFY-1`
-- **Packet status:** **prepared — not yet executed**
-- **Gate decision:** **pending Mozfer manual run + review**
+- **Task:** `ZAM-PROJECTS-LIVE-CATALOG-VERIFY-1` (+ PUBLIC ACL fix `8f45129`)
+- **Packet status:** **manually executed** (Mozfer) and **reviewed PASS WITH WARN**
+- **Gate decision:** **PASS WITH WARN** — design may proceed (`docs/projects-schema-rpc-design.md`)
 - **Designated DEV/DEMO project ref:** `gdegnwglakyblnmxgiwx`
-- **Authority:** `ZAM-PROJECTS-MVP-SCOPE-REVIEW-1` (PASS WITH WARN); committed migrations; Mozfer-approved product roles; Companies MVP closed on same DEV/DEMO
+- **Live PostgreSQL:** **17.6**; session role `postgres`
+- **Authority:** `ZAM-PROJECTS-MVP-SCOPE-REVIEW-1` (PASS WITH WARN); committed migrations; Mozfer-reviewed live catalog export (metadata only; **not** committed as a repository artifact)
 - **Production readiness:** **not claimed**
+
+### Live run result (reviewed PASS WITH WARN)
+
+| Field | Value |
+|---|---|
+| Runner | Mozfer, Supabase SQL Editor, DEV/DEMO only |
+| Project | `gdegnwglakyblnmxgiwx` |
+| PG | **17.6** |
+| Writes | None |
+| Business rows | None |
+| Review | PASS WITH WARN (soft-deleted Company gap; no lifecycle transition RPC; support directory not product API) |
+| Soft-deleted Company rejected by trigger? | **No** (definition gap; design closes in migration) |
+| Projects CRUD RPCs | **Absent** |
+| Live index | `idx_projects_account_company_status_live` present |
+| Next | Schema/RPC design recorded; next implementation: `ZAM-PROJECTS-SCHEMA-RPC-MIGRATION-1` |
 
 ---
 

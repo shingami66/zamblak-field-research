@@ -28,8 +28,12 @@
     10. Visual foundation polish (`aa2f6b4`) — **done**
     11. Owner + Support Helper runtime smoke + docs closeout (`ZAM-COMPANIES-MANUAL-SMOKE-CLOSE-1`) — **done (PASS / closed)**
   - Deferred Companies items and permanent non-goals: see `docs/deferred-decisions.md` (Companies register). Cross-account runtime security smoke remains deferred and non-blocking.
-- Phase 4: Projects
-  - **Next:** `ZAM-PROJECTS-MVP-SCOPE-REVIEW-1` after Companies MVP CRUD close.
+- Phase 4: Projects (**design frozen; implementation not started**)
+  - Scope review PASS WITH WARN; live catalog PASS WITH WARN (PG 17.6, `gdegnwglakyblnmxgiwx`).
+  - Schema/RPC design: `docs/projects-schema-rpc-design.md` (`ZAM-PROJECTS-SCHEMA-RPC-DESIGN-1`).
+  - Soft-deleted Company parent gap + lifecycle matrix frozen for migration (not applied yet).
+  - **Next:** `ZAM-PROJECTS-SCHEMA-RPC-MIGRATION-1` → apply → app contracts → list/create/detail/edit → smoke.
+  - UI remains placeholder until app tasks. Production readiness not claimed.
 - Phase 5: Respondent Registry
 - Phase 6: Participation
 - Phase 7: Review

@@ -1,8 +1,8 @@
 # Project Status
 
-Current phase: **Companies MVP CRUD closed on designated DEV/DEMO** after Auth close, core ACL hardening close, live catalog verification (`DWR-COMP-026` PASS), schema/RPC design and migration source, DEV/DEMO apply, application contracts, list/create/detail/edit UI, visual foundation polish, and Mozfer-owned Owner + Support Helper runtime smoke. Production readiness is **not** claimed. Cross-account runtime isolation smoke is **not** claimed (deferred, non-blocking).
+Current phase: **Projects schema/RPC design frozen** after Companies MVP CRUD close (DEV/DEMO), Projects live catalog **PASS WITH WARN**, and `docs/projects-schema-rpc-design.md`. Companies MVP remains closed. `/projects` remains a **placeholder** until app tasks. Production readiness is **not** claimed. Projects migration **not** written/applied. Cross-account runtime isolation smoke remains deferred and non-blocking.
 
-Next sequence: Projects MVP scope review (`ZAM-PROJECTS-MVP-SCOPE-REVIEW-1`) and remaining domain sequence. Cross-account Companies runtime security smoke remains a deferred non-blocking follow-up.
+Next sequence: `ZAM-PROJECTS-SCHEMA-RPC-MIGRATION-1` → DEV apply → application contracts → list/create/detail/edit → smoke.
 
 ## Auth (`ZAM-AUTH-001D`) — CLOSED
 
@@ -205,9 +205,28 @@ Implemented Auth behavior (still current):
 
 - See **Security — core database ACL hardening** section above for full evidence and boundaries.
 
+## Projects (`ZAM-PROJECTS-001`) — design frozen; not implemented
+
+| Milestone | Status |
+|---|---|
+| Scope review | **PASS WITH WARN** (`ZAM-PROJECTS-MVP-SCOPE-REVIEW-1`) |
+| Live catalog verify packet | prepared + PUBLIC ACL fix (`8f45129`) |
+| Live catalog run / review | **PASS WITH WARN** (Mozfer; PG **17.6**; project `gdegnwglakyblnmxgiwx`) |
+| Soft-deleted Company parent gap | **Confirmed live** — closed in design (trigger + RPC); **not** fixed in DB yet |
+| Lifecycle transition matrix | **Frozen in design** (not enforced in DB yet) |
+| Schema/RPC design | **Complete** (`docs/projects-schema-rpc-design.md`) |
+| Migration source | **Not started** |
+| DEV/DEMO apply | **Not claimed** |
+| Application / UI | **Placeholder only** (`/projects`) |
+| Production readiness | **Not claimed** |
+
+**Catalog WARNs:** (1) soft-deleted company not rejected by consistency function; (2) status CHECK only — no transition enforcement; (3) `support_project_directory` is not the product API.
+
+**Design freeze highlights:** five RPCs (`list_projects`, `get_project`, `create_project`, `update_project`, Owner-only `transition_project_status`); create always `draft`; SH operational create/edit, no lifecycle/finance; mandatory `p_expected_updated_at` on update/transition; no Project name uniqueness; no finance fields; Companies selector via existing `list_companies` / `get_company`.
+
 ## Open work
 
-- **Projects** MVP scope review and implementation sequence (`ZAM-PROJECTS-MVP-SCOPE-REVIEW-1` next).
+- **Projects** migration → apply → app contracts → UI → smoke (`ZAM-PROJECTS-SCHEMA-RPC-MIGRATION-1` next).
 - Deferred **cross-account** Companies runtime isolation smoke (second account) — **non-blocking** security follow-up; not marked PASS.
 - Deferred Companies lifecycle/metrics/import items: `docs/deferred-decisions.md`.
 - Deferred Support Helper **ACL-era** runtime smoke note remains historical P2 for that milestone only; Companies same-account SH smoke is closed above.
