@@ -1,9 +1,9 @@
 # Companies MVP — schema and RPC design
 
-**Status:** DESIGN RECORDED (implementation not started)  
-**Task:** `ZAM-COMPANIES-SCHEMA-RPC-DESIGN-1`  
-**Authority:** Mozfer-approved Companies MVP contract; live DEV/DEMO catalog PASS (`DWR-COMP-026`); `docs/roles-permissions.md`; `docs/database-schema.md`  
-**Designated DEV/DEMO:** `gdegnwglakyblnmxgiwx` (PostgreSQL 17.6)  
+**Status:** DESIGN RECORDED (implementation not started)
+**Task:** `ZAM-COMPANIES-SCHEMA-RPC-DESIGN-1`
+**Authority:** Mozfer-approved Companies MVP contract; live DEV/DEMO catalog PASS (`DWR-COMP-026`); `docs/roles-permissions.md`; `docs/database-schema.md`
+**Designated DEV/DEMO:** `gdegnwglakyblnmxgiwx` (PostgreSQL 17.6)
 **Next task after design review:** `ZAM-COMPANIES-SCHEMA-RPC-MIGRATION-1` (SQL draft only; not this task)
 
 This document freezes implementation-ready database and RPC decisions. It does **not** create migrations, apply SQL, or implement application code.
@@ -67,11 +67,11 @@ STRICT behavior: NULL input → NULL
 
 **Exact algorithm (frozen):**
 
-1. If `p_name` is NULL → return NULL.  
-2. Collapse internal Unicode whitespace runs to a single ASCII space:  
-   `regexp_replace(p_name, '[[:space:]]+', ' ', 'g')`  
-3. Outer trim: `btrim(...)`.  
-4. Case-fold: `lower(...)` (deterministic for Latin; Arabic unchanged by `lower`).  
+1. If `p_name` is NULL → return NULL.
+2. Collapse internal Unicode whitespace runs to a single ASCII space:
+   `regexp_replace(p_name, '[[:space:]]+', ' ', 'g')`
+3. Outer trim: `btrim(...)`.
+4. Case-fold: `lower(...)` (deterministic for Latin; Arabic unchanged by `lower`).
 5. Result is the uniqueness key. Empty string is not a valid active name (rejected before insert).
 
 **Stored `name` column:** store **display** value = step 2–3 only (**trim + collapse spaces**, **preserve original case**). Uniqueness always compares via `normalize_company_name(name)`.
@@ -94,8 +94,8 @@ ON public.companies (
 WHERE deleted_at IS NULL;
 ```
 
-- Scope: one active normalized name per account.  
-- Deleted rows (`deleted_at IS NOT NULL`) do **not** participate → name reuse allowed after future soft-delete.  
+- Scope: one active normalized name per account.
+- Deleted rows (`deleted_at IS NOT NULL`) do **not** participate → name reuse allowed after future soft-delete.
 - Race-safe: concurrent inserts/updates that collide raise unique_violation → map to `duplicate_company_name`.
 
 **No generated column.** Expression index + IMMUTABLE function is sufficient and avoids unnecessary public columns.
@@ -113,15 +113,15 @@ PARALLEL SAFE
 
 **Exact algorithm (frozen):**
 
-1. If `p_phone` IS NULL → return NULL.  
-2. `v := btrim(p_phone)`.  
-3. If `v = ''` → return NULL (optional field).  
-4. Strip formatting only: remove spaces, `+`, `-`, `(`, `)`:  
-   `regexp_replace(v, '[[:space:]\+\-\(\)]', '', 'g')`.  
-5. If remaining string is **not** all digits (`!~ '^[0-9]+$'`) → raise `invalid_company_phone`.  
-6. Saudi local mobile: if value matches `^05[0-9]{8}$` (exactly 10 digits, prefix `05`) → replace leading `05` with `9665` (result length 12).  
-7. Final length must be between **8** and **15** inclusive; else `invalid_company_phone`.  
-8. Do **not** invent other country-code rewrites (no silent `0`→`966`, no `5xxxxxxxx` guessing).  
+1. If `p_phone` IS NULL → return NULL.
+2. `v := btrim(p_phone)`.
+3. If `v = ''` → return NULL (optional field).
+4. Strip formatting only: remove spaces, `+`, `-`, `(`, `)`:
+   `regexp_replace(v, '[[:space:]\+\-\(\)]', '', 'g')`.
+5. If remaining string is **not** all digits (`!~ '^[0-9]+$'`) → raise `invalid_company_phone`.
+6. Saudi local mobile: if value matches `^05[0-9]{8}$` (exactly 10 digits, prefix `05`) → replace leading `05` with `9665` (result length 12).
+7. Final length must be between **8** and **15** inclusive; else `invalid_company_phone`.
+8. Do **not** invent other country-code rewrites (no silent `0`→`966`, no `5xxxxxxxx` guessing).
 9. Return digit string; store only this form (or NULL).
 
 **CHECK constraint (defense in depth, exact):**
@@ -183,7 +183,7 @@ All four RPCs:
 - `SECURITY DEFINER`
 - `SET search_path = pg_catalog, public`
 - Owner role of functions: `postgres` (migration owner)
-- `GRANT EXECUTE … TO authenticated` only  
+- `GRANT EXECUTE … TO authenticated` only
 - `REVOKE EXECUTE … FROM PUBLIC, anon, service_role`
 - No dynamic SQL
 - Active profile required via `current_account_id()` / role helpers (`active = true AND deleted_at IS NULL` already inside helpers)
@@ -219,7 +219,7 @@ completed_projects_count := count(*) FILTER (
 )
 ```
 
-Scoped to `projects.account_id = v_account_id` and `projects.company_id = company.id`.  
+Scoped to `projects.account_id = v_account_id` and `projects.company_id = company.id`.
 Never join financial tables. Never return price, payment, or financial summary fields.
 
 ### 5.2 `list_companies`
@@ -272,13 +272,13 @@ VOLATILE
 
 **Sequence (single transaction):**
 
-1. Authorize role + resolve `v_account_id`, `v_profile_id` (`current_profile_id()`); if either NULL → `company_access_denied`.  
-2. Normalize/validate name → display name; reject invalid.  
-3. Normalize contact_person / notes (trim; empty → NULL; length checks).  
-4. `v_phone := normalize_company_phone(p_phone)`.  
-5. `INSERT INTO companies (account_id, name, contact_person, phone, notes, created_by, updated_by)`  
-   values `(v_account_id, display_name, …, v_profile_id, v_profile_id)`.  
-6. On unique_violation → `duplicate_company_name` (`23505` mapped; MESSAGE exact).  
+1. Authorize role + resolve `v_account_id`, `v_profile_id` (`current_profile_id()`); if either NULL → `company_access_denied`.
+2. Normalize/validate name → display name; reject invalid.
+3. Normalize contact_person / notes (trim; empty → NULL; length checks).
+4. `v_phone := normalize_company_phone(p_phone)`.
+5. `INSERT INTO companies (account_id, name, contact_person, phone, notes, created_by, updated_by)`
+   values `(v_account_id, display_name, …, v_profile_id, v_profile_id)`.
+6. On unique_violation → `duplicate_company_name` (`23505` mapped; MESSAGE exact).
 7. Return row via same shape as `get_company` (counts = 0 for new company).
 
 ### 5.5 `update_company`
@@ -300,14 +300,14 @@ VOLATILE
 
 **Sequence:**
 
-1. Authorize + resolve account/profile.  
-2. `SELECT … FROM companies WHERE id = p_company_id AND account_id = v_account_id AND deleted_at IS NULL FOR UPDATE`.  
-3. If not found → `company_not_found`.  
-4. If `updated_at IS DISTINCT FROM p_expected_updated_at` → `stale_company_version` (`40001` or `P0001` — freeze **`P0001`** MESSAGE `stale_company_version`).  
-5. Normalize/validate inputs (same as create).  
-6. `UPDATE` set `name`, `contact_person`, `phone`, `notes`, `updated_by = v_profile_id` ( `updated_at` via existing trigger).  
-7. Unique violation → `duplicate_company_name`.  
-8. Return updated row with counts.  
+1. Authorize + resolve account/profile.
+2. `SELECT … FROM companies WHERE id = p_company_id AND account_id = v_account_id AND deleted_at IS NULL FOR UPDATE`.
+3. If not found → `company_not_found`.
+4. If `updated_at IS DISTINCT FROM p_expected_updated_at` → `stale_company_version` (`40001` or `P0001` — freeze **`P0001`** MESSAGE `stale_company_version`).
+5. Normalize/validate inputs (same as create).
+6. `UPDATE` set `name`, `contact_person`, `phone`, `notes`, `updated_by = v_profile_id` ( `updated_at` via existing trigger).
+7. Unique violation → `duplicate_company_name`.
+8. Return updated row with counts.
 9. Never modify `id`, `account_id`, `created_by`, `created_at`, `deleted_at`.
 
 ### 5.6 Error envelope (stable `MESSAGE` strings)
@@ -343,83 +343,83 @@ Application maps these tokens to Arabic UI strings (same pattern as auth profile
 
 ### RLS / ACL reconciliation
 
-1. **Authenticated SELECT-only** on `companies` / `projects` remains after hardening.  
-2. **Owner** may read permitted company rows via RLS for optional server helpers; MVP app path uses RPCs for list (with counts) and mutations.  
-3. **Support Helper** has **no** useful base-table SELECT (`sel_companies` is Owner-only). All SH Companies access is via the four RPCs.  
-4. **SECURITY DEFINER** RPCs bypass RLS for controlled writes and for SH reads, but enforce account + role in function body (fail closed).  
-5. **Do not** add SH SELECT policies on `companies`.  
-6. **Do not** GRANT INSERT/UPDATE on `companies` to `authenticated`.  
+1. **Authenticated SELECT-only** on `companies` / `projects` remains after hardening.
+2. **Owner** may read permitted company rows via RLS for optional server helpers; MVP app path uses RPCs for list (with counts) and mutations.
+3. **Support Helper** has **no** useful base-table SELECT (`sel_companies` is Owner-only). All SH Companies access is via the four RPCs.
+4. **SECURITY DEFINER** RPCs bypass RLS for controlled writes and for SH reads, but enforce account + role in function body (fail closed).
+5. **Do not** add SH SELECT policies on `companies`.
+6. **Do not** GRANT INSERT/UPDATE on `companies` to `authenticated`.
 7. Internal helpers `normalize_company_name`, `normalize_company_phone` (and any private assert helper): **REVOKE EXECUTE FROM PUBLIC, anon, authenticated, service_role** (server-only; called by DEFINER RPCs).
 
 ---
 
 ## 7. Migration plan (ordered; not executed here)
 
-**Proposed filename (later task):**  
+**Proposed filename (later task):**
 `supabase/migrations/20260716120000_companies_mvp_schema_rpc.sql`
 
 **Order:**
 
-1. **Preflight (DO block, fail closed)**  
-   - Detect active duplicate pairs that would break unique index:  
-     same `account_id` + `normalize_company_name(name)` with `deleted_at IS NULL` and count > 1.  
-   - If any → `RAISE EXCEPTION` with clear message (manual cleanup required).  
+1. **Preflight (DO block, fail closed)**
+   - Detect active duplicate pairs that would break unique index:
+     same `account_id` + `normalize_company_name(name)` with `deleted_at IS NULL` and count > 1.
+   - If any → `RAISE EXCEPTION` with clear message (manual cleanup required).
    - DEV/DEMO expected empty/clean.
 
-2. **Helpers**  
-   - `normalize_company_name`  
-   - `normalize_company_phone`  
+2. **Helpers**
+   - `normalize_company_name`
+   - `normalize_company_phone`
    - Comments `managed_by: <migration_id>`
 
 3. **Phone CHECK** on `companies` (validate existing rows first: invalid phones fail migration — preflight report).
 
-4. **Indexes**  
-   - `idx_companies_account_norm_name_active`  
+4. **Indexes**
+   - `idx_companies_account_norm_name_active`
    - `idx_projects_account_company_status_live`
 
-5. **RPCs**  
-   - `list_companies`, `get_company`, `create_company`, `update_company`  
+5. **RPCs**
+   - `list_companies`, `get_company`, `create_company`, `update_company`
    - `CREATE OR REPLACE` for idempotent re-apply of function bodies
 
 6. **Comments** on functions/indexes
 
-7. **Grants/revokes**  
-   - EXECUTE on four RPCs: grant authenticated; revoke PUBLIC/anon/service_role  
+7. **Grants/revokes**
+   - EXECUTE on four RPCs: grant authenticated; revoke PUBLIC/anon/service_role
    - EXECUTE on helpers: revoke all client roles
 
-8. **Postcondition assertions (catalog only)**  
-   - Index exists and is unique/partial as designed  
-   - Function signatures, `prosecdef`, `proconfig` search_path  
-   - EXECUTE ACL matrix  
-   - Relation ACL still authenticated SELECT-only on `companies`  
-   - RLS still enabled  
+8. **Postcondition assertions (catalog only)**
+   - Index exists and is unique/partial as designed
+   - Function signatures, `prosecdef`, `proconfig` search_path
+   - EXECUTE ACL matrix
+   - Relation ACL still authenticated SELECT-only on `companies`
+   - RLS still enabled
    - No unexpected grants
 
 **Idempotency:**
 
-- Functions: `CREATE OR REPLACE`  
-- Indexes: `CREATE INDEX IF NOT EXISTS` only if exact definition matches; otherwise drop/recreate in controlled migration (prefer explicit drop if redefining)  
+- Functions: `CREATE OR REPLACE`
+- Indexes: `CREATE INDEX IF NOT EXISTS` only if exact definition matches; otherwise drop/recreate in controlled migration (prefer explicit drop if redefining)
 - Constraints: add only if not exists (query `pg_constraint`)
 
 **Locks:**
 
-- Index builds on live DEV/DEMO: expect brief locks; companies/projects small. Prefer default transaction for DEV.  
+- Index builds on live DEV/DEMO: expect brief locks; companies/projects small. Prefer default transaction for DEV.
 - Avoid `CREATE INDEX CONCURRENTLY` inside a multi-statement transaction wrapper if using single BEGIN/COMMIT migration script — use regular `CREATE INDEX` for small DEV tables.
 
 **Rollback strategy:**
 
-- Forward-only preferred.  
-- Compensating migration would: drop four RPCs, drop two indexes, drop phone check, drop helpers (only if no dependents).  
-- No data deletion in rollback of design objects.  
+- Forward-only preferred.
+- Compensating migration would: drop four RPCs, drop two indexes, drop phone check, drop helpers (only if no dependents).
+- No data deletion in rollback of design objects.
 - Do not drop `companies` table or clear business rows.
 
 **DEV/DEMO apply sequence (future apply task):**
 
-1. Review SQL draft + independent review PASS  
-2. Mozfer SQL Editor on `gdegnwglakyblnmxgiwx` as `postgres`  
-3. Run full script once in transaction  
-4. Run verification packet  
-5. Owner + Support Helper smoke (section 9)  
+1. Review SQL draft + independent review PASS
+2. Mozfer SQL Editor on `gdegnwglakyblnmxgiwx` as `postgres`
+3. Run full script once in transaction
+4. Run verification packet
+5. Owner + Support Helper smoke (section 9)
 6. Docs/status sync + commit migration if not already committed
 
 **This design task creates no SQL file and executes no SQL.**
@@ -453,19 +453,19 @@ Application maps these tokens to Arabic UI strings (same pattern as auth profile
 
 ### Owner
 
-1. List empty / with rows; order by normalized name.  
-2. Search by name and by contact person.  
-3. Create valid company; detail shows counts 0.  
-4. Create duplicate normalized name → `duplicate_company_name`.  
-5. Invalid phone → `invalid_company_phone`.  
-6. Edit fields; `updated_at` changes; counts stable.  
-7. Stale `p_expected_updated_at` → `stale_company_version`.  
+1. List empty / with rows; order by normalized name.
+2. Search by name and by contact person.
+3. Create valid company; detail shows counts 0.
+4. Create duplicate normalized name → `duplicate_company_name`.
+5. Invalid phone → `invalid_company_phone`.
+6. Edit fields; `updated_at` changes; counts stable.
+7. Stale `p_expected_updated_at` → `stale_company_version`.
 8. Detail shows active/completed counts when projects exist.
 
 ### Support Helper
 
-1. List / search / create / edit / detail same operational fields.  
-2. Confirm UI and RPC payloads contain **no** finance.  
+1. List / search / create / edit / detail same operational fields.
+2. Confirm UI and RPC payloads contain **no** finance.
 3. Confirm no direct table read path required.
 
 ### Negative
@@ -483,30 +483,30 @@ Application maps these tokens to Arabic UI strings (same pattern as auth profile
 
 ## 10. Application integration notes (non-binding for this task)
 
-- Routes: `/companies`, `/companies/new`, `/companies/[id]`, `/companies/[id]/edit`.  
-- Server Actions call RPCs with request-scoped authenticated Supabase client.  
-- Never pass `account_id` or role from the browser as authority.  
-- Map RPC `MESSAGE` tokens to Arabic errors.  
-- Phone inputs displayed LTR.  
+- Routes: `/companies`, `/companies/new`, `/companies/[id]`, `/companies/[id]/edit`.
+- Server Actions call RPCs with request-scoped authenticated Supabase client.
+- Never pass `account_id` or role from the browser as authority.
+- Map RPC `MESSAGE` tokens to Arabic errors.
+- Phone inputs displayed LTR.
 - List UI may show only `active_projects_count` while RPC returns both counts.
 
 ---
 
 ## 11. Explicit non-claims
 
-- No migration file exists yet.  
-- No DEV/DEMO apply of this design.  
-- No Companies UI/RPC implementation.  
-- No production readiness.  
-- No Support Helper runtime smoke for Companies yet.  
+- No migration file exists yet.
+- No DEV/DEMO apply of this design.
+- No Companies UI/RPC implementation.
+- No production readiness.
+- No Support Helper runtime smoke for Companies yet.
 - Live catalog PASS ≠ schema design implementation.
 
 ---
 
 ## 12. Source and convention references
 
-- Live catalog: `docs/companies-live-catalog-verification.md`  
-- Contract / roles: `docs/roles-permissions.md`, `docs/database-schema.md`  
-- Support RPC patterns: `supabase/migrations/202607130002_role_safe_read_surfaces.sql` (pagination, SECURITY DEFINER, search_path, EXECUTE matrix)  
-- ACL posture: `supabase/migrations/20260715120000_harden_core_acl_defaults.sql`  
+- Live catalog: `docs/companies-live-catalog-verification.md`
+- Contract / roles: `docs/roles-permissions.md`, `docs/database-schema.md`
+- Support RPC patterns: `supabase/migrations/202607130002_role_safe_read_surfaces.sql` (pagination, SECURITY DEFINER, search_path, EXECUTE matrix)
+- ACL posture: `supabase/migrations/20260715120000_harden_core_acl_defaults.sql`
 - Core table: `supabase/migrations/202607060001_zamblak_core_schema.sql`
