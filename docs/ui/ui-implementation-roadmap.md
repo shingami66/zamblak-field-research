@@ -15,7 +15,7 @@ Source documents:
 
 ## 2. Current implemented UI foundation (`ZAM-AUTH-001D` — CLOSED; Companies MVP UI CLOSED)
 
-Status: Auth foundation **complete** (`74ceca7` application; docs through `ee44d66`). **Companies MVP list/create/detail/edit UI is implemented** and Mozfer-smoked on designated DEV/DEMO (see section 6). **Projects list UI is implemented** at `/projects`; create/detail/edit are not. Owner-only `/financials` remains a controlled placeholder. Branded loading-mark design is approved (`docs/brand-loading-mark-design.md`) and **not** implemented. Production readiness is **not** claimed.
+Status: Auth foundation **complete** (`74ceca7` application; docs through `ee44d66`). **Companies MVP list/create/detail/edit UI is implemented** and Mozfer-smoked on designated DEV/DEMO (see section 6). **Projects list/create/detail/edit UI is implemented** (through `9a00108`); Mozfer browser smoke plan prepared, **not** executed. Owner-only `/financials` remains a controlled placeholder. Branded loading-mark design is approved (`docs/brand-loading-mark-design.md`) and **not** implemented. Production readiness is **not** claimed.
 
 Implemented:
 
@@ -26,7 +26,7 @@ Implemented:
 - Accessible desktop/mobile account menu showing server-resolved profile context.
 - Current-session local logout with a fixed `/login` redirect.
 - **Companies MVP routes** `/companies`, `/companies/new`, `/companies/[id]`, `/companies/[id]/edit` (Arabic-first; Server Action → authenticated RPC).
-- Projects list route `/projects` (search, company/status filters, pagination); create/detail/edit not implemented.
+- Projects list/create/detail/edit routes implemented; Mozfer smoke plan prepared (not executed).
 - Controlled Owner-only `/financials` placeholder; Support Helper direct access redirects to `/` without financial wording or data.
 - Branded loading mark: **design only** (no shared loader component yet).
 
@@ -65,7 +65,10 @@ Mozfer's Auth manual smoke covered real Owner login, redirects, session persiste
 | `/companies/new` | Yes | Yes | **Implemented** create form (Server Action → RPC). |
 | `/companies/[id]` | Yes | Yes | **Implemented** detail (operational fields + counts). |
 | `/companies/[id]/edit` | Yes | Yes | **Implemented** edit form + optimistic concurrency. |
-| `/projects` | Yes | Yes | **List implemented**; create/detail/edit not started. |
+| `/projects` | Yes | Yes | **List** implemented (search/filters/pagination). |
+| `/projects/new` | Yes | Yes | **Create** draft Project (no status field). |
+| `/projects/[projectId]` | Yes | Yes | **Detail**; Owner lifecycle only; finance-blind. |
+| `/projects/[projectId]/edit` | Yes | Yes | **Edit** draft/active; Company locked when active; terminal read-only. |
 | `/financials` | Yes | No | Owner-only controlled placeholder; Support Helper redirects to `/`. |
 | Account menu | Yes | Yes | Accessible desktop/mobile menu. |
 | Local logout | Yes | Yes | Ends current browser session and redirects to `/login`. |
@@ -74,7 +77,7 @@ Support Helper must never see financial amounts, prices, payments, due amounts, 
 
 ## 5. Next product sequence
 
-**Companies MVP CRUD: CLOSED** on designated DEV/DEMO (application + Mozfer smoke). **Projects:** contracts + list page complete. **Next product task: `ZAM-PROJECTS-CREATE-PAGE-1`**. Separate future brand task: `ZAM-BRAND-LOADING-MARK-IMPLEMENT-1` (design frozen; not next product feature).
+**Companies MVP CRUD: CLOSED** on designated DEV/DEMO (application + Mozfer smoke). **Projects:** contracts + list/create/detail/edit complete; automated checks committed. **Manual smoke plan prepared** (`docs/projects-manual-smoke-plan.md`); **not executed**. **Next product task: `ZAM-PROJECTS-MANUAL-SMOKE-RUN-1`** (Mozfer). Separate future brand task: `ZAM-BRAND-LOADING-MARK-IMPLEMENT-1` (design frozen; not next product feature).
 
 Completed Companies gates:
 

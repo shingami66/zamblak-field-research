@@ -1,8 +1,8 @@
 # Project Status
 
-Current phase: **Projects MVP in application** — schema/RPC applied and verified on designated DEV/DEMO; application contracts complete; **list page implemented** (`/projects`). Companies MVP remains closed. Create/detail/edit UI **not** started. Production readiness is **not** claimed. Browser/manual application smoke for Projects is **not** claimed. Cross-account runtime isolation smoke remains deferred and non-blocking. Branded loading-mark **design approved** (`docs/brand-loading-mark-design.md`); implementation **not** started.
+Current phase: **Projects MVP application surfaces complete** — schema/RPC applied and verified on designated DEV/DEMO; contracts complete; **list / create / detail / edit implemented** (`9a00108`). Companies MVP remains closed. **Manual browser smoke plan prepared** (`docs/projects-manual-smoke-plan.md`); smoke **not executed**. Runtime acceptance **not closed**. Production readiness is **not** claimed. Cross-account runtime isolation smoke remains deferred and non-blocking. Branded loading-mark **design approved** (`docs/brand-loading-mark-design.md`); implementation **not** started.
 
-Next product sequence: `ZAM-PROJECTS-CREATE-PAGE-1` → detail/edit → smoke. Future brand task (not next product feature): `ZAM-BRAND-LOADING-MARK-IMPLEMENT-1`.
+Next product sequence: `ZAM-PROJECTS-MANUAL-SMOKE-RUN-1` (Mozfer executes `docs/projects-manual-smoke-plan.md`). Future brand task (not next product feature): `ZAM-BRAND-LOADING-MARK-IMPLEMENT-1`.
 
 ## Auth (`ZAM-AUTH-001D`) — CLOSED
 
@@ -22,7 +22,7 @@ Implemented Auth behavior (still current):
 - Responsive branded login and authenticated dashboard shell; no fake dashboard metrics.
 - Accessible desktop/mobile account menu; local-session logout to `/login`.
 - Implemented Companies MVP routes under `/companies` (list/create/detail/edit) — see Companies section.
-- Projects MVP **list** route `/projects` implemented (search/company/status filters, pagination); create/detail/edit routes not implemented.
+- Projects MVP routes implemented: `/projects`, `/projects/new`, `/projects/[projectId]`, `/projects/[projectId]/edit` (finance-blind; Owner-only lifecycle on detail).
 - Controlled Owner-only `/financials` placeholder; Support Helper direct access redirects to `/` without financial wording or data.
 
 ## Security — core database ACL hardening (`ZAM-SEC-ACL-001`) — CLOSED (DEV/DEMO)
@@ -205,7 +205,7 @@ Implemented Auth behavior (still current):
 
 - See **Security — core database ACL hardening** section above for full evidence and boundaries.
 
-## Projects (`ZAM-PROJECTS-001`) — schema/RPC + contracts + list page; create not started
+## Projects (`ZAM-PROJECTS-001`) — app surfaces complete; manual smoke plan ready
 
 | Milestone | Status |
 |---|---|
@@ -224,9 +224,14 @@ Implemented Auth behavior (still current):
 | Lifecycle matrix | **Installed** (Owner-only `transition_project_status`) |
 | Finance separation / RLS-ACL posture | **Preserved** (authenticated SELECT-only; no finance on Projects RPCs) |
 | Application contracts | **Complete** (`src/lib/projects/**`) |
-| List UI | **Complete** — `/projects` list with search/company/status filters + pagination (`86f898f`) |
-| Create / detail / edit UI | **Not started** |
-| Browser / app smoke | **Not performed** |
+| List UI | **Complete** — `/projects` (`86f898f`) |
+| Create UI | **Complete** — `/projects/new` (`65db22f`) |
+| Detail UI | **Complete** — `/projects/[projectId]` (`50f4272` + presentation align `d6677fe`) |
+| Edit UI | **Complete** — `/projects/[projectId]/edit` (`9a00108`) |
+| Automated validation | **Complete** (unit tests / typecheck for contracts + pages as committed) |
+| Manual smoke plan | **Prepared** — `docs/projects-manual-smoke-plan.md` (`ZAM-PROJECTS-MANUAL-SMOKE-PLAN-1`) |
+| Browser / app smoke | **Not performed** (await Mozfer `ZAM-PROJECTS-MANUAL-SMOKE-RUN-1`) |
+| Runtime acceptance closed | **No** |
 | Production readiness | **Not claimed** |
 
 ## Brand — loading mark (`ZAM-BRAND-LOADING-MARK-DESIGN-1`) — design approved; not implemented
@@ -266,7 +271,7 @@ Implemented Auth behavior (still current):
 
 ## Open work
 
-- **Projects** create → detail/edit UI → smoke (`ZAM-PROJECTS-CREATE-PAGE-1` next product task).
+- **Projects** Mozfer manual browser smoke (`ZAM-PROJECTS-MANUAL-SMOKE-RUN-1`) using `docs/projects-manual-smoke-plan.md`; then smoke closeout when evidence is complete.
 - Branded loading mark implementation (`ZAM-BRAND-LOADING-MARK-IMPLEMENT-1`) — design frozen; **not** the next product feature.
 - Deferred **cross-account** Companies runtime isolation smoke (second account) — **non-blocking** security follow-up; not marked PASS.
 - Deferred Companies lifecycle/metrics/import items: `docs/deferred-decisions.md`.
