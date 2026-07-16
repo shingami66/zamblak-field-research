@@ -61,17 +61,23 @@ PostgreSQL does not expose the Supabase project ref as a server setting. Mozfer 
 
 ---
 
-## 4. Manual pre-run checklist (Mozfer)
+## 4. Manual run instructions (Mozfer)
 
-1. Open Supabase Dashboard for project **`gdegnwglakyblnmxgiwx`** only.
-2. Confirm you are **not** on a customer production project.
-3. Open **SQL Editor** as a role that can read `pg_catalog` (typically `postgres`).
-4. Create a new query. Paste the **entire** SQL block in [§ Metadata-only SQL packet](#12-metadata-only-sql-packet) (from the first `--` header through the final `;`).
-5. Run **once**. Expect a **single** result grid with ordered sections (`section_order` 1…).
-6. Export results (CSV or JSON copy) and store with task id `ZAM-PROJECTS-LIVE-CATALOG-VERIFY-1`.
-7. Do **not** run other SQL in the same gate session.
-8. Do **not** start Projects migration/RPC design until review PASS (or explicit WARN with deferred design notes).
-9. Do **not** perform application/browser smoke as part of this gate.
+1. Open the Supabase **DEV/DEMO** project: **`gdegnwglakyblnmxgiwx`**.
+2. Open **SQL Editor**.
+3. Confirm the selected role is **`postgres`** (or the SQL Editor superuser role that can read all of `pg_catalog`).
+4. Confirm you are **not** on a customer production project.
+5. Create a new query. Paste the **complete** SQL packet in [§ Metadata-only SQL packet](#15-metadata-only-sql-packet) (from the first `--` header through the final `;`).
+6. Run it **once**. Expect a **single** result grid with ordered sections (`section_order` 1…).
+7. Do **not** modify the packet or run isolated write statements.
+8. Export the result as **CSV** where possible, or provide complete screenshots / full result text.
+9. Stop **immediately** if any SQL error occurs.
+10. Do **not** rerun repeatedly after an error.
+11. Send the **full** result to the controller for PASS / WARN / HOLD review.
+12. Do **not** start Projects migration/RPC design from this packet alone.
+13. Do **not** perform application or browser smoke as part of this gate.
+
+**Next controlled task after export exists:** `ZAM-PROJECTS-LIVE-CATALOG-VERIFY-RUN-1` (result review).
 
 ---
 
@@ -210,21 +216,38 @@ The SQL returns **one result set**. Each row:
 | 5 | `B_projects_indexes` | all indexes + definitions; flags for live company/status index |
 | 6 | `B_projects_triggers` | non-internal triggers + timing/events/function |
 | 7 | `B_projects_trigger_defs` | `pg_get_triggerdef` for each projects trigger |
-| 8 | `C_consistency_function` | live consistency function identity, SECURITY, volatility, parallel, config, ACLs, definition |
-| 9 | `C_soft_delete_company_gap` | heuristic flags from definition text (`deleted_at` mentions) |
-| 10 | `D_pfs_relation` | `project_financial_settings` relation identity |
-| 11 | `D_pfs_columns` | PFS columns (types only; no row data) |
-| 12 | `D_pfs_constraints` | PFS constraints |
-| 13 | `D_pfs_policies` | PFS RLS policies |
-| 14 | `D_pfs_grants` | PFS privilege matrix |
-| 15 | `E_policies_projects` | all RLS policies on `projects` |
-| 16 | `E_grants_projects` | privilege matrix on `projects` |
-| 17 | `F_views_project` | `project_operational_summary` / `project_financial_summary` metadata + definition |
-| 18 | `G_functions_project_namespace` | public functions matching project/support naming or identity |
-| 19 | `G_function_execute_acls` | EXECUTE ACLs for selected project/support functions |
-| 20 | `H_crud_rpc_absence` | explicit presence/absence of Projects CRUD candidate names |
-| 21 | `I_index_live_flag` | dedicated boolean check for `idx_projects_account_company_status_live` |
-| 22 | `Z_packet_meta` | packet id, safety flags, non-claims |
+| 8 | `C_consistency_function` | live consistency function identity, SECURITY, volatility, parallel, `search_path`, EXECUTE ACLs, **full `pg_get_functiondef`** |
+| 9 | `C_soft_delete_company_gap` | **heuristic flags only** from definition text — **not** a PASS claim |
+| 10 | `C_updated_at_function` | `set_updated_at` identity, SECURITY, `search_path`, grants, full definition |
+| 11 | `D_pfs_relation` | `project_financial_settings` relation identity |
+| 12 | `D_pfs_columns` | PFS columns (types only; no row data) |
+| 13 | `D_pfs_constraints` | PFS constraints |
+| 14 | `D_pfs_policies` | PFS RLS policies |
+| 15 | `D_pfs_grants` | PFS privileges for anon/authenticated/service_role/postgres |
+| 16 | `E_policies_projects` | all RLS policies on `projects` (USING / WITH CHECK) |
+| 17 | `E_grants_projects` | privileges for anon/authenticated/service_role/postgres |
+| 18 | `F_views_project` | operational + financial summary views; `security_invoker` option; definitions |
+| 19 | `G_functions_project_namespace` | project/support/participation-related functions + full definitions |
+| 20 | `G_function_execute_acls` | EXECUTE ACLs for selected functions |
+| 21 | `H_crud_rpc_absence` | explicit presence/absence rows for each CRUD candidate name |
+| 22 | `I_index_live_flag` | dedicated check for `idx_projects_account_company_status_live` |
+| 23 | `J_companies_selector_rpcs` | `list_companies` / `get_company` metadata + definitions (no RPC execution) |
+| 24 | `K_participation_state_guard` | `enforce_participation_project_state` + attached participation triggers |
+| 25 | `Z_packet_meta` | packet id, safety flags, non-claims |
+
+### Consistency-function review questions (controller)
+
+Using **section 8** full definition + **section 9** heuristics only, determine:
+
+| # | Question | How to answer from export |
+|---|---|---|
+| 1 | Missing Company fails closed? | Definition raises when company row is not found |
+| 2 | Cross-account Company fails closed? | Definition requires `NEW.account_id` match company `account_id` |
+| 3 | Soft-deleted Company rejected? | Definition must explicitly require non-deleted company; **if not stated, do not mark PASS for this item** |
+| 4 | `account_id` state-smuggling blocked? | Trigger runs BEFORE INSERT/UPDATE; mismatch raises exception |
+| 5 | `search_path` safely fixed? | `search_path_config` present and non-mutable session-dependent |
+
+**Do not pre-label soft-delete behavior PASS.** Report the exact definition text and apply the table above after the live run.
 
 ---
 
@@ -275,12 +298,20 @@ Use after Mozfer’s export. **Do not treat this document as a completed live PA
 
 ### Consistency function / soft-delete gap
 
-| Check | Expected |
+| Check | Expected from source (not a live claim) |
 |---|---|
 | Function exists | SECURITY DEFINER |
 | search_path | fixed (`public` or `pg_catalog, public` class) |
 | Client EXECUTE | **false** for PUBLIC/anon/authenticated/service_role (trigger-only) |
-| Soft-deleted company | Source body **does not** check `companies.deleted_at` → review flag **WARN** if still true live; **HOLD** only if definition is unsafe/missing |
+| Missing / cross-account company | fail closed in definition |
+| Soft-deleted company | **Live unknown until export reviewed.** Source body does not reference `companies.deleted_at`. **Never pre-label soft-delete PASS.** |
+
+### `set_updated_at` (Projects updated_at trigger function)
+
+| Check | Expected from source |
+|---|---|
+| Attached trigger | Projects BEFORE UPDATE uses `set_updated_at` |
+| Definition / SECURITY / search_path / EXECUTE | Return live metadata; client EXECUTE typically false |
 
 ### Policies / grants on `projects`
 
@@ -291,6 +322,7 @@ Use after Mozfer’s export. **Do not treat this document as a completed live PA
 | UPDATE/DELETE policies | **Absent** |
 | authenticated | SELECT true; INSERT/UPDATE/DELETE/TRUNCATE false |
 | anon / service_role | all checked privileges false |
+| postgres | owner/superuser posture (report live) |
 
 ### PFS separation
 
@@ -300,15 +332,19 @@ Use after Mozfer’s export. **Do not treat this document as a completed live PA
 | Financial columns | present only on PFS, not on projects |
 | Owner policies | SELECT/INSERT/UPDATE Owner-scoped |
 | Support SH | no PFS exposure via support function return types |
+| `project_financial_summary` | Owner-only; **outside Projects MVP** |
+| `project_operational_summary` | Owner-oriented; **must not** become SH product API; accepted/rejected counts may be finance-adjacent |
 
-### Support RPCs / views
+### Support RPCs / Companies selector / participation guard
 
 | Check | Expected |
 |---|---|
-| `support_project_directory` | present; SECURITY DEFINER; authenticated EXECUTE only; no finance columns in returns |
+| `support_project_directory` | present; SECURITY DEFINER; authenticated EXECUTE only; no finance columns; not full product list API |
 | `support_project_participation_summary` | present; totals only |
-| Operational/financial views | present; financial view Owner-only in definition/filter |
-| Projects CRUD RPCs | **Absent** |
+| `support_participation_operational_rows` | present; finance-blind |
+| `list_companies` / `get_company` | present (Companies MVP); authenticated EXECUTE; finance-free definitions |
+| `enforce_participation_project_state` | present; non-client; active + non-deleted project gate |
+| Projects CRUD RPCs | **Absent** (explicit rows with count 0) |
 
 ---
 
@@ -328,20 +364,21 @@ Mark **PASS** when:
 10. Projects CRUD candidates are **absent** (or only expected non-CRUD support names).
 11. `idx_projects_account_company_status_live` is present with expected columns/predicate **or** its absence is recorded as **WARN** with design impact (should be present post-Companies apply).
 
-A soft-deleted-company gap that matches source (no `deleted_at` check) is **WARN for design**, not automatic FAIL, if all other PASS criteria hold.
+**Soft-delete company rejection is not part of automatic PASS.** Controllers must answer review question #3 from the live definition only. If soft-delete is not rejected, classify **WARN** (design must close) when all other PASS criteria hold — never invent a soft-delete PASS.
 
 ---
 
 ## 10. WARN interpretation
 
-Record **PASS WITH WARN** (or design WARN notes) when mandatory PASS items hold but any of:
+Record **PASS WITH WARN** when mandatory PASS items hold but any of:
 
-1. Soft-deleted Company parent is **not** rejected by consistency function (expected from source — design must close in Projects RPCs).
-2. Index `idx_projects_account_company_status_live` missing or definition differs from Companies migration (design/apply reconciliation needed).
-3. Extra non-financial indexes/comments exist but do not change security.
-4. Trigger/function names differ cosmetically but definitions preserve contract.
-5. `support_project_directory` remains thin/SH-only (expected) — design must not treat it as full product list API.
-6. Historical docs still under-claim participation enforcement relative to applied `ZAM-WF-001E` (docs lag).
+1. Soft-deleted Company parent is **not** rejected by consistency function (do **not** call this PASS).
+2. Lifecycle status transitions are not enforced beyond CHECK values (expected).
+3. Projects CRUD RPCs remain absent (expected before design) — informational WARN only if reviewers need the absence highlighted.
+4. Index `idx_projects_account_company_status_live` definition differs cosmetically but still covers live company/status counts.
+5. `support_project_directory` is incomplete as a future unified product API (expected; do not reuse as sole list surface).
+6. Extra non-financial indexes/comments exist but do not change security.
+7. Trigger/function names differ cosmetically but definitions preserve contract.
 
 WARNs must be precise and must **not** hide HOLD conditions.
 
@@ -395,10 +432,12 @@ After a clean run:
 
 | Outcome | Next task |
 |---|---|
-| Catalog review **PASS** or **PASS WITH WARN** (nonblocking) | `ZAM-PROJECTS-SCHEMA-RPC-DESIGN-1` |
-| Catalog review **HOLD** | Narrow recovery / evidence repair task (do not design RPCs) |
+| Packet prepared / export delivered | **`ZAM-PROJECTS-LIVE-CATALOG-VERIFY-RUN-1`** (controller review of export) |
+| Review **PASS** or **PASS WITH WARN** | `ZAM-PROJECTS-SCHEMA-RPC-DESIGN-1` |
+| Review **HOLD** | Narrow recovery / evidence repair (do not design RPCs) |
 
 **Do not** start `ZAM-PROJECTS-SCHEMA-RPC-MIGRATION-1` until design is frozen.
+**This document alone does not claim the live catalog was verified.**
 
 ---
 
@@ -731,19 +770,27 @@ section_c_soft_delete_gap AS (
     CASE
       WHEN p.oid IS NULL THEN jsonb_build_object(
         'function_found', false,
-        'note', 'check_project_account_consistency missing — HOLD candidate'
+        'note', 'check_project_account_consistency missing — HOLD candidate',
+        'soft_delete_company_rejected', null,
+        'do_not_pre_label_soft_delete_pass', true
       )
       ELSE jsonb_build_object(
         'function_found', true,
+        'do_not_pre_label_soft_delete_pass', true,
         'definition_mentions_deleted_at',
           (pg_catalog.pg_get_functiondef(p.oid) ILIKE '%deleted_at%'),
-        'definition_mentions_companies_deleted_at',
-          (pg_catalog.pg_get_functiondef(p.oid) ILIKE '%companies%deleted_at%'
-           OR pg_catalog.pg_get_functiondef(p.oid) ILIKE '%deleted_at%IS NULL%'),
-        'source_expectation',
-          'Committed source checks company existence and account_id match only; soft-deleted company may still pass. Design RPCs must fail closed for deleted/inactive companies.',
-        'review_hint',
-          'If definition_mentions_deleted_at is false, record WARN (design gap), not automatic HOLD.'
+        'definition_mentions_companies_deleted_at_literal',
+          (pg_catalog.pg_get_functiondef(p.oid) ILIKE '%deleted_at%'),
+        'heuristic_only', true,
+        'review_questions', jsonb_build_array(
+          'missing_company_fails_closed',
+          'cross_account_company_fails_closed',
+          'soft_deleted_company_rejected',
+          'account_id_state_smuggling_blocked',
+          'search_path_safely_fixed'
+        ),
+        'interpretation',
+          'Answer soft_deleted_company_rejected only from full definition in C_consistency_function. Never mark soft-delete PASS without explicit non-deleted company check in the definition.'
       )
     END AS payload
   FROM (SELECT 1) AS seed
@@ -751,12 +798,62 @@ section_c_soft_delete_gap AS (
     ON p.oid = to_regprocedure('public.check_project_account_consistency()')
 ),
 
+-- G. updated_at function attached to Projects trigger
+section_c_updated_at AS (
+  SELECT
+    10 AS section_order,
+    'C_updated_at_function'::text AS section_key,
+    pn.nspname || '.' || p.proname || '(' || pg_catalog.pg_get_function_identity_arguments(p.oid) || ')' AS item_key,
+    jsonb_build_object(
+      'function_schema', pn.nspname,
+      'function_name', p.proname,
+      'identity_arguments', pg_catalog.pg_get_function_identity_arguments(p.oid),
+      'result_type', pg_catalog.pg_get_function_result(p.oid),
+      'owner', pg_catalog.pg_get_userbyid(p.proowner),
+      'language', l.lanname,
+      'prosecdef', p.prosecdef,
+      'security', CASE WHEN p.prosecdef THEN 'DEFINER' ELSE 'INVOKER' END,
+      'volatility', CASE p.provolatile
+        WHEN 'i' THEN 'IMMUTABLE' WHEN 's' THEN 'STABLE' WHEN 'v' THEN 'VOLATILE'
+        ELSE p.provolatile::text
+      END,
+      'proconfig', p.proconfig,
+      'search_path_config', (
+        SELECT cfg
+        FROM unnest(COALESCE(p.proconfig, ARRAY[]::text[])) AS cfg
+        WHERE cfg LIKE 'search_path=%'
+        LIMIT 1
+      ),
+      'execute_public', has_function_privilege('public', p.oid, 'EXECUTE'),
+      'execute_anon', has_function_privilege('anon', p.oid, 'EXECUTE'),
+      'execute_authenticated', has_function_privilege('authenticated', p.oid, 'EXECUTE'),
+      'execute_service_role', has_function_privilege('service_role', p.oid, 'EXECUTE'),
+      'execute_postgres', has_function_privilege('postgres', p.oid, 'EXECUTE'),
+      'attached_to_projects_trigger', EXISTS (
+        SELECT 1
+        FROM pg_catalog.pg_trigger AS tr
+        JOIN pg_catalog.pg_class AS c ON c.oid = tr.tgrelid
+        JOIN pg_catalog.pg_namespace AS n ON n.oid = c.relnamespace
+        WHERE n.nspname = 'public'
+          AND c.relname = 'projects'
+          AND NOT tr.tgisinternal
+          AND tr.tgfoid = p.oid
+      ),
+      'definition', pg_catalog.pg_get_functiondef(p.oid)
+    ) AS payload
+  FROM pg_catalog.pg_proc AS p
+  JOIN pg_catalog.pg_namespace AS pn ON pn.oid = p.pronamespace
+  JOIN pg_catalog.pg_language AS l ON l.oid = p.prolang
+  WHERE pn.nspname = 'public'
+    AND p.proname = 'set_updated_at'
+),
+
 -- ---------------------------------------------------------------------------
 -- D. project_financial_settings separation
 -- ---------------------------------------------------------------------------
 section_d_pfs_relation AS (
   SELECT
-    10 AS section_order,
+    11 AS section_order,
     'D_pfs_relation'::text AS section_key,
     'relation'::text AS item_key,
     CASE
@@ -781,7 +878,7 @@ section_d_pfs_relation AS (
 
 section_d_pfs_columns AS (
   SELECT
-    11 AS section_order,
+    12 AS section_order,
     'D_pfs_columns'::text AS section_key,
     a.attname AS item_key,
     jsonb_build_object(
@@ -807,7 +904,7 @@ section_d_pfs_columns AS (
 
 section_d_pfs_constraints AS (
   SELECT
-    12 AS section_order,
+    13 AS section_order,
     'D_pfs_constraints'::text AS section_key,
     con.conname AS item_key,
     jsonb_build_object(
@@ -827,7 +924,7 @@ section_d_pfs_constraints AS (
 
 section_d_pfs_policies AS (
   SELECT
-    13 AS section_order,
+    14 AS section_order,
     'D_pfs_policies'::text AS section_key,
     pol.polname AS item_key,
     jsonb_build_object(
@@ -860,7 +957,7 @@ section_d_pfs_policies AS (
 
 section_d_pfs_grants AS (
   SELECT
-    14 AS section_order,
+    15 AS section_order,
     'D_pfs_grants'::text AS section_key,
     r.rolname || ':' || p.privilege AS item_key,
     jsonb_build_object(
@@ -876,7 +973,8 @@ section_d_pfs_grants AS (
     ('PUBLIC'),
     ('anon'),
     ('authenticated'),
-    ('service_role')
+    ('service_role'),
+    ('postgres')
   ) AS r(rolname)
   CROSS JOIN (VALUES
     ('SELECT'),
@@ -894,7 +992,7 @@ section_d_pfs_grants AS (
 -- ---------------------------------------------------------------------------
 section_e_policies AS (
   SELECT
-    15 AS section_order,
+    16 AS section_order,
     'E_policies_projects'::text AS section_key,
     pol.polname AS item_key,
     jsonb_build_object(
@@ -927,7 +1025,7 @@ section_e_policies AS (
 
 section_e_grants AS (
   SELECT
-    16 AS section_order,
+    17 AS section_order,
     'E_grants_projects'::text AS section_key,
     r.rolname || ':' || p.privilege AS item_key,
     jsonb_build_object(
@@ -943,7 +1041,8 @@ section_e_grants AS (
     ('PUBLIC'),
     ('anon'),
     ('authenticated'),
-    ('service_role')
+    ('service_role'),
+    ('postgres')
   ) AS r(rolname)
   CROSS JOIN (VALUES
     ('SELECT'),
@@ -961,7 +1060,7 @@ section_e_grants AS (
 -- ---------------------------------------------------------------------------
 section_f_views AS (
   SELECT
-    17 AS section_order,
+    18 AS section_order,
     'F_views_project'::text AS section_key,
     c.relname AS item_key,
     jsonb_build_object(
@@ -970,7 +1069,25 @@ section_f_views AS (
       'relkind', c.relkind,
       'owner', pg_catalog.pg_get_userbyid(c.relowner),
       'relacl', c.relacl::text,
-      'definition', pg_catalog.pg_get_viewdef(c.oid, true)
+      'reloptions', c.reloptions,
+      'security_invoker_option', (
+        SELECT opt
+        FROM unnest(COALESCE(c.reloptions, ARRAY[]::text[])) AS opt
+        WHERE opt LIKE 'security_invoker%'
+        LIMIT 1
+      ),
+      'select_anon', has_table_privilege('anon', c.oid, 'SELECT'),
+      'select_authenticated', has_table_privilege('authenticated', c.oid, 'SELECT'),
+      'select_service_role', has_table_privilege('service_role', c.oid, 'SELECT'),
+      'select_postgres', has_table_privilege('postgres', c.oid, 'SELECT'),
+      'definition', pg_catalog.pg_get_viewdef(c.oid, true),
+      'review_notes', CASE c.relname
+        WHEN 'project_operational_summary' THEN
+          'Must not automatically become Support Helper product API; accepted/rejected counts may be finance-adjacent'
+        WHEN 'project_financial_summary' THEN
+          'Outside Projects MVP; Owner financial surface only'
+        ELSE NULL
+      END
     ) AS payload
   FROM pg_catalog.pg_class AS c
   JOIN pg_catalog.pg_namespace AS n
@@ -988,7 +1105,7 @@ section_f_views AS (
 -- ---------------------------------------------------------------------------
 section_g_functions AS (
   SELECT
-    18 AS section_order,
+    19 AS section_order,
     'G_functions_project_namespace'::text AS section_key,
     pn.nspname || '.' || p.proname || '(' || pg_catalog.pg_get_function_identity_arguments(p.oid) || ')' AS item_key,
     jsonb_build_object(
@@ -1056,7 +1173,7 @@ section_g_functions AS (
 
 section_g_execute_acls AS (
   SELECT
-    19 AS section_order,
+    20 AS section_order,
     'G_function_execute_acls'::text AS section_key,
     pn.nspname || '.' || p.proname || '(' || pg_catalog.pg_get_function_identity_arguments(p.oid) || '):' || r.rolname AS item_key,
     jsonb_build_object(
@@ -1073,7 +1190,8 @@ section_g_execute_acls AS (
     ('PUBLIC'),
     ('anon'),
     ('authenticated'),
-    ('service_role')
+    ('service_role'),
+    ('postgres')
   ) AS r(rolname)
   WHERE pn.nspname = 'public'
     AND p.proname IN (
@@ -1083,6 +1201,9 @@ section_g_execute_acls AS (
       'support_project_participation_summary',
       'support_participation_operational_rows',
       'enforce_participation_project_state',
+      'set_updated_at',
+      'list_companies',
+      'get_company',
       'list_projects',
       'get_project',
       'create_project',
@@ -1092,15 +1213,24 @@ section_g_execute_acls AS (
 ),
 
 -- ---------------------------------------------------------------------------
--- H. Projects CRUD RPC absence
+-- H. Projects CRUD RPC absence (one explicit row per candidate)
 -- ---------------------------------------------------------------------------
 section_h_crud_absence AS (
   SELECT
-    20 AS section_order,
+    21 AS section_order,
     'H_crud_rpc_absence'::text AS section_key,
     cand.fname AS item_key,
     jsonb_build_object(
       'candidate_name', cand.fname,
+      'present', (
+        SELECT EXISTS (
+          SELECT 1
+          FROM pg_catalog.pg_proc AS p
+          JOIN pg_catalog.pg_namespace AS pn ON pn.oid = p.pronamespace
+          WHERE pn.nspname = 'public'
+            AND p.proname = cand.fname
+        )
+      ),
       'public_function_count', (
         SELECT count(*)::integer
         FROM pg_catalog.pg_proc AS p
@@ -1114,7 +1244,16 @@ section_h_crud_absence AS (
             jsonb_build_object(
               'identity_arguments', pg_catalog.pg_get_function_identity_arguments(p.oid),
               'result_type', pg_catalog.pg_get_function_result(p.oid),
-              'security', CASE WHEN p.prosecdef THEN 'DEFINER' ELSE 'INVOKER' END
+              'security', CASE WHEN p.prosecdef THEN 'DEFINER' ELSE 'INVOKER' END,
+              'search_path_config', (
+                SELECT cfg
+                FROM unnest(COALESCE(p.proconfig, ARRAY[]::text[])) AS cfg
+                WHERE cfg LIKE 'search_path=%'
+                LIMIT 1
+              ),
+              'execute_authenticated', has_function_privilege('authenticated', p.oid, 'EXECUTE'),
+              'execute_anon', has_function_privilege('anon', p.oid, 'EXECUTE'),
+              'execute_service_role', has_function_privilege('service_role', p.oid, 'EXECUTE')
             )
             ORDER BY pg_catalog.pg_get_function_identity_arguments(p.oid)
           ),
@@ -1125,6 +1264,8 @@ section_h_crud_absence AS (
         WHERE pn.nspname = 'public'
           AND p.proname = cand.fname
       ),
+      'absence_representation',
+        'present=false and public_function_count=0 means the exact function name was not found in public',
       'expected_for_mvp_gate', 'absent'
     ) AS payload
   FROM params AS par
@@ -1136,7 +1277,7 @@ section_h_crud_absence AS (
 -- ---------------------------------------------------------------------------
 section_i_index_flag AS (
   SELECT
-    21 AS section_order,
+    22 AS section_order,
     'I_index_live_flag'::text AS section_key,
     'idx_projects_account_company_status_live'::text AS item_key,
     jsonb_build_object(
@@ -1170,11 +1311,140 @@ section_i_index_flag AS (
 ),
 
 -- ---------------------------------------------------------------------------
+-- J. Companies selector RPCs (metadata only; do not execute)
+-- ---------------------------------------------------------------------------
+section_j_companies_selector AS (
+  SELECT
+    23 AS section_order,
+    'J_companies_selector_rpcs'::text AS section_key,
+    pn.nspname || '.' || p.proname || '(' || pg_catalog.pg_get_function_identity_arguments(p.oid) || ')' AS item_key,
+    jsonb_build_object(
+      'function_schema', pn.nspname,
+      'function_name', p.proname,
+      'identity_arguments', pg_catalog.pg_get_function_identity_arguments(p.oid),
+      'result_type', pg_catalog.pg_get_function_result(p.oid),
+      'owner', pg_catalog.pg_get_userbyid(p.proowner),
+      'prosecdef', p.prosecdef,
+      'security', CASE WHEN p.prosecdef THEN 'DEFINER' ELSE 'INVOKER' END,
+      'volatility', CASE p.provolatile
+        WHEN 'i' THEN 'IMMUTABLE' WHEN 's' THEN 'STABLE' WHEN 'v' THEN 'VOLATILE'
+        ELSE p.provolatile::text
+      END,
+      'search_path_config', (
+        SELECT cfg
+        FROM unnest(COALESCE(p.proconfig, ARRAY[]::text[])) AS cfg
+        WHERE cfg LIKE 'search_path=%'
+        LIMIT 1
+      ),
+      'execute_public', has_function_privilege('public', p.oid, 'EXECUTE'),
+      'execute_anon', has_function_privilege('anon', p.oid, 'EXECUTE'),
+      'execute_authenticated', has_function_privilege('authenticated', p.oid, 'EXECUTE'),
+      'execute_service_role', has_function_privilege('service_role', p.oid, 'EXECUTE'),
+      'definition', pg_catalog.pg_get_functiondef(p.oid),
+      'review_notes',
+        'Inspect definition for owner/support access checks, active-only companies, and absence of financial fields. Do not EXECUTE the RPC in this gate.'
+    ) AS payload
+  FROM pg_catalog.pg_proc AS p
+  JOIN pg_catalog.pg_namespace AS pn ON pn.oid = p.pronamespace
+  WHERE pn.nspname = 'public'
+    AND p.proname IN ('list_companies', 'get_company')
+),
+
+section_j_companies_selector_absence AS (
+  SELECT
+    23 AS section_order,
+    'J_companies_selector_rpcs'::text AS section_key,
+    cand.fname AS item_key,
+    jsonb_build_object(
+      'function_name', cand.fname,
+      'present', EXISTS (
+        SELECT 1
+        FROM pg_catalog.pg_proc AS p
+        JOIN pg_catalog.pg_namespace AS pn ON pn.oid = p.pronamespace
+        WHERE pn.nspname = 'public' AND p.proname = cand.fname
+      ),
+      'note', 'Explicit absence/presence marker for Companies selector dependency'
+    ) AS payload
+  FROM (VALUES ('list_companies'), ('get_company')) AS cand(fname)
+  WHERE NOT EXISTS (
+    SELECT 1
+    FROM pg_catalog.pg_proc AS p
+    JOIN pg_catalog.pg_namespace AS pn ON pn.oid = p.pronamespace
+    WHERE pn.nspname = 'public' AND p.proname = cand.fname
+  )
+),
+
+-- ---------------------------------------------------------------------------
+-- K. Participation project-state guard (metadata only; no writes)
+-- ---------------------------------------------------------------------------
+section_k_participation_guard AS (
+  SELECT
+    24 AS section_order,
+    'K_participation_state_guard'::text AS section_key,
+    pn.nspname || '.' || p.proname || '(' || pg_catalog.pg_get_function_identity_arguments(p.oid) || ')' AS item_key,
+    jsonb_build_object(
+      'function_schema', pn.nspname,
+      'function_name', p.proname,
+      'identity_arguments', pg_catalog.pg_get_function_identity_arguments(p.oid),
+      'result_type', pg_catalog.pg_get_function_result(p.oid),
+      'owner', pg_catalog.pg_get_userbyid(p.proowner),
+      'prosecdef', p.prosecdef,
+      'security', CASE WHEN p.prosecdef THEN 'DEFINER' ELSE 'INVOKER' END,
+      'volatility', CASE p.provolatile
+        WHEN 'i' THEN 'IMMUTABLE' WHEN 's' THEN 'STABLE' WHEN 'v' THEN 'VOLATILE'
+        ELSE p.provolatile::text
+      END,
+      'search_path_config', (
+        SELECT cfg
+        FROM unnest(COALESCE(p.proconfig, ARRAY[]::text[])) AS cfg
+        WHERE cfg LIKE 'search_path=%'
+        LIMIT 1
+      ),
+      'execute_public', has_function_privilege('public', p.oid, 'EXECUTE'),
+      'execute_anon', has_function_privilege('anon', p.oid, 'EXECUTE'),
+      'execute_authenticated', has_function_privilege('authenticated', p.oid, 'EXECUTE'),
+      'execute_service_role', has_function_privilege('service_role', p.oid, 'EXECUTE'),
+      'definition', pg_catalog.pg_get_functiondef(p.oid),
+      'review_notes',
+        'Verify participation writes require active and non-deleted projects; no participation DML in this packet'
+    ) AS payload
+  FROM pg_catalog.pg_proc AS p
+  JOIN pg_catalog.pg_namespace AS pn ON pn.oid = p.pronamespace
+  WHERE pn.nspname = 'public'
+    AND p.proname = 'enforce_participation_project_state'
+),
+
+section_k_participation_triggers AS (
+  SELECT
+    24 AS section_order,
+    'K_participation_state_guard'::text AS section_key,
+    'trigger:' || tr.tgname AS item_key,
+    jsonb_build_object(
+      'table_schema', n.nspname,
+      'table_name', c.relname,
+      'trigger_name', tr.tgname,
+      'enabled', tr.tgenabled,
+      'function_schema', pn.nspname,
+      'function_name', p.proname,
+      'definition', pg_catalog.pg_get_triggerdef(tr.oid, true)
+    ) AS payload
+  FROM pg_catalog.pg_trigger AS tr
+  JOIN pg_catalog.pg_class AS c ON c.oid = tr.tgrelid
+  JOIN pg_catalog.pg_namespace AS n ON n.oid = c.relnamespace
+  JOIN pg_catalog.pg_proc AS p ON p.oid = tr.tgfoid
+  JOIN pg_catalog.pg_namespace AS pn ON pn.oid = p.pronamespace
+  WHERE n.nspname = 'public'
+    AND c.relname = 'participations'
+    AND NOT tr.tgisinternal
+    AND p.proname = 'enforce_participation_project_state'
+),
+
+-- ---------------------------------------------------------------------------
 -- Z. Packet meta
 -- ---------------------------------------------------------------------------
 section_z AS (
   SELECT
-    22 AS section_order,
+    25 AS section_order,
     'Z_packet_meta'::text AS section_key,
     'meta'::text AS item_key,
     jsonb_build_object(
@@ -1185,11 +1455,16 @@ section_z AS (
       'ddl_dml', false,
       'application_smoke', false,
       'production_readiness_claimed', false,
-      'next_task_if_pass', 'ZAM-PROJECTS-SCHEMA-RPC-DESIGN-1',
+      'live_catalog_verified_claimed', false,
+      'soft_delete_company_pass_claimed', false,
+      'next_task_after_export', 'ZAM-PROJECTS-LIVE-CATALOG-VERIFY-RUN-1',
+      'next_task_if_review_pass', 'ZAM-PROJECTS-SCHEMA-RPC-DESIGN-1',
       'notes', ARRAY[
         'Metadata/catalog only',
-        'Soft-deleted company parent gap is a design WARN if still present',
-        'Do not treat support_project_directory as full Projects list API'
+        'Do not pre-label soft-deleted company rejection as PASS',
+        'Do not treat support_project_directory as full Projects list API',
+        'project_financial_summary is outside Projects MVP',
+        'Do not EXECUTE list_companies/get_company in this gate'
       ]
     ) AS payload
 )
@@ -1204,6 +1479,7 @@ UNION ALL SELECT * FROM section_b_triggers
 UNION ALL SELECT * FROM section_b_trigger_defs
 UNION ALL SELECT * FROM section_c_consistency
 UNION ALL SELECT * FROM section_c_soft_delete_gap
+UNION ALL SELECT * FROM section_c_updated_at
 UNION ALL SELECT * FROM section_d_pfs_relation
 UNION ALL SELECT * FROM section_d_pfs_columns
 UNION ALL SELECT * FROM section_d_pfs_constraints
@@ -1216,6 +1492,10 @@ UNION ALL SELECT * FROM section_g_functions
 UNION ALL SELECT * FROM section_g_execute_acls
 UNION ALL SELECT * FROM section_h_crud_absence
 UNION ALL SELECT * FROM section_i_index_flag
+UNION ALL SELECT * FROM section_j_companies_selector
+UNION ALL SELECT * FROM section_j_companies_selector_absence
+UNION ALL SELECT * FROM section_k_participation_guard
+UNION ALL SELECT * FROM section_k_participation_triggers
 UNION ALL SELECT * FROM section_z
 ORDER BY section_order, item_key;
 ```
@@ -1242,7 +1522,10 @@ ORDER BY section_order, item_key;
 | Project | `gdegnwglakyblnmxgiwx` |
 | Decision | _pending_ |
 | PG version | _from export_ |
-| Soft-delete company gap | _from section C_ |
+| Soft-delete company gap | _from sections C_consistency + C_soft_delete — never pre-label PASS_ |
 | Live company/status index | _from section I_ |
-| CRUD RPC absence | _from section H_ |
-| Next task | `ZAM-PROJECTS-SCHEMA-RPC-DESIGN-1` if PASS / PASS WITH WARN |
+| CRUD RPC absence | _from section H (`present` / count)_ |
+| Companies selector RPCs | _from section J_ |
+| Participation guard | _from section K_ |
+| Next task after export | `ZAM-PROJECTS-LIVE-CATALOG-VERIFY-RUN-1` |
+| Next after review PASS | `ZAM-PROJECTS-SCHEMA-RPC-DESIGN-1` |
