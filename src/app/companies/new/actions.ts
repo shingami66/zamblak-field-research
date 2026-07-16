@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAppSession } from "@/lib/auth/session";
 import {
+  CREATE_COMPANY_SUCCESS_REDIRECT_PATH,
+  CREATE_COMPANY_SUCCESS_REVALIDATE_PATH,
   mapCreateCompanyErrorPresentation,
   readCreateCompanyFormValues,
   type CreateCompanyActionState,
@@ -16,6 +18,7 @@ import { createClient } from "@/lib/supabase/server";
  * Creates a company via create_company RPC only.
  * Session gate + authenticated client; DB remains authorization authority.
  * Does not log personal form contents.
+ * On success: revalidate list and redirect to /companies (detail not implemented yet).
  */
 export async function createCompanyAction(
   _prevState: CreateCompanyActionState,
@@ -43,6 +46,9 @@ export async function createCompanyAction(
     return mapCreateCompanyErrorPresentation(created.code, values);
   }
 
-  revalidatePath("/companies");
-  redirect(`/companies/${created.data.companyId}`);
+  // Created company id is not used for navigation until detail route exists.
+  void created.data.companyId;
+
+  revalidatePath(CREATE_COMPANY_SUCCESS_REVALIDATE_PATH);
+  redirect(CREATE_COMPANY_SUCCESS_REDIRECT_PATH);
 }

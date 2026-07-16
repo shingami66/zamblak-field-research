@@ -54,6 +54,8 @@ export {
 
 export { companiesCreateCopy } from "./create-copy";
 export {
+  CREATE_COMPANY_SUCCESS_REDIRECT_PATH,
+  CREATE_COMPANY_SUCCESS_REVALIDATE_PATH,
   EMPTY_CREATE_COMPANY_STATE,
   mapCreateCompanyErrorPresentation,
   readCreateCompanyFormValues,

@@ -40,6 +40,10 @@ export const EMPTY_CREATE_COMPANY_STATE: CreateCompanyActionState = {
   },
 };
 
+/** List path only — detail route is not implemented yet. */
+export const CREATE_COMPANY_SUCCESS_REVALIDATE_PATH = "/companies";
+export const CREATE_COMPANY_SUCCESS_REDIRECT_PATH = "/companies";
+
 export function readCreateCompanyFormValues(
   formData: FormData
 ): CreateCompanyFormValues {
