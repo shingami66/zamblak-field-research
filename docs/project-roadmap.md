@@ -19,10 +19,10 @@
     2. Companies contract + deferred-work documentation sync, review, commit, push (done)
     3. Graphify refresh + freshness review after Companies docs / ACL commits (done for ACL-era HEADs through `846894ed` / docs-close `9083d3e7` / later docs commits)
     4. Core ACL hardening design → SQL draft → DEV/DEMO apply → verify → commit → push (`ZAM-SEC-ACL-001`) (done)
-    5. Live DEV/DEMO catalog verification (`docs/companies-live-catalog-verification.md` / `DWR-COMP-026`) — **done (PASS)**; Mozfer metadata-only run on `gdegnwglakyblnmxgiwx` reviewed
-    6. Schema/RPC design task (`ZAM-COMPANIES-SCHEMA-RPC-DESIGN-1`) — **next mandatory gate**
-    7. Independent schema/RPC design review
-    8. Implementation only after design approval
+    5. Live DEV/DEMO catalog verification (`docs/companies-live-catalog-verification.md` / `DWR-COMP-026`) — **done (PASS)**
+    6. Schema/RPC design (`docs/companies-schema-rpc-design.md` / `ZAM-COMPANIES-SCHEMA-RPC-DESIGN-1`) — **recorded** (docs only; not implemented)
+    7. Independent schema/RPC design review (if required) → migration draft (`ZAM-COMPANIES-SCHEMA-RPC-MIGRATION-1`) — **next**
+    8. Migration review → DEV/DEMO apply/verify → app implementation only after gates pass
   - Deferred Companies items and permanent non-goals: see `docs/deferred-decisions.md` (Companies register).
 - Phase 4: Projects
   - After Companies MVP is implemented and closed under its gates.

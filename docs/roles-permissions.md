@@ -82,11 +82,13 @@ Mozfer-approved Companies MVP contract. **Do not claim these RPCs, queries, or p
 ### Companies mutation and authority invariants (planned)
 
 - All create/edit mutations: **Server Action → authenticated RPC**.
-- No direct client or direct base-table UPDATE path.
+- List/detail MVP path: unified RPCs for Owner and Support Helper (see `docs/companies-schema-rpc-design.md`). Owner-only base-table SELECT (`sel_companies`) remains; Support Helper must not gain broad Companies SELECT.
+- No direct client or direct base-table UPDATE path; authenticated relation privileges remain SELECT-only.
 - No browser-supplied trusted `account_id`, role, profile, ownership, or finance authority.
 - Account isolation fails closed; active profile required.
-- Stable conceptual errors include `duplicate_company_name` and `invalid_company_phone`.
+- Stable errors include `duplicate_company_name`, `invalid_company_phone`, `company_not_found`, `company_access_denied`, `invalid_company_name`, `invalid_pagination`, `stale_company_version`, plus contact/notes field codes in the design doc.
 - No lifecycle RPC in MVP.
+- Design recorded; RPCs not implemented until migration task.
 
 ### Distinguishing planned vs current
 

@@ -78,8 +78,8 @@ Required gates before Companies UI implementation:
 3. Independent docs review → docs commit → commit review (done for contract/catalog packet series)
 4. Graphify refresh + freshness review (done as part of authorized closeouts)
 5. Live DEV/DEMO catalog verification (`DWR-COMP-026`) — **done (PASS)**; see `docs/companies-live-catalog-verification.md`
-6. Schema/RPC design + independent design review — **next**
-7. Implementation only after design approval
+6. Schema/RPC design (`docs/companies-schema-rpc-design.md`) — **recorded** (docs only)
+7. Migration draft/review/apply + app implementation only after gates pass
 
 Required domain sequence:
 

@@ -22,7 +22,7 @@
 | **Raw export** | Reviewed as evidence; **not** a repository migration artifact and not committed as SQL history |
 | **Companies implementation** | **Not started** (no migration created/applied; no Companies RPC implemented) |
 | **Production readiness** | **Not claimed** (DEV/DEMO catalog evidence only) |
-| **Next controlled step** | `ZAM-COMPANIES-SCHEMA-RPC-DESIGN-1` |
+| **Next controlled step** | Design recorded in `docs/companies-schema-rpc-design.md`. Next: `ZAM-COMPANIES-SCHEMA-RPC-MIGRATION-1` |
 
 ### Live findings summary
 
@@ -1372,7 +1372,7 @@ ORDER BY section_order, item_key;
 1. Raw export reviewed (not stored as a repository migration artifact).
 2. Review against PASS values and HOLD conditions — **PASS**.
 3. Live findings recorded in this document, `docs/project-status.md`, `docs/database-schema.md`, `docs/project-roadmap.md`, and `docs/deferred-decisions.md` (`DWR-COMP-026` closed).
-4. Next controlled task: **Companies schema/RPC design** (`ZAM-COMPANIES-SCHEMA-RPC-DESIGN-1`). Implementation still requires design approval.
+4. Schema/RPC design recorded (`docs/companies-schema-rpc-design.md`). Next: migration draft (`ZAM-COMPANIES-SCHEMA-RPC-MIGRATION-1`). Implementation still requires migration review/apply and app tasks.
 
 ---
 

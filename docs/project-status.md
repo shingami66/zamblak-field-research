@@ -1,8 +1,8 @@
 # Project Status
 
-Current phase: **Companies product phase** after closed Auth, closed core ACL hardening, and **closed** live DEV/DEMO catalog verification (`DWR-COMP-026` PASS). Companies MVP contract and deferred-work register are **Mozfer-approved**. Companies UI remains a protected placeholder. **No Companies implementation has begun** (no Companies migration or RPC created).
+Current phase: **Companies product phase** after closed Auth, closed core ACL hardening, closed live catalog verification (`DWR-COMP-026` PASS), and **recorded** schema/RPC design (`ZAM-COMPANIES-SCHEMA-RPC-DESIGN-1`). Companies MVP contract is **Mozfer-approved**. Companies UI remains a protected placeholder. **No Companies implementation has begun** (no Companies migration file, no CRUD RPC in database).
 
-Next sequence: Companies **schema/RPC design** (`ZAM-COMPANIES-SCHEMA-RPC-DESIGN-1`) → independent design review → implementation only after design approval. Catalog gate no longer blocks design.
+Next sequence: independent design review (if required by workflow) → SQL migration draft (`ZAM-COMPANIES-SCHEMA-RPC-MIGRATION-1`) → review → DEV/DEMO apply → verify/smoke → app implementation only after design/migration gates pass.
 
 ## Auth (`ZAM-AUTH-001D`) — CLOSED
 
@@ -67,7 +67,18 @@ Implemented Auth behavior (still current):
 - **Deferred register:** `DWR-COMP-001` through `DWR-COMP-028` recorded in `docs/deferred-decisions.md`.
 - **Application today:** `/companies` remains a protected placeholder (`requireAppSession` + empty pending module). No list, detail, create, edit, query, server action, Companies domain RPC, or fake company data.
 - **Live catalog verification (`DWR-COMP-026`):** **CLOSED — PASS.** Mozfer manually ran the metadata-only packet in `docs/companies-live-catalog-verification.md` on designated DEV/DEMO `gdegnwglakyblnmxgiwx` (PostgreSQL **17.6**, session `postgres`). Reviewed: no HOLD conditions. Raw export reviewed, not claimed as a repository migration artifact. DEV/DEMO only; production readiness not claimed. No row counts, business data, runtime smoke, or Support Helper login evidence invented for this gate.
-- **ACL remediation is closed.** Catalog gate no longer blocks schema/RPC **design**. Companies **implementation** still requires design approval.
+- **ACL remediation is closed.** Catalog gate closed. **Schema/RPC design is recorded** in `docs/companies-schema-rpc-design.md` (not implemented). Companies **implementation** still requires migration draft, review, DEV/DEMO apply, and app work under separate tasks.
+
+### Schema/RPC design (`ZAM-COMPANIES-SCHEMA-RPC-DESIGN-1`) — RECORDED
+
+- **Design doc:** `docs/companies-schema-rpc-design.md`.
+- **Status:** implementation-ready design frozen in documentation only. **No migration created. No SQL applied. No app RPC wiring.**
+- **Enforcement choices:** IMMUTABLE `normalize_company_name` + partial unique expression index; IMMUTABLE `normalize_company_phone` + phone CHECK; no new public columns.
+- **RPCs (planned names):** `list_companies`, `get_company`, `create_company`, `update_company` — SECURITY DEFINER, `search_path=pg_catalog, public`, authenticated EXECUTE only; both Owner and Support Helper; finance-free return shape with active/completed project counts.
+- **Concurrency:** required `p_expected_updated_at` on update → `stale_company_version`.
+- **ACL:** keep authenticated SELECT-only; keep `sel_companies` Owner-only; no direct client mutation grants; SH reads via RPCs only.
+- **Indexes (planned):** `idx_companies_account_norm_name_active`; `idx_projects_account_company_status_live`.
+- **Next implementation task:** `ZAM-COMPANIES-SCHEMA-RPC-MIGRATION-1`.
 
 ### Live catalog highlights (DEV/DEMO; full detail in verification doc)
 
@@ -135,8 +146,8 @@ Implemented Auth behavior (still current):
 
 ## Open work
 
-- Companies schema/RPC design (`ZAM-COMPANIES-SCHEMA-RPC-DESIGN-1`), incorporating nonblocking design requirements from the catalog PASS (name uniqueness, phone rules, bounded RPCs, project company-scoped index, no lifecycle, no direct client mutation).
-- Independent design review, then implement Companies MVP only after design approval.
+- Independent design review of `docs/companies-schema-rpc-design.md` if required, then SQL migration draft (`ZAM-COMPANIES-SCHEMA-RPC-MIGRATION-1`).
+- After migration review/apply/verify: implement Companies UI/Server Actions only under separate authorized tasks.
 - Then Projects and remaining domain sequence.
 - Deferred Support Helper **runtime** smoke for ACL milestone (P2/nonblocking; catalog EXECUTE contracts already verified).
 - Deferred Auth admin: password recovery/change, invitation and Support Helper administration, Auth-user/profile relinking, account/profile settings, multi-device session controls, sole-Owner recovery.

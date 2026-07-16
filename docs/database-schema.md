@@ -70,15 +70,19 @@ Related:
 - Direct client **UPDATE** on `companies` is denied by design (state-smuggling control); operational mutations must go through controlled RPC/Server Actions.
 - Support Helper does **not** have broad Companies base-table SELECT.
 
-### Approved future Companies design (not implemented)
+### Approved Companies design (design recorded — not implemented)
+
+Canonical design: **`docs/companies-schema-rpc-design.md`** (`ZAM-COMPANIES-SCHEMA-RPC-DESIGN-1`). Summary only below; design doc wins on conflicts with this summary.
 
 **User-managed fields (MVP):** `name` (required), `contact_person`, `phone`, `notes` (optional; blank → null).
 
-**Application/RPC validation limits (not existing DB column limits):** name ≤ 120; contact_person ≤ 80; phone 8–15 digits after normalization; notes ≤ 2000.
+**Limits:** name ≤ 120; contact_person ≤ 80; phone 8–15 digits after normalization; notes ≤ 2000.
 
-**Phone (approved model):** optional; digits-only E.164-style storage; strip spaces/`()`/`-`/leading `+`; Saudi `05xxxxxxxx` → `9665xxxxxxxx`; other values must include country code; not unique; error `invalid_company_phone`; display LTR.
+**Name (frozen):** display = trim + collapse internal whitespace (case preserved); uniqueness key = `normalize_company_name(name)` = `lower(btrim(regexp_replace(...)))` IMMUTABLE helper; partial unique index `(account_id, normalize_company_name(name)) WHERE deleted_at IS NULL`; error `duplicate_company_name` / `invalid_company_name`.
 
-**Duplicates (approved model):** database-authoritative normalized active name uniqueness per `account_id` where `deleted_at IS NULL`; atomic block; error `duplicate_company_name`. Future schema task must define one immutable DB normalization authority shared by unique index/constraint and RPCs.
+**Phone (frozen):** optional; strip spaces/`+`/`-`/`()`; digits only; Saudi `05xxxxxxxx` → `9665xxxxxxxx` only; length 8–15; no other country guessing; CHECK on stored form; error `invalid_company_phone`.
+
+**RPCs (planned):** `list_companies(p_search, p_limit default 25 max 50, p_offset)`, `get_company(p_company_id)`, `create_company(...)`, `update_company(..., p_expected_updated_at required)` — both roles; SECURITY DEFINER; authenticated EXECUTE only; finance-free; project counts active/closed only.
 
 **Not in Companies MVP schema additions:**
 
@@ -109,4 +113,4 @@ Related:
 
 **Project statuses (existing, authoritative):** `draft`, `active`, `closed`, `cancelled` only. Do not invent a stored `completed` status.
 
-**Implementation gate:** live catalog verification (`DWR-COMP-026`) is **PASS/closed**. No Companies migration/RPC **implementation** until schema/RPC **design** and independent design review pass. Design must incorporate nonblocking catalog requirements (normalized name uniqueness, phone rules, bounded RPCs, project company-scoped index, no lifecycle, no direct client mutation). Packet/evidence: `docs/companies-live-catalog-verification.md`. See `docs/deferred-decisions.md` register `DWR-COMP-001`–`DWR-COMP-028`.
+**Implementation gate:** catalog verification (`DWR-COMP-026`) **PASS/closed**. Schema/RPC **design recorded** (`docs/companies-schema-rpc-design.md`). No Companies migration/RPC **exists** until `ZAM-COMPANIES-SCHEMA-RPC-MIGRATION-1` (and reviews/apply) complete. No app implementation until migration verified. See `docs/deferred-decisions.md` register `DWR-COMP-001`–`DWR-COMP-028`.

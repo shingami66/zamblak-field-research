@@ -64,7 +64,7 @@ The current `/companies`, `/projects`, and `/financials` pages are navigation-sa
 | **Packet status** | Executed and reviewed. Evidence recorded in `docs/companies-live-catalog-verification.md`. Raw export reviewed but not a repository migration artifact |
 | **Closed by** | Result-close documentation after Mozfer run + review (`docs(companies): record live catalog verification`) |
 | **Revisit trigger** | None for this gate. Re-run catalog verify only if DEV/DEMO schema diverges materially before/during Companies apply |
-| **Next task ID** | `ZAM-COMPANIES-SCHEMA-RPC-DESIGN-1` |
+| **Next task ID** | Schema/RPC design recorded (`docs/companies-schema-rpc-design.md`). Next: `ZAM-COMPANIES-SCHEMA-RPC-MIGRATION-1` |
 | **Dependencies** | Satisfied (approved contract; Mozfer DEV/DEMO SQL Editor run completed) |
 | **Product implications** | Schema/RPC design may proceed; implementation still requires design approval |
 | **Security implications** | Metadata only; no domain row dumps; no secret printing; no DML/DDL; production readiness not claimed |
