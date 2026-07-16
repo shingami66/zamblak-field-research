@@ -28,11 +28,12 @@ Deleting and recreating Auth users is **not** an approved recovery or relinking 
 ## Domain modules after controlled placeholders
 
 - **Companies MVP CRUD:** implemented and Mozfer-smoked on designated DEV/DEMO (list/create/detail/edit). Lifecycle/delete/restore and advanced metrics remain deferred in the register below. Cross-account runtime isolation smoke remains deferred and non-blocking.
-- **Projects:** schema/RPC applied and verified on DEV/DEMO (`20260716160000…` + corrections `20260716170000…`; final verify PASS). Soft-deleted Company gap and transition Company lock closed live. `/projects` remains an app placeholder until contracts/UI. Next: `ZAM-PROJECTS-APP-CONTRACTS-1`.
+- **Projects:** schema/RPC applied and verified on DEV/DEMO; application contracts complete; **list page implemented** at `/projects`. Create/detail/edit UI remaining. Soft-deleted Company gap and transition Company lock closed live. Next product task: `ZAM-PROJECTS-CREATE-PAGE-1`.
+- **Branded loading mark:** design approved in `docs/brand-loading-mark-design.md`. Implementation deferred to `ZAM-BRAND-LOADING-MARK-IMPLEMENT-1` (no component/SVG/CSS animation yet). Does not block Projects create.
 - Replace Owner-only `/financials` with the real Financials module and server-authorized data integration.
 - Implement the remaining sequence: Project → Respondent → Participation → Review → Financials.
 
-The current `/projects` and `/financials` pages are navigation-safety placeholders with no fake data. They are not completed domain pages or final domain permission implementations. Companies is no longer a placeholder for MVP operational CRUD.
+`/projects` is the Projects **list** surface (not a full CRUD module). Create/detail/edit remain future work. `/financials` remains a navigation-safety placeholder. Companies is no longer a placeholder for MVP operational CRUD.
 
 ## Preserved onboarding deferrals
 

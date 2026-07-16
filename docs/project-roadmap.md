@@ -28,13 +28,18 @@
     10. Visual foundation polish (`aa2f6b4`) — **done**
     11. Owner + Support Helper runtime smoke + docs closeout (`ZAM-COMPANIES-MANUAL-SMOKE-CLOSE-1`) — **done (PASS / closed)**
   - Deferred Companies items and permanent non-goals: see `docs/deferred-decisions.md` (Companies register). Cross-account runtime security smoke remains deferred and non-blocking.
-- Phase 4: Projects (**schema/RPC applied + verified on DEV/DEMO; app not started**)
+- Phase 4: Projects (**schema/RPC verified; contracts complete; list page complete; create not started**)
   - Design: `docs/projects-schema-rpc-design.md`.
   - Source: `20260716160000_projects_mvp_schema_rpc.sql` (`1cb9a75`) + corrections `20260716170000_projects_mvp_rpc_corrections.sql` (`dc03784`).
   - DEV/DEMO apply (Mozfer, `gdegnwglakyblnmxgiwx`, PG 17.6): initial apply success → verification **HOLD** → correction apply success → final verify **PASS**.
+  - Application contracts complete; list UI complete (`86f898f feat(projects): add list page`).
   - Soft-deleted Company gap, transition Company lock, and search token defect **closed live**.
-  - **Next:** `ZAM-PROJECTS-APP-CONTRACTS-1` → list/create/detail/edit → smoke.
-  - UI remains placeholder until app tasks. Production readiness not claimed.
+  - **Next product task:** `ZAM-PROJECTS-CREATE-PAGE-1` → detail/edit → smoke.
+  - Production readiness not claimed.
+- Brand / loading mark (cross-cutting, design only)
+  - Design freeze: `docs/brand-loading-mark-design.md` (`ZAM-BRAND-LOADING-MARK-DESIGN-1`).
+  - Implementation **not** started (`ZAM-BRAND-LOADING-MARK-IMPLEMENT-1` later).
+  - Does **not** replace the next Projects product task.
 - Phase 5: Respondent Registry
 - Phase 6: Participation
 - Phase 7: Review

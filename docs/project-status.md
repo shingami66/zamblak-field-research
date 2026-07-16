@@ -1,8 +1,8 @@
 # Project Status
 
-Current phase: **Projects schema/RPC applied and verified on designated DEV/DEMO** after design freeze, initial apply, verification HOLD, correction migration, and final narrow verification **PASS**. Companies MVP remains closed. `/projects` remains an application **placeholder** (contracts/UI not started). Production readiness is **not** claimed. Browser/manual application smoke is **not** claimed. Cross-account runtime isolation smoke remains deferred and non-blocking.
+Current phase: **Projects MVP in application** — schema/RPC applied and verified on designated DEV/DEMO; application contracts complete; **list page implemented** (`/projects`). Companies MVP remains closed. Create/detail/edit UI **not** started. Production readiness is **not** claimed. Browser/manual application smoke for Projects is **not** claimed. Cross-account runtime isolation smoke remains deferred and non-blocking. Branded loading-mark **design approved** (`docs/brand-loading-mark-design.md`); implementation **not** started.
 
-Next sequence: `ZAM-PROJECTS-APP-CONTRACTS-1` → list/create/detail/edit UI → manual smoke.
+Next product sequence: `ZAM-PROJECTS-CREATE-PAGE-1` → detail/edit → smoke. Future brand task (not next product feature): `ZAM-BRAND-LOADING-MARK-IMPLEMENT-1`.
 
 ## Auth (`ZAM-AUTH-001D`) — CLOSED
 
@@ -22,7 +22,7 @@ Implemented Auth behavior (still current):
 - Responsive branded login and authenticated dashboard shell; no fake dashboard metrics.
 - Accessible desktop/mobile account menu; local-session logout to `/login`.
 - Implemented Companies MVP routes under `/companies` (list/create/detail/edit) — see Companies section.
-- Controlled authenticated placeholder for `/projects`.
+- Projects MVP **list** route `/projects` implemented (search/company/status filters, pagination); create/detail/edit routes not implemented.
 - Controlled Owner-only `/financials` placeholder; Support Helper direct access redirects to `/` without financial wording or data.
 
 ## Security — core database ACL hardening (`ZAM-SEC-ACL-001`) — CLOSED (DEV/DEMO)
@@ -205,7 +205,7 @@ Implemented Auth behavior (still current):
 
 - See **Security — core database ACL hardening** section above for full evidence and boundaries.
 
-## Projects (`ZAM-PROJECTS-001`) — schema/RPC applied on DEV/DEMO; app not started
+## Projects (`ZAM-PROJECTS-001`) — schema/RPC + contracts + list page; create not started
 
 | Milestone | Status |
 |---|---|
@@ -223,9 +223,24 @@ Implemented Auth behavior (still current):
 | Search error-token defect | **Closed live** (`invalid_project_text_length` for search bound) |
 | Lifecycle matrix | **Installed** (Owner-only `transition_project_status`) |
 | Finance separation / RLS-ACL posture | **Preserved** (authenticated SELECT-only; no finance on Projects RPCs) |
-| Application / UI | **Not started** — `/projects` placeholder only |
+| Application contracts | **Complete** (`src/lib/projects/**`) |
+| List UI | **Complete** — `/projects` list with search/company/status filters + pagination (`86f898f`) |
+| Create / detail / edit UI | **Not started** |
 | Browser / app smoke | **Not performed** |
 | Production readiness | **Not claimed** |
+
+## Brand — loading mark (`ZAM-BRAND-LOADING-MARK-DESIGN-1`) — design approved; not implemented
+
+| Milestone | Status |
+|---|---|
+| Design documentation | **Complete** — `docs/brand-loading-mark-design.md` |
+| Original stopwatch / seconds-hand concept | **Approved** (design only) |
+| Animation contract (≈0.9–1.2s + rebound) | **Documented** |
+| Full-page / compact / reduced-motion variants | **Documented** |
+| Token/color + accessibility contracts | **Documented** |
+| Implementation (SVG/CSS/React) | **Not started** |
+| Assets / components in source | **None** |
+| Future task | `ZAM-BRAND-LOADING-MARK-IMPLEMENT-1` |
 
 ### Installed product RPCs (DEV/DEMO, after correction)
 
@@ -247,11 +262,12 @@ Implemented Auth behavior (still current):
 
 - Designated DEV/DEMO only: `gdegnwglakyblnmxgiwx`, PostgreSQL **17.6**.
 - Supabase migration-history registration **not** claimed.
-- No business-row smoke; no app contracts; no production readiness.
+- No business-row smoke; no production readiness.
 
 ## Open work
 
-- **Projects** application contracts → list/create/detail/edit UI → smoke (`ZAM-PROJECTS-APP-CONTRACTS-1` next).
+- **Projects** create → detail/edit UI → smoke (`ZAM-PROJECTS-CREATE-PAGE-1` next product task).
+- Branded loading mark implementation (`ZAM-BRAND-LOADING-MARK-IMPLEMENT-1`) — design frozen; **not** the next product feature.
 - Deferred **cross-account** Companies runtime isolation smoke (second account) — **non-blocking** security follow-up; not marked PASS.
 - Deferred Companies lifecycle/metrics/import items: `docs/deferred-decisions.md`.
 - Deferred Support Helper **ACL-era** runtime smoke note remains historical P2 for that milestone only; Companies same-account SH smoke is closed above.
