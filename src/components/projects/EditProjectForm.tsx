@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { updateProjectAction } from "@/app/projects/[projectId]/edit/actions";
+import { ZamblakLoadingMark } from "@/components/brand/ZamblakLoadingMark";
 import { projectsEditCopy } from "@/lib/projects/edit-copy";
 import type { EditProjectActionState } from "@/lib/projects/edit-form";
 import {
@@ -28,7 +29,14 @@ function SubmitButton({ disabled }: { disabled?: boolean }) {
       disabled={isDisabled}
       aria-busy={pending}
     >
-      {pending ? projectsEditCopy.saving : projectsEditCopy.save}
+      {pending ? (
+        <span className={styles.pendingContent}>
+          <ZamblakLoadingMark variant="compact" className={styles.pendingMark} />
+          <span>{projectsEditCopy.saving}</span>
+        </span>
+      ) : (
+        projectsEditCopy.save
+      )}
     </button>
   );
 }

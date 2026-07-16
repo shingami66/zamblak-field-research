@@ -372,6 +372,34 @@
   font-size: 1.0625rem;
 }
 
+.loadingHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.loadingText {
+  margin: 0;
+  color: #404848;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.pendingContent {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.pendingMark {
+  /* Compact mark inherits button color; keep fixed size to avoid layout jump. */
+  flex: 0 0 auto;
+  color: currentColor;
+}
+
 .skeletonRow {
   height: 4.5rem;
   margin-block-start: 0.875rem;

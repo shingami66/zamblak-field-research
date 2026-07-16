@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { transitionProjectStatusAction } from "@/app/projects/[projectId]/actions";
+import { ZamblakLoadingMark } from "@/components/brand/ZamblakLoadingMark";
 import { projectsDetailCopy } from "@/lib/projects/detail-copy";
 import {
   EMPTY_TRANSITION_PROJECT_STATE,
@@ -57,7 +58,14 @@ function TransitionSubmitButton({
       disabled={pending}
       aria-busy={pending}
     >
-      {pending ? projectsDetailCopy.transitioning : label}
+      {pending ? (
+        <span className={styles.pendingContent}>
+          <ZamblakLoadingMark variant="compact" className={styles.pendingMark} />
+          <span>{projectsDetailCopy.transitioning}</span>
+        </span>
+      ) : (
+        label
+      )}
     </button>
   );
 }

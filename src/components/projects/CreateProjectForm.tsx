@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { createProjectAction } from "@/app/projects/new/actions";
+import { ZamblakLoadingMark } from "@/components/brand/ZamblakLoadingMark";
 import { projectsCreateCopy } from "@/lib/projects/create-copy";
 import {
   EMPTY_CREATE_PROJECT_STATE,
@@ -31,7 +32,14 @@ function SubmitButton({ disabled }: { disabled?: boolean }) {
       disabled={isDisabled}
       aria-busy={pending}
     >
-      {pending ? projectsCreateCopy.submitting : projectsCreateCopy.submit}
+      {pending ? (
+        <span className={styles.pendingContent}>
+          <ZamblakLoadingMark variant="compact" className={styles.pendingMark} />
+          <span>{projectsCreateCopy.submitting}</span>
+        </span>
+      ) : (
+        projectsCreateCopy.submit
+      )}
     </button>
   );
 }
