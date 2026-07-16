@@ -33,13 +33,13 @@
 
 **Truth classes:**
 
-1. **Existing committed/applied facts** (core schema + role-safe read surfaces, DEV/DEMO apply evidence as above).
-2. **Approved future design** (Mozfer Companies MVP contract) — planned only until gates pass.
-3. **Live catalog state** — **unknown until Mozfer runs and results are reviewed** for `DWR-COMP-026`. The metadata-only verification packet is prepared at `docs/companies-live-catalog-verification.md` (not executed by the packet-prep docs task). Do not claim live indexes, new constraints, new policies, grants, or Companies RPCs from source alone.
+1. **Existing committed/applied facts** (core schema + role-safe read surfaces + ACL hardening, DEV/DEMO apply evidence as above).
+2. **Approved future design** (Mozfer Companies MVP contract) — planned; not implemented.
+3. **Live catalog state (DEV/DEMO)** — **reconciled PASS** under `DWR-COMP-026` (Mozfer metadata-only run on `gdegnwglakyblnmxgiwx`, PostgreSQL 17.6). Full evidence: `docs/companies-live-catalog-verification.md`. Production readiness not claimed. Companies CRUD RPCs and future uniqueness/phone objects are still **not** present live.
 
-### Existing companies table facts (source: core schema)
+### Existing companies table facts (source + live DEV/DEMO catalog PASS)
 
-`public.companies` currently includes (source migration):
+`public.companies` includes (source migration **and** live catalog):
 
 - `id` (uuid PK)
 - `account_id` (uuid NOT NULL → accounts)
@@ -51,11 +51,24 @@
 - `created_at` / `updated_at` (timestamptz)
 - `deleted_at` (timestamptz) — **foundation only** for soft-delete storage
 
+Live catalog confirmed additionally:
+
+- Owner `postgres`; RLS enabled; forced false; **no financial columns**.
+- Indexes: `companies_pkey` only (no secondary indexes).
+- FKs NO ACTION to `accounts` / `profiles`.
+- Trigger `trg_companies_updated_at` → `set_updated_at()`; Companies audit trigger **absent**.
+- Authenticated relation privileges: **SELECT only** (INSERT/UPDATE/DELETE/… false for authenticated, PUBLIC, anon, service_role).
+- `sel_companies` Owner-only, account-scoped, non-deleted; `ins_companies` policy exists but authenticated lacks INSERT privilege — do not treat policies as direct client mutation authorization.
+- Normalized active name uniqueness, name/phone normalization: **absent** (expected; future design).
+- No Companies CRUD RPC name collision; support RPCs that join companies remain finance-blind and authenticated-EXECUTE only.
+
 Related:
 
-- `projects.company_id` is required and account-consistency with companies fails closed.
+- `projects.company_id` is required (`projects_company_id_fkey` → `companies(id)`, ON UPDATE/DELETE NO ACTION); account-consistency with companies fails closed (`check_project_account_consistency`, SECURITY DEFINER, non-client-callable).
+- Project status vocabulary live: `draft`, `active`, `closed`, `cancelled`.
+- Packet returned no secondary project indexes on `company_id` / `account_id` / `status` / `deleted_at` — **nonblocking** design requirement for company-scoped lookup/count.
 - Direct client **UPDATE** on `companies` is denied by design (state-smuggling control); operational mutations must go through controlled RPC/Server Actions.
-- After `ZAM-WF-001F`, `sel_companies` is Owner-only for non-deleted rows; `ins_companies` is account-scoped insert with checks. Support Helper does **not** have broad Companies base-table SELECT.
+- Support Helper does **not** have broad Companies base-table SELECT.
 
 ### Approved future Companies design (not implemented)
 
@@ -96,4 +109,4 @@ Related:
 
 **Project statuses (existing, authoritative):** `draft`, `active`, `closed`, `cancelled` only. Do not invent a stored `completed` status.
 
-**Implementation gate:** no Companies migration/RPC implementation until live catalog verification packet is **manually run** (Mozfer), **reviewed PASS**, and schema/RPC design reviews pass. Packet: `docs/companies-live-catalog-verification.md`. See `docs/deferred-decisions.md` register `DWR-COMP-001`–`DWR-COMP-028`.
+**Implementation gate:** live catalog verification (`DWR-COMP-026`) is **PASS/closed**. No Companies migration/RPC **implementation** until schema/RPC **design** and independent design review pass. Design must incorporate nonblocking catalog requirements (normalized name uniqueness, phone rules, bounded RPCs, project company-scoped index, no lifecycle, no direct client mutation). Packet/evidence: `docs/companies-live-catalog-verification.md`. See `docs/deferred-decisions.md` register `DWR-COMP-001`–`DWR-COMP-028`.

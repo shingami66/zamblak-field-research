@@ -1,8 +1,8 @@
 # Project Status
 
-Current phase: **Companies product phase** after closed Auth and closed core ACL hardening. Companies MVP contract and deferred-work register are **Mozfer-approved**. Companies UI remains a protected placeholder. **No Companies implementation has begun.**
+Current phase: **Companies product phase** after closed Auth, closed core ACL hardening, and **closed** live DEV/DEMO catalog verification (`DWR-COMP-026` PASS). Companies MVP contract and deferred-work register are **Mozfer-approved**. Companies UI remains a protected placeholder. **No Companies implementation has begun** (no Companies migration or RPC created).
 
-Next sequence: Mozfer **manual run** of the live DEV/DEMO catalog verification packet (`docs/companies-live-catalog-verification.md`, `DWR-COMP-026`) → result review → schema/RPC design → independent design review → implementation only after design approval. Core ACL hardening is closed and does not block that sequence. The verification packet is **prepared and not yet executed**.
+Next sequence: Companies **schema/RPC design** (`ZAM-COMPANIES-SCHEMA-RPC-DESIGN-1`) → independent design review → implementation only after design approval. Catalog gate no longer blocks design.
 
 ## Auth (`ZAM-AUTH-001D`) — CLOSED
 
@@ -61,15 +61,22 @@ Implemented Auth behavior (still current):
 - Future public objects require **explicit** privilege design (defaults no longer auto-expose client roles).
 - No rollback or corrective migration was required after apply.
 
-## Companies (`ZAM-COMPANIES-001`) — contract approved; implementation not started
+## Companies (`ZAM-COMPANIES-001`) — contract approved; catalog gate PASS; implementation not started
 
 - **Contract:** Mozfer-approved lean Companies MVP (fields, phone, duplicates, lifecycle active-only, roles, RPC read/mutation, pagination, metrics, routes).
 - **Deferred register:** `DWR-COMP-001` through `DWR-COMP-028` recorded in `docs/deferred-decisions.md`.
-- **Docs commits:** contract/deferred register and post-commit sync are on remote history through `d45bd95` (and prior Companies docs commits).
-- **Application today:** `/companies` remains a protected placeholder (`requireAppSession` + empty pending module). No list, detail, create, edit, query, server action, RPC, or fake company data.
-- **Mandatory before schema/RPC design:** live DEV/DEMO catalog verification (`DWR-COMP-026`).
-- **Verification packet:** prepared in `docs/companies-live-catalog-verification.md` (metadata-only SQL; ordered JSON sections A–G + meta). **Manual Mozfer run only** on designated DEV/DEMO `gdegnwglakyblnmxgiwx`. Not executed in this docs task. No domain row dumps; no `.env` secret access; no DML/DDL.
-- **ACL remediation is closed** and does **not** block Companies gates. Companies implementation still requires catalog verification **results review** and design approval.
+- **Application today:** `/companies` remains a protected placeholder (`requireAppSession` + empty pending module). No list, detail, create, edit, query, server action, Companies domain RPC, or fake company data.
+- **Live catalog verification (`DWR-COMP-026`):** **CLOSED — PASS.** Mozfer manually ran the metadata-only packet in `docs/companies-live-catalog-verification.md` on designated DEV/DEMO `gdegnwglakyblnmxgiwx` (PostgreSQL **17.6**, session `postgres`). Reviewed: no HOLD conditions. Raw export reviewed, not claimed as a repository migration artifact. DEV/DEMO only; production readiness not claimed. No row counts, business data, runtime smoke, or Support Helper login evidence invented for this gate.
+- **ACL remediation is closed.** Catalog gate no longer blocks schema/RPC **design**. Companies **implementation** still requires design approval.
+
+### Live catalog highlights (DEV/DEMO; full detail in verification doc)
+
+- `public.companies`: RLS on; authenticated **SELECT only**; columns match core set (no financial columns); PK only index; `trg_companies_updated_at` present; audit trigger absent.
+- `projects.company_id` NOT NULL FK → `companies(id)` NO ACTION; status `draft|active|closed|cancelled`; account-consistency trigger/function present (SECURITY DEFINER, non-client-callable).
+- `sel_companies` Owner-only non-deleted; `ins_companies` policy exists but authenticated has **no** INSERT privilege — policies alone do not authorize direct client mutation.
+- No Companies CRUD RPC collision; support RPCs remain finance-blind, authenticated EXECUTE only.
+- **Expected absences:** normalized active name uniqueness, phone norm/validation (future migration work).
+- **Nonblocking design requirement:** project lookup/count index for company-scoped reads (none returned by packet).
 
 ### Approved Companies MVP summary (not runtime)
 
@@ -128,8 +135,8 @@ Implemented Auth behavior (still current):
 
 ## Open work
 
-- Mozfer manual run of `docs/companies-live-catalog-verification.md` SQL packet (`DWR-COMP-026`), then result review PASS before Companies schema/RPC design.
-- Design then implement Companies MVP only after catalog verify review and design approval.
+- Companies schema/RPC design (`ZAM-COMPANIES-SCHEMA-RPC-DESIGN-1`), incorporating nonblocking design requirements from the catalog PASS (name uniqueness, phone rules, bounded RPCs, project company-scoped index, no lifecycle, no direct client mutation).
+- Independent design review, then implement Companies MVP only after design approval.
 - Then Projects and remaining domain sequence.
 - Deferred Support Helper **runtime** smoke for ACL milestone (P2/nonblocking; catalog EXECUTE contracts already verified).
 - Deferred Auth admin: password recovery/change, invitation and Support Helper administration, Auth-user/profile relinking, account/profile settings, multi-device session controls, sole-Owner recovery.

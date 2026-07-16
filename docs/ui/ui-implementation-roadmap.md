@@ -74,11 +74,11 @@ Support Helper must never see financial amounts, prices, payments, due amounts, 
 Required gates before Companies UI implementation:
 
 1. Mozfer contract + deferred-register approval (done)
-2. Documentation sync of contract and deferred register (current)
-3. Independent docs review → docs commit → commit review
-4. Graphify refresh + freshness review
-5. Live DEV/DEMO catalog verification (`ZAM-COMPANIES-001-LIVE-CATALOG-VERIFY-1`)
-6. Schema/RPC design + independent design review
+2. Documentation sync of contract and deferred register (done)
+3. Independent docs review → docs commit → commit review (done for contract/catalog packet series)
+4. Graphify refresh + freshness review (done as part of authorized closeouts)
+5. Live DEV/DEMO catalog verification (`DWR-COMP-026`) — **done (PASS)**; see `docs/companies-live-catalog-verification.md`
+6. Schema/RPC design + independent design review — **next**
 7. Implementation only after design approval
 
 Required domain sequence:

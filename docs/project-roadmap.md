@@ -12,15 +12,15 @@
   - First-Owner bootstrap (`ZAM-AUTH-001C`): repository complete and verified on designated DEV/DEMO; bootstrap path consumed there. Production readiness is not claimed.
   - Live login, session, and authenticated shell milestone (`ZAM-AUTH-001D`): **CLOSED**. Application committed and pushed as `74ceca7 feat(auth): add protected sessions and role-aware shell`. Documentation committed and pushed as `9a140d8` and `ee44d66`. Controlled `/companies`, `/projects`, and Owner-only `/financials` remain navigation-safety placeholders only (no domain data).
 - Phase 3: Companies (**active product phase**)
-  - **Status:** Mozfer-approved lean Companies MVP contract and deferred-work register (`DWR-COMP-001`–`DWR-COMP-028`). Contract documentation is on remote main. **Implementation has not started.** Core ACL hardening is closed and does not block Companies gates.
+  - **Status:** Mozfer-approved lean Companies MVP contract and deferred-work register (`DWR-COMP-001`–`DWR-COMP-028`). Contract documentation is on remote main. Live DEV/DEMO catalog verification (`DWR-COMP-026`) is **CLOSED (PASS)**. **Implementation has not started** (no Companies migration or domain RPC). Core ACL hardening is closed.
   - **Approved MVP boundaries (summary):** operational fields only (`name`, `contact_person`, `phone`, `notes`); active-only list (no delete/restore UI); Support Helper finance-blind; SH reads via bounded support-safe RPCs; create/edit via Server Action → authenticated RPC; offset pagination; active project count on list; active/closed project sections on detail; routes `/companies`, `/companies/new`, `/companies/[id]`, `/companies/[id]/edit`.
   - **Required sequence before any Companies implementation:**
     1. Mozfer contract + deferred-register approval (done)
     2. Companies contract + deferred-work documentation sync, review, commit, push (done)
-    3. Graphify refresh + freshness review after Companies docs / ACL commits (done for ACL-era HEADs through `846894ed` / docs-close `9083d3e7`)
+    3. Graphify refresh + freshness review after Companies docs / ACL commits (done for ACL-era HEADs through `846894ed` / docs-close `9083d3e7` / later docs commits)
     4. Core ACL hardening design → SQL draft → DEV/DEMO apply → verify → commit → push (`ZAM-SEC-ACL-001`) (done)
-    5. Live DEV/DEMO catalog verification packet **prepared** (`docs/companies-live-catalog-verification.md` / `DWR-COMP-026`) — **next:** Mozfer manual SQL Editor run + result review
-    6. Schema/RPC design task (only after catalog review PASS)
+    5. Live DEV/DEMO catalog verification (`docs/companies-live-catalog-verification.md` / `DWR-COMP-026`) — **done (PASS)**; Mozfer metadata-only run on `gdegnwglakyblnmxgiwx` reviewed
+    6. Schema/RPC design task (`ZAM-COMPANIES-SCHEMA-RPC-DESIGN-1`) — **next mandatory gate**
     7. Independent schema/RPC design review
     8. Implementation only after design approval
   - Deferred Companies items and permanent non-goals: see `docs/deferred-decisions.md` (Companies register).

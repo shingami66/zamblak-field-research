@@ -1,10 +1,94 @@
 # Companies live DEV/DEMO catalog verification gate
 
 - **Task family:** `ZAM-COMPANIES-001-LIVE-CATALOG-VERIFY` / deferred register `DWR-COMP-026`
-- **Packet status:** prepared for **manual Mozfer run only** (not yet executed)
+- **Packet status:** **manually executed** (Mozfer) and **review PASS** on designated DEV/DEMO
+- **Gate decision:** **PASS** — `DWR-COMP-026` **closed**
 - **Designated DEV/DEMO project ref:** `gdegnwglakyblnmxgiwx`
-- **PostgreSQL target:** 17.6 (catalog features used are stable on 17.x)
-- **Authority:** Mozfer-approved Companies MVP contract; current committed migrations; this packet inventories live catalog only
+- **Live PostgreSQL:** 17.6 (`server_version_num` 170006); session `current_user` / `session_user` / `current_database` = `postgres`
+- **Authority:** Mozfer-approved Companies MVP contract; committed migrations; Mozfer-reviewed live catalog export (metadata only)
+
+---
+
+## Live run result (reviewed PASS)
+
+| Field | Value |
+|---|---|
+| **Runner** | Mozfer, Supabase SQL Editor, DEV/DEMO only |
+| **Project** | `gdegnwglakyblnmxgiwx` |
+| **Run type** | Metadata-only packet from this document |
+| **Writes** | None (no DML, DDL, grants, or other writes) |
+| **Business rows** | None read |
+| **Review** | Human review against PASS/HOLD checklist — **no HOLD condition triggered** |
+| **Raw export** | Reviewed as evidence; **not** a repository migration artifact and not committed as SQL history |
+| **Companies implementation** | **Not started** (no migration created/applied; no Companies RPC implemented) |
+| **Production readiness** | **Not claimed** (DEV/DEMO catalog evidence only) |
+| **Next controlled step** | `ZAM-COMPANIES-SCHEMA-RPC-DESIGN-1` |
+
+### Live findings summary
+
+**Companies relation**
+
+- `public.companies` ordinary table; owner `postgres`; RLS enabled; RLS forced false.
+- Relation ACL: owner full; **authenticated SELECT only**.
+- Columns exactly: `id`, `account_id`, `name`, `contact_person`, `phone`, `notes`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`.
+- **No financial columns.**
+- PK `companies_pkey(id)`.
+- FKs: `account_id` → `accounts(id)` NO ACTION; `created_by` / `updated_by` → `profiles(id)` NO ACTION.
+- Indexes returned: **`companies_pkey` only** (no secondary indexes).
+- Trigger: `trg_companies_updated_at` → `set_updated_at()`.
+- Companies audit trigger: **absent**.
+
+**Projects contract**
+
+- `projects.company_id` uuid **NOT NULL**.
+- FK `projects_company_id_fkey`: `company_id` → `companies(id)`, ON UPDATE/DELETE **NO ACTION**.
+- Status vocabulary: `draft`, `active`, `closed`, `cancelled`.
+- `trg_projects_account_consistency` present; `check_project_account_consistency()` is **SECURITY DEFINER**, `search_path=public`, fail-closed parent company/account validation, **no client EXECUTE** grants.
+- Packet returned **no** matching secondary project indexes on `company_id` / `account_id` / `status` / `deleted_at` — record as **nonblocking design requirement**.
+
+**Policies and privileges**
+
+- `sel_companies`: authenticated, Owner-only, account-scoped, `deleted_at IS NULL`.
+- `ins_companies` policy exists, but **direct INSERT is unavailable** because authenticated lacks table INSERT privilege.
+- No UPDATE / DELETE / ALL policy on companies.
+- Projects: same Owner SELECT posture; insert policies must **not** be treated as direct client mutation authorization.
+- Privilege matrix (companies and projects): authenticated **SELECT=true** only; INSERT/UPDATE/DELETE/TRUNCATE/REFERENCES/TRIGGER/MAINTAIN=false; PUBLIC/anon/service_role all checked privileges **false**.
+
+**Future enforcement absences (expected)**
+
+- Active normalized-name uniqueness: **absent**
+- Name normalization: **absent**
+- Phone validation/normalization: **absent**
+- Companies audit trigger: **absent**
+- No partial or contradictory implementation found
+
+**RPC / helper namespace**
+
+- **No** Companies CRUD RPC name collision.
+- Existing support surfaces: `is_support_helper()`, `support_profile_directory(...)`, `support_project_directory(...)`, `support_project_participation_summary(...)`, `support_participation_operational_rows(...)`.
+- Support surfaces: SECURITY DEFINER; `search_path=pg_catalog, public`; authenticated EXECUTE only; PUBLIC/anon/service_role EXECUTE false; account-scoped; deleted-row filtered; **no financial return fields**.
+- Trigger/account helper functions remain non-client-callable.
+
+**Dependencies**
+
+- Primary relation dependency: `projects_company_id_fkey`.
+- Account-consistency trigger/function preserved.
+- Support directory/participation RPCs join companies.
+- No unexpected Companies views or conflicting mutation functions.
+
+### Nonblocking design requirements (for schema/RPC design)
+
+1. Add DB-authoritative normalized active company-name uniqueness.
+2. Add optional phone normalization and validation (digits only; length 8–15; Saudi `05` → `9665`).
+3. Design bounded Companies list/detail/create/edit RPCs.
+4. Preserve Owner and Support Helper field visibility rules.
+5. Add an appropriate project lookup/count index covering company-scoped reads.
+6. Do **not** add delete, restore, or lifecycle mutation controls in MVP.
+7. Preserve **no** direct client relation mutation.
+
+### HOLD conditions re-checked (none triggered)
+
+No material schema mismatch; no financial columns on companies; no RPC collision; no unexpected client mutation privilege; no missing account isolation; no unsafe callable SECURITY DEFINER surface; no Support Helper financial exposure; no incompatible company/project FK; no partial duplicate-name or phone implementation; correct DEV/DEMO project; no writes or business-row dumps.
 
 ---
 
@@ -16,8 +100,11 @@ This packet does **not**:
 
 - start Companies implementation;
 - apply migrations;
-- invent live results;
-- authorize schema/RPC design PASS.
+- invent live results by itself;
+- claim production readiness;
+- authorize Companies **implementation** without a separate schema/RPC design review PASS.
+
+The packet **was** run and reviewed **PASS** (see Live run result above). Schema/RPC **design** is now the next controlled task; **implementation** remains gated on design approval.
 
 ---
 
@@ -1280,12 +1367,12 @@ ORDER BY section_order, item_key;
 
 ---
 
-## After Mozfer run (out of scope for this packet-prep task)
+## After Mozfer run — completed
 
-1. Store CSV/export with task evidence.
-2. Review against PASS values and HOLD conditions above.
-3. Update `docs/project-status.md` and `docs/database-schema.md` with **live** findings only after review.
-4. Only then open Companies schema/RPC design.
+1. Raw export reviewed (not stored as a repository migration artifact).
+2. Review against PASS values and HOLD conditions — **PASS**.
+3. Live findings recorded in this document, `docs/project-status.md`, `docs/database-schema.md`, `docs/project-roadmap.md`, and `docs/deferred-decisions.md` (`DWR-COMP-026` closed).
+4. Next controlled task: **Companies schema/RPC design** (`ZAM-COMPANIES-SCHEMA-RPC-DESIGN-1`). Implementation still requires design approval.
 
 ---
 
@@ -1295,4 +1382,4 @@ ORDER BY section_order, item_key;
 - `supabase/migrations/202607130002_role_safe_read_surfaces.sql` — Owner-only `sel_companies`, support RPCs joining companies
 - `supabase/migrations/20260715120000_harden_core_acl_defaults.sql` — authenticated SELECT-only relation ACLs
 
-Live catalog may still differ; that is why this gate exists.
+Live catalog for designated DEV/DEMO was reconciled under `DWR-COMP-026` (PASS). Future schema work must still be designed and reviewed before apply.

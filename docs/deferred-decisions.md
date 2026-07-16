@@ -58,20 +58,21 @@ The current `/companies`, `/projects`, and `/financials` pages are navigation-sa
 
 | Field | Content |
 |---|---|
-| **Classification** | **Mandatory pre-implementation verification gate** (not an optional enhancement) |
+| **Classification** | **Mandatory pre-implementation verification gate** — **CLOSED (PASS)** |
 | **Reason** | Live catalog was not re-verified against committed migrations before Companies design |
-| **Current MVP behavior** | Contract grounded in committed migrations and docs only |
-| **Packet status** | **Prepared** in `docs/companies-live-catalog-verification.md` (metadata-only SQL; not yet executed). Manual Mozfer run on DEV/DEMO `gdegnwglakyblnmxgiwx` only |
-| **Revisit trigger** | **Before** any Companies migration or RPC design/apply task (after docs sync, commit, Graphify, and Mozfer contract approval) |
-| **Future task ID** | `ZAM-COMPANIES-LIVE-CATALOG-MANUAL-RUN-1` (execute packet) → result review → then schema/RPC design |
-| **Dependencies** | Approved contract; Mozfer SQL Editor access to designated DEV/DEMO (no `.env` secrets in agent output) |
-| **Product implications** | Confirms schema readiness for design |
-| **Security implications** | Metadata only; no domain row dumps; no secret printing; no DML/DDL |
-| **Schema implications** | Reconcile columns, constraints, indexes, policies, grants vs source |
+| **Current MVP behavior** | Gate completed: Mozfer manual metadata-only run on DEV/DEMO `gdegnwglakyblnmxgiwx` (PostgreSQL 17.6); reviewed PASS; no HOLD conditions |
+| **Packet status** | Executed and reviewed. Evidence recorded in `docs/companies-live-catalog-verification.md`. Raw export reviewed but not a repository migration artifact |
+| **Closed by** | Result-close documentation after Mozfer run + review (`docs(companies): record live catalog verification`) |
+| **Revisit trigger** | None for this gate. Re-run catalog verify only if DEV/DEMO schema diverges materially before/during Companies apply |
+| **Next task ID** | `ZAM-COMPANIES-SCHEMA-RPC-DESIGN-1` |
+| **Dependencies** | Satisfied (approved contract; Mozfer DEV/DEMO SQL Editor run completed) |
+| **Product implications** | Schema/RPC design may proceed; implementation still requires design approval |
+| **Security implications** | Metadata only; no domain row dumps; no secret printing; no DML/DDL; production readiness not claimed |
+| **Schema implications** | Live columns/constraints/policies/grants reconciled; future uniqueness/phone/index/RPC remain design work |
 | **UX implications** | None |
-| **Destination docs** | Packet: `docs/companies-live-catalog-verification.md`. After run/review: `docs/project-status.md`, `docs/database-schema.md` |
-| **Priority** | P1 |
-| **Blocks current MVP implementation** | **Yes** (blocks migration/RPC design until packet run + review PASS). Does **not** block docs or Mozfer approval |
+| **Destination docs** | `docs/companies-live-catalog-verification.md`, `docs/project-status.md`, `docs/database-schema.md`, `docs/project-roadmap.md` |
+| **Priority** | P1 (closed) |
+| **Blocks current MVP implementation** | **No longer blocks design.** Still **blocks implementation** until schema/RPC design + independent design review PASS |
 
 ### Scheduled deferred features (Companies-related)
 
