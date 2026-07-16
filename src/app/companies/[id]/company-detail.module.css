@@ -1,0 +1,240 @@
+.page {
+  width: min(100%, 80rem);
+  margin-inline: auto;
+  padding-block: 2rem 3rem;
+  padding-inline-start: max(1rem, env(safe-area-inset-right));
+  padding-inline-end: max(1rem, env(safe-area-inset-left));
+}
+
+.backLink {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  margin-block-end: 1rem;
+  color: #0f3d3e;
+  font-size: 1rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.backLink:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.backLink:focus-visible,
+.editAction:focus-visible {
+  outline: 3px solid rgb(15 61 62 / 28%);
+  outline-offset: 3px;
+}
+
+.headerRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem 1.25rem;
+  margin-block-end: 1.5rem;
+}
+
+.pageTitle {
+  margin: 0;
+  color: #002627;
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
+
+.editAction {
+  display: inline-flex;
+  min-height: 3.25rem;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.75rem;
+  background: #0f3d3e;
+  padding-inline: 1.25rem;
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.editAction:hover {
+  background: #082f30;
+}
+
+.surface {
+  border: 1px solid #c0c8c8;
+  border-radius: 1rem;
+  background: #ffffff;
+  padding: 1.75rem;
+}
+
+.sectionTitle {
+  margin: 0 0 1rem;
+  color: #224d4e;
+  font-size: 1.0625rem;
+  font-weight: 700;
+}
+
+.metaList {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem 1.5rem;
+  margin: 0;
+  padding: 0;
+}
+
+.metaItem {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin: 0;
+}
+
+.metaLabel {
+  color: #52605f;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.metaValue {
+  color: #102a2b;
+  font-size: 1.0625rem;
+  font-weight: 500;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.phoneLtr {
+  direction: ltr;
+  unicode-bidi: isolate;
+  text-align: start;
+}
+
+.notesBlock {
+  margin-block-start: 1.5rem;
+  padding-block-start: 1.25rem;
+  border-block-start: 1px solid #e1e6e5;
+}
+
+.notesText {
+  margin: 0.5rem 0 0;
+  color: #102a2b;
+  font-size: 1.0625rem;
+  line-height: 1.85;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.notesEmpty {
+  color: #52605f;
+}
+
+.countsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.875rem;
+  margin-block-start: 1.5rem;
+}
+
+.countCard {
+  border: 1px solid #d9dfde;
+  border-radius: 0.875rem;
+  background: #f8fafa;
+  padding: 1rem 1.125rem;
+}
+
+.countLabel {
+  display: block;
+  color: #52605f;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.countValue {
+  display: block;
+  margin-block-start: 0.35rem;
+  color: #0f3d3e;
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.errorState {
+  border: 1px solid #d2aaa5;
+  border-radius: 1rem;
+  background: #fffaf9;
+  padding: 1.75rem 1.5rem;
+}
+
+.errorTitle {
+  margin: 0;
+  color: #7a2e2e;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.loadingBlock {
+  border: 1px solid #c0c8c8;
+  border-radius: 1rem;
+  background: #ffffff;
+  padding: 2rem 1.5rem;
+  color: #404848;
+  font-size: 1.0625rem;
+}
+
+.skeletonRow {
+  height: 4.5rem;
+  margin-block-start: 0.875rem;
+  border-radius: 0.875rem;
+  background: linear-gradient(90deg, #edf3f3 0%, #f8fafa 50%, #edf3f3 100%);
+  background-size: 200% 100%;
+}
+
+@media (min-width: 48rem) {
+  .page {
+    padding-inline-start: max(1.5rem, env(safe-area-inset-right));
+    padding-inline-end: max(1.5rem, env(safe-area-inset-left));
+  }
+
+  .surface {
+    padding: 2.25rem;
+  }
+
+  .metaList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 64rem) {
+  .page {
+    padding-block: 2.5rem 3.5rem;
+    padding-inline-start: max(2rem, env(safe-area-inset-right));
+    padding-inline-end: max(2rem, env(safe-area-inset-left));
+  }
+}
+
+@media (max-width: 47.9375rem) {
+  .pageTitle {
+    font-size: 1.75rem;
+  }
+
+  .headerRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .editAction {
+    width: 100%;
+  }
+
+  .metaList,
+  .countsGrid {
+    grid-template-columns: 1fr;
+  }
+}
