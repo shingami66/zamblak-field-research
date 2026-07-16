@@ -524,10 +524,10 @@ $function$;
 CREATE OR REPLACE FUNCTION public.update_company(
   p_company_id uuid,
   p_name text,
+  p_expected_updated_at timestamptz,
   p_contact_person text DEFAULT NULL,
   p_phone text DEFAULT NULL,
-  p_notes text DEFAULT NULL,
-  p_expected_updated_at timestamptz
+  p_notes text DEFAULT NULL
 )
 RETURNS TABLE (
   company_id uuid,
@@ -683,7 +683,7 @@ COMMENT ON FUNCTION public.get_company(uuid) IS
   'managed_by: 20260716120000_companies_mvp_schema_rpc; owner/SH company detail with project counts';
 COMMENT ON FUNCTION public.create_company(text, text, text, text) IS
   'managed_by: 20260716120000_companies_mvp_schema_rpc; owner/SH create company';
-COMMENT ON FUNCTION public.update_company(uuid, text, text, text, text, timestamptz) IS
+COMMENT ON FUNCTION public.update_company(uuid, text, timestamptz, text, text, text) IS
   'managed_by: 20260716120000_companies_mvp_schema_rpc; owner/SH update company with optimistic concurrency';
 
 -- ---------------------------------------------------------------------------
@@ -693,7 +693,7 @@ COMMENT ON FUNCTION public.update_company(uuid, text, text, text, text, timestam
 REVOKE ALL ON FUNCTION public.list_companies(text, integer, integer) FROM PUBLIC;
 REVOKE ALL ON FUNCTION public.get_company(uuid) FROM PUBLIC;
 REVOKE ALL ON FUNCTION public.create_company(text, text, text, text) FROM PUBLIC;
-REVOKE ALL ON FUNCTION public.update_company(uuid, text, text, text, text, timestamptz) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.update_company(uuid, text, timestamptz, text, text, text) FROM PUBLIC;
 
 REVOKE EXECUTE ON FUNCTION public.list_companies(text, integer, integer)
   FROM PUBLIC, anon, service_role;
@@ -701,13 +701,13 @@ REVOKE EXECUTE ON FUNCTION public.get_company(uuid)
   FROM PUBLIC, anon, service_role;
 REVOKE EXECUTE ON FUNCTION public.create_company(text, text, text, text)
   FROM PUBLIC, anon, service_role;
-REVOKE EXECUTE ON FUNCTION public.update_company(uuid, text, text, text, text, timestamptz)
+REVOKE EXECUTE ON FUNCTION public.update_company(uuid, text, timestamptz, text, text, text)
   FROM PUBLIC, anon, service_role;
 
 GRANT EXECUTE ON FUNCTION public.list_companies(text, integer, integer) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.get_company(uuid) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.create_company(text, text, text, text) TO authenticated;
-GRANT EXECUTE ON FUNCTION public.update_company(uuid, text, text, text, text, timestamptz) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.update_company(uuid, text, timestamptz, text, text, text) TO authenticated;
 
 -- Re-assert helpers remain non-client-callable after any default ACL behavior.
 REVOKE EXECUTE ON FUNCTION public.normalize_company_name(text)
@@ -737,7 +737,7 @@ DECLARE
     'list_companies(text,integer,integer)',
     'get_company(uuid)',
     'create_company(text,text,text,text)',
-    'update_company(uuid,text,text,text,text,timestamp with time zone)'
+    'update_company(uuid,text,timestamp with time zone,text,text,text)'
   ];
 BEGIN
   IF v_authenticated_oid IS NULL OR v_anon_oid IS NULL OR v_service_role_oid IS NULL THEN

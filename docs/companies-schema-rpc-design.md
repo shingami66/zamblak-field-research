@@ -287,16 +287,18 @@ VOLATILE
 public.update_company(
   p_company_id uuid,
   p_name text,
+  p_expected_updated_at timestamptz,
   p_contact_person text DEFAULT NULL,
   p_phone text DEFAULT NULL,
-  p_notes text DEFAULT NULL,
-  p_expected_updated_at timestamptz
+  p_notes text DEFAULT NULL
 )
 RETURNS TABLE ( … common shape … )
 VOLATILE
 ```
 
-**Concurrency:** `p_expected_updated_at` is **required** (NOT NULL). UI supplies `updated_at` from last read.
+**Parameter order (PostgreSQL):** required inputs (`p_company_id`, `p_name`, `p_expected_updated_at`) precede defaulted optional fields. Identity: `update_company(uuid, text, timestamptz, text, text, text)`.
+
+**Concurrency:** `p_expected_updated_at` is **required** (NOT NULL; no DEFAULT). UI supplies `updated_at` from last read.
 
 **Sequence:**
 
