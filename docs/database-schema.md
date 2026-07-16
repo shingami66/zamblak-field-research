@@ -113,11 +113,14 @@ Canonical design: **`docs/companies-schema-rpc-design.md`**. Migration: **`supab
 
 **Implementation gate (Companies):** catalog verification **PASS/closed**. Schema/RPC design **complete**. Migration source **complete**. DEV/DEMO apply + eight-object verification **PASS**. Application contracts/UI **complete**. Owner + same-account Support Helper Mozfer smoke **PASS**. Companies MVP CRUD phase **closed** (DEV/DEMO only). Cross-account runtime isolation **NOT TESTED** (deferred, non-blocking). Production readiness unclaimed. See `docs/deferred-decisions.md` register `DWR-COMP-001`–`DWR-COMP-028`.
 
-### Projects MVP design (not applied)
+### Projects MVP schema/RPC (applied on DEV/DEMO)
 
-- Live catalog **PASS WITH WARN** (PG 17.6, `gdegnwglakyblnmxgiwx`): see `docs/projects-live-catalog-verification.md`.
-- Schema/RPC design freeze: **`docs/projects-schema-rpc-design.md`**.
-- Planned RPCs (absent live): `list_projects`, `get_project`, `create_project`, `update_project`, `transition_project_status` (Owner-only transitions).
-- Soft-deleted Company parent rejection: **missing live**; **required** in migration (trigger + RPC).
-- No Project name uniqueness; no finance on Projects RPCs; relation posture remains authenticated SELECT-only.
-- **Next:** `ZAM-PROJECTS-SCHEMA-RPC-MIGRATION-1` (source only until apply task).
+- Design: **`docs/projects-schema-rpc-design.md`**.
+- Migrations (DEV/DEMO applied): `20260716160000_projects_mvp_schema_rpc.sql` (`1cb9a75`) then corrections `20260716170000_projects_mvp_rpc_corrections.sql` (`dc03784`).
+- Project: `gdegnwglakyblnmxgiwx`, PostgreSQL **17.6**, Mozfer as `postgres`.
+- Installed RPCs: `list_projects`, `get_project`, `create_project`, `update_project`, `transition_project_status` (Owner-only).
+- Soft-deleted Company parent rejection: **closed live** (trigger + RPC).
+- Transition Company-lock race and search-length token defect: **closed** by correction migration; final verify **PASS**.
+- No Project name uniqueness; no finance on Projects RPCs; relation posture remains authenticated SELECT-only; RLS policies unchanged.
+- Application/UI: **not started**. Production readiness unclaimed.
+- **Next:** `ZAM-PROJECTS-APP-CONTRACTS-1`.

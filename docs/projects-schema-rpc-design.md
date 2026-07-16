@@ -1,12 +1,16 @@
 # Projects MVP — schema and RPC design
 
-**Status:** DESIGN FROZEN — migration **not** written; DEV/DEMO apply **not** claimed; application **not** implemented
-**Task:** `ZAM-PROJECTS-SCHEMA-RPC-DESIGN-1`
-**Authority:** Mozfer-approved role/lifecycle contract in this task; live catalog PASS WITH WARN (`docs/projects-live-catalog-verification.md`); scope review `ZAM-PROJECTS-MVP-SCOPE-REVIEW-1`
-**Designated DEV/DEMO:** `gdegnwglakyblnmxgiwx` (PostgreSQL **17.6**)
-**Next task:** `ZAM-PROJECTS-SCHEMA-RPC-MIGRATION-1`
+**Status:** DESIGN FROZEN; migration source **written**; DEV/DEMO **applied + corrected + verified PASS**; application **not** implemented
 
-This document freezes **database, RPC, security, and application-boundary decisions** for the Projects MVP. It does **not** implement SQL, apply migrations, or claim UI completion or production readiness.
+**Task family:** `ZAM-PROJECTS-SCHEMA-RPC-DESIGN-1` → `…-MIGRATION-1` (`1cb9a75`) → apply → verify HOLD → corrections (`dc03784`) → final verify PASS → docs sync
+
+**Authority:** Mozfer-approved role/lifecycle contract; live catalog PASS WITH WARN; installed migrations on DEV/DEMO
+
+**Designated DEV/DEMO:** `gdegnwglakyblnmxgiwx` (PostgreSQL **17.6**)
+
+**Next task:** `ZAM-PROJECTS-APP-CONTRACTS-1`
+
+This document freezes **database, RPC, security, and application-boundary decisions** for the Projects MVP. Implementation status of SQL on DEV/DEMO is recorded in `docs/project-status.md` and `docs/database-migrations.md`. It does **not** claim UI completion or production readiness.
 
 ---
 
@@ -718,16 +722,23 @@ HOLD if:
 
 ## 27. Exact next task
 
-**`ZAM-PROJECTS-SCHEMA-RPC-MIGRATION-1`**
+**`ZAM-PROJECTS-APP-CONTRACTS-1`**
 
-Implement the frozen migration source only (trigger harden + five RPCs + grants/postconditions). Do **not** apply to DEV/DEMO in that task unless the task mode explicitly authorizes apply.
+Implement application types, parsers, mappers, error mapping, and RPC wrappers against the installed five Projects RPCs (after corrections). UI and browser smoke remain later tasks.
+
+### DEV/DEMO install note (not a migration step)
+
+| Artifact | Commit | Apply | Verify |
+|---|---|---|---|
+| `20260716160000_projects_mvp_schema_rpc.sql` | `1cb9a75e3eb5ee9d88dbf3e59011a1bf2b12d9f5` | Success. No rows returned | Initial **HOLD** (search token + transition company lock) |
+| `20260716170000_projects_mvp_rpc_corrections.sql` | `dc03784d2822a642de00af2df8481ccd1c792b0e` | Success. No rows returned | Final **PASS** |
 
 ---
 
 ## Explicit non-claims
 
-- Migration **not** written or applied by this document alone.
-- Application **not** implemented.
-- Live soft-delete company rejection **not** yet fixed in DB (design only).
+- Application contracts / UI **not** implemented.
+- Browser / manual application smoke **not** performed.
 - Production readiness **not** claimed.
+- Supabase migration-history registration **not** claimed.
 - UI placeholder remains until later tasks.

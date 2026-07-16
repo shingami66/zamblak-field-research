@@ -28,7 +28,7 @@ Deleting and recreating Auth users is **not** an approved recovery or relinking 
 ## Domain modules after controlled placeholders
 
 - **Companies MVP CRUD:** implemented and Mozfer-smoked on designated DEV/DEMO (list/create/detail/edit). Lifecycle/delete/restore and advanced metrics remain deferred in the register below. Cross-account runtime isolation smoke remains deferred and non-blocking.
-- **Projects:** live catalog PASS WITH WARN; schema/RPC design frozen in `docs/projects-schema-rpc-design.md`. Soft-deleted Company parent gap and lifecycle transitions are design-closed for migration (not applied). `/projects` remains a placeholder until app tasks. Next: `ZAM-PROJECTS-SCHEMA-RPC-MIGRATION-1`.
+- **Projects:** schema/RPC applied and verified on DEV/DEMO (`20260716160000…` + corrections `20260716170000…`; final verify PASS). Soft-deleted Company gap and transition Company lock closed live. `/projects` remains an app placeholder until contracts/UI. Next: `ZAM-PROJECTS-APP-CONTRACTS-1`.
 - Replace Owner-only `/financials` with the real Financials module and server-authorized data integration.
 - Implement the remaining sequence: Project → Respondent → Participation → Review → Financials.
 

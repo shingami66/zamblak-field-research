@@ -20,7 +20,7 @@ Implemented in source, passed source/static review, and passed Mozfer-owned manu
 - User-initiated logout is explicitly local to the current browser session (`supabase.auth.signOut({ scope: "local" })`) and redirects to the fixed `/login` destination. Errors remain sanitized.
 - Redirect destinations are fixed by the server; no browser-supplied redirect authority is accepted.
 - `/financials` performs a server-side Owner check. A Support Helper direct request redirects to `/` and receives no financial wording or data.
-- Companies MVP list/create/detail/edit are implemented application routes on designated DEV/DEMO evidence only; production readiness is not claimed. Cross-account runtime isolation smoke is not claimed. `/projects` and `/financials` remain controlled placeholders only and do not claim completed domain permissions.
+- Companies MVP list/create/detail/edit are implemented application routes on designated DEV/DEMO evidence only; production readiness is not claimed. Cross-account runtime isolation smoke is not claimed. Projects product RPCs (`list_projects`, `get_project`, `create_project`, `update_project`, Owner-only `transition_project_status`) are **installed and verified on designated DEV/DEMO** (authenticated EXECUTE only; relation ACL/RLS non-regression preserved; no finance exposure on Projects RPCs); application contracts/UI remain **not** started. `/projects` and `/financials` remain controlled placeholders only and do not claim completed domain application permissions.
 
 ## Preserved database and onboarding controls
 

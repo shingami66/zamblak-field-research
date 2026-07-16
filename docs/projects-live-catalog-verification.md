@@ -1,12 +1,13 @@
 # Projects live DEV/DEMO catalog verification gate
 
 - **Task:** `ZAM-PROJECTS-LIVE-CATALOG-VERIFY-1` (+ PUBLIC ACL fix `8f45129`)
-- **Packet status:** **manually executed** (Mozfer) and **reviewed PASS WITH WARN**
-- **Gate decision:** **PASS WITH WARN** — design may proceed (`docs/projects-schema-rpc-design.md`)
+- **Packet status:** **manually executed** (Mozfer) and **reviewed PASS WITH WARN** (historical pre-migration gate)
+- **Gate decision:** **PASS WITH WARN** — design proceeded (`docs/projects-schema-rpc-design.md`)
 - **Designated DEV/DEMO project ref:** `gdegnwglakyblnmxgiwx`
 - **Live PostgreSQL:** **17.6**; session role `postgres`
 - **Authority:** `ZAM-PROJECTS-MVP-SCOPE-REVIEW-1` (PASS WITH WARN); committed migrations; Mozfer-reviewed live catalog export (metadata only; **not** committed as a repository artifact)
 - **Production readiness:** **not claimed**
+- **Supersession (docs sync `ZAM-PROJECTS-SCHEMA-RPC-DEV-APPLY-DOCS-SYNC-1`):** schema/RPC later installed on the same DEV/DEMO via `20260716160000_projects_mvp_schema_rpc.sql` (`1cb9a75e3eb5ee9d88dbf3e59011a1bf2b12d9f5`) then corrections `20260716170000_projects_mvp_rpc_corrections.sql` (`dc03784d2822a642de00af2df8481ccd1c792b0e`). Initial post-apply verify **HOLD** (search token + company lock); final narrow verify **PASS**. Soft-deleted Company gap and five product RPCs closed live. This packet remains **historical catalog evidence** only — current install state lives in `docs/project-status.md` and `docs/database-migrations.md`. Application/UI still **not** started.
 
 ### Live run result (reviewed PASS WITH WARN)
 
@@ -18,10 +19,10 @@
 | Writes | None |
 | Business rows | None |
 | Review | PASS WITH WARN (soft-deleted Company gap; no lifecycle transition RPC; support directory not product API) |
-| Soft-deleted Company rejected by trigger? | **No** (definition gap; design closes in migration) |
-| Projects CRUD RPCs | **Absent** |
+| Soft-deleted Company rejected by trigger? | **No at catalog time** (later closed live by Projects migrations) |
+| Projects CRUD RPCs | **Absent at catalog time** (later installed: five product RPCs + corrections) |
 | Live index | `idx_projects_account_company_status_live` present |
-| Next | Schema/RPC design recorded; next implementation: `ZAM-PROJECTS-SCHEMA-RPC-MIGRATION-1` |
+| Next (at catalog time) | Design → migration → apply; **now:** `ZAM-PROJECTS-APP-CONTRACTS-1` |
 
 ---
 

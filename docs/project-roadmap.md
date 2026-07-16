@@ -28,11 +28,12 @@
     10. Visual foundation polish (`aa2f6b4`) — **done**
     11. Owner + Support Helper runtime smoke + docs closeout (`ZAM-COMPANIES-MANUAL-SMOKE-CLOSE-1`) — **done (PASS / closed)**
   - Deferred Companies items and permanent non-goals: see `docs/deferred-decisions.md` (Companies register). Cross-account runtime security smoke remains deferred and non-blocking.
-- Phase 4: Projects (**design frozen; implementation not started**)
-  - Scope review PASS WITH WARN; live catalog PASS WITH WARN (PG 17.6, `gdegnwglakyblnmxgiwx`).
-  - Schema/RPC design: `docs/projects-schema-rpc-design.md` (`ZAM-PROJECTS-SCHEMA-RPC-DESIGN-1`).
-  - Soft-deleted Company parent gap + lifecycle matrix frozen for migration (not applied yet).
-  - **Next:** `ZAM-PROJECTS-SCHEMA-RPC-MIGRATION-1` → apply → app contracts → list/create/detail/edit → smoke.
+- Phase 4: Projects (**schema/RPC applied + verified on DEV/DEMO; app not started**)
+  - Design: `docs/projects-schema-rpc-design.md`.
+  - Source: `20260716160000_projects_mvp_schema_rpc.sql` (`1cb9a75`) + corrections `20260716170000_projects_mvp_rpc_corrections.sql` (`dc03784`).
+  - DEV/DEMO apply (Mozfer, `gdegnwglakyblnmxgiwx`, PG 17.6): initial apply success → verification **HOLD** → correction apply success → final verify **PASS**.
+  - Soft-deleted Company gap, transition Company lock, and search token defect **closed live**.
+  - **Next:** `ZAM-PROJECTS-APP-CONTRACTS-1` → list/create/detail/edit → smoke.
   - UI remains placeholder until app tasks. Production readiness not claimed.
 - Phase 5: Respondent Registry
 - Phase 6: Participation

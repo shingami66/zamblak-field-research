@@ -1,8 +1,8 @@
 # Project Status
 
-Current phase: **Projects schema/RPC design frozen** after Companies MVP CRUD close (DEV/DEMO), Projects live catalog **PASS WITH WARN**, and `docs/projects-schema-rpc-design.md`. Companies MVP remains closed. `/projects` remains a **placeholder** until app tasks. Production readiness is **not** claimed. Projects migration **not** written/applied. Cross-account runtime isolation smoke remains deferred and non-blocking.
+Current phase: **Projects schema/RPC applied and verified on designated DEV/DEMO** after design freeze, initial apply, verification HOLD, correction migration, and final narrow verification **PASS**. Companies MVP remains closed. `/projects` remains an application **placeholder** (contracts/UI not started). Production readiness is **not** claimed. Browser/manual application smoke is **not** claimed. Cross-account runtime isolation smoke remains deferred and non-blocking.
 
-Next sequence: `ZAM-PROJECTS-SCHEMA-RPC-MIGRATION-1` → DEV apply → application contracts → list/create/detail/edit → smoke.
+Next sequence: `ZAM-PROJECTS-APP-CONTRACTS-1` → list/create/detail/edit UI → manual smoke.
 
 ## Auth (`ZAM-AUTH-001D`) — CLOSED
 
@@ -205,28 +205,53 @@ Implemented Auth behavior (still current):
 
 - See **Security — core database ACL hardening** section above for full evidence and boundaries.
 
-## Projects (`ZAM-PROJECTS-001`) — design frozen; not implemented
+## Projects (`ZAM-PROJECTS-001`) — schema/RPC applied on DEV/DEMO; app not started
 
 | Milestone | Status |
 |---|---|
 | Scope review | **PASS WITH WARN** (`ZAM-PROJECTS-MVP-SCOPE-REVIEW-1`) |
-| Live catalog verify packet | prepared + PUBLIC ACL fix (`8f45129`) |
-| Live catalog run / review | **PASS WITH WARN** (Mozfer; PG **17.6**; project `gdegnwglakyblnmxgiwx`) |
-| Soft-deleted Company parent gap | **Confirmed live** — closed in design (trigger + RPC); **not** fixed in DB yet |
-| Lifecycle transition matrix | **Frozen in design** (not enforced in DB yet) |
+| Live catalog run / review | **PASS WITH WARN** (Mozfer; PG **17.6**; `gdegnwglakyblnmxgiwx`) |
 | Schema/RPC design | **Complete** (`docs/projects-schema-rpc-design.md`) |
-| Migration source | **Not started** |
-| DEV/DEMO apply | **Not claimed** |
-| Application / UI | **Placeholder only** (`/projects`) |
+| Migration source (initial) | **Complete** — `supabase/migrations/20260716160000_projects_mvp_schema_rpc.sql` — commit `1cb9a75e3eb5ee9d88dbf3e59011a1bf2b12d9f5` |
+| Initial DEV/DEMO apply | **Complete** — Mozfer SQL Editor as `postgres`; **Success. No rows returned** (in-script postconditions) |
+| Initial post-apply verification | **HOLD** — (1) `list_projects` search `>120` raised `invalid_project_pagination`; (2) `transition_project_status` company check without row lock |
+| Correction migration source | **Complete** — `supabase/migrations/20260716170000_projects_mvp_rpc_corrections.sql` — commit `dc03784d2822a642de00af2df8481ccd1c792b0e` |
+| Correction DEV/DEMO apply | **Complete** — Mozfer; **Success. No rows returned** |
+| Final narrow live verification | **PASS** |
+| Soft-deleted Company parent gap | **Closed live** (hardened `check_project_account_consistency` + RPC company checks) |
+| Transition Company-lock race | **Closed live** (`FOR SHARE` on parent company) |
+| Search error-token defect | **Closed live** (`invalid_project_text_length` for search bound) |
+| Lifecycle matrix | **Installed** (Owner-only `transition_project_status`) |
+| Finance separation / RLS-ACL posture | **Preserved** (authenticated SELECT-only; no finance on Projects RPCs) |
+| Application / UI | **Not started** — `/projects` placeholder only |
+| Browser / app smoke | **Not performed** |
 | Production readiness | **Not claimed** |
 
-**Catalog WARNs:** (1) soft-deleted company not rejected by consistency function; (2) status CHECK only — no transition enforcement; (3) `support_project_directory` is not the product API.
+### Installed product RPCs (DEV/DEMO, after correction)
 
-**Design freeze highlights:** five RPCs (`list_projects`, `get_project`, `create_project`, `update_project`, Owner-only `transition_project_status`); create always `draft`; SH operational create/edit, no lifecycle/finance; mandatory `p_expected_updated_at` on update/transition; no Project name uniqueness; no finance fields; Companies selector via existing `list_companies` / `get_company`.
+- `list_projects(text, uuid, text, integer, integer)`
+- `get_project(uuid)`
+- `create_project(text, uuid, text, date, date, integer, integer, integer, text, text, boolean, text, text, text)`
+- `update_project(uuid, timestamptz, text, uuid, text, date, date, integer, integer, integer, text, text, boolean, text, text, text)`
+- `transition_project_status(uuid, timestamptz, text)` — **Owner only**
+
+### Final verified live behavior (metadata + definition review)
+
+- Search length `> 120` → `invalid_project_text_length`; pagination errors remain `invalid_project_pagination`.
+- Transition: Project `FOR UPDATE`; Company `FOR SHARE`; same-account non-deleted company; exact lifecycle matrix; Owner-only.
+- EXECUTE: authenticated true; PUBLIC / anon / service_role false.
+- Exact list (10) / detail (19) return shapes; no finance; no overload collisions.
+- Relation ACL/RLS non-regression: authenticated SELECT-only; no Projects UPDATE/DELETE policies.
+
+### Apply boundary
+
+- Designated DEV/DEMO only: `gdegnwglakyblnmxgiwx`, PostgreSQL **17.6**.
+- Supabase migration-history registration **not** claimed.
+- No business-row smoke; no app contracts; no production readiness.
 
 ## Open work
 
-- **Projects** migration → apply → app contracts → UI → smoke (`ZAM-PROJECTS-SCHEMA-RPC-MIGRATION-1` next).
+- **Projects** application contracts → list/create/detail/edit UI → smoke (`ZAM-PROJECTS-APP-CONTRACTS-1` next).
 - Deferred **cross-account** Companies runtime isolation smoke (second account) — **non-blocking** security follow-up; not marked PASS.
 - Deferred Companies lifecycle/metrics/import items: `docs/deferred-decisions.md`.
 - Deferred Support Helper **ACL-era** runtime smoke note remains historical P2 for that milestone only; Companies same-account SH smoke is closed above.
