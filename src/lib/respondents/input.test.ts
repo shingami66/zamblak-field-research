@@ -209,6 +209,50 @@ describe("parseUpdateRespondentInput", () => {
     );
   });
 
+  it("accepts strict ISO timestamps with timezone and preserves original string", () => {
+    const samples = [
+      "2026-07-02T00:00:00Z",
+      "2026-07-02T00:00:00.000Z",
+      "2026-07-02T03:00:00+03:00",
+      "2026-07-02T03:00:00.123456+03:00",
+    ];
+    for (const ts of samples) {
+      const r = parseUpdateRespondentInput({
+        ...base,
+        expectedUpdatedAt: ts,
+      });
+      assert.equal(r.ok, true, ts);
+      if (r.ok) assert.equal(r.data.expectedUpdatedAt, ts);
+    }
+  });
+
+  it("rejects non-strict timestamps as stale_respondent_version", () => {
+    const rejected = [
+      "2026-07-02",
+      "2026-07-02T00:00:00",
+      "July 2, 2026",
+      "07/02/2026",
+      "123456",
+      "",
+      "2026-13-02T00:00:00Z",
+      "2026-07-02T25:00:00Z",
+    ];
+    for (const ts of rejected) {
+      const r = parseUpdateRespondentInput({
+        ...base,
+        expectedUpdatedAt: ts,
+      });
+      assert.equal(r.ok, false, ts);
+      if (!r.ok) assert.equal(r.code, "stale_respondent_version", ts);
+    }
+    const nullTs = parseUpdateRespondentInput({
+      ...base,
+      expectedUpdatedAt: null,
+    });
+    assert.equal(nullTs.ok, false);
+    if (!nullTs.ok) assert.equal(nullTs.code, "stale_respondent_version");
+  });
+
   it("maps exact optimistic concurrency parameter names", () => {
     const r = parseUpdateRespondentInput(base);
     assert.equal(r.ok, true);

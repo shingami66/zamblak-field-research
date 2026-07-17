@@ -15,7 +15,6 @@ import { mapRespondentRpcError } from "./errors";
 import {
   mapRespondentDetailRpcRows,
   mapRespondentListRpcRows,
-  mapRespondentRpcRow,
 } from "./map-row";
 import type {
   CreateRespondentInput,
@@ -108,13 +107,13 @@ export async function createRespondent(
     return { ok: false, code: mapRespondentRpcError(error) };
   }
 
+  if (!Array.isArray(data)) {
+    return { ok: false, code: "unexpected_respondent_error" };
+  }
+
   const rows = mapRespondentDetailRpcRows(data);
   if (rows === null || rows.length !== 1) {
-    const one = mapRespondentRpcRow(Array.isArray(data) ? data[0] : data);
-    if (!one) {
-      return { ok: false, code: "unexpected_respondent_error" };
-    }
-    return { ok: true, data: one };
+    return { ok: false, code: "unexpected_respondent_error" };
   }
 
   return { ok: true, data: rows[0] };
@@ -141,13 +140,13 @@ export async function updateRespondent(
     return { ok: false, code: mapRespondentRpcError(error) };
   }
 
+  if (!Array.isArray(data)) {
+    return { ok: false, code: "unexpected_respondent_error" };
+  }
+
   const rows = mapRespondentDetailRpcRows(data);
   if (rows === null || rows.length !== 1) {
-    const one = mapRespondentRpcRow(Array.isArray(data) ? data[0] : data);
-    if (!one) {
-      return { ok: false, code: "unexpected_respondent_error" };
-    }
-    return { ok: true, data: one };
+    return { ok: false, code: "unexpected_respondent_error" };
   }
 
   return { ok: true, data: rows[0] };

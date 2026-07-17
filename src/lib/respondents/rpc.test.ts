@@ -157,6 +157,85 @@ describe("Respondent RPC wrappers", () => {
     });
   });
 
+  it("updateRespondent succeeds on exactly one valid detail row", async () => {
+    const { client, calls } = mockClient(() => ({
+      data: [detailRow],
+      error: null,
+    }));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = await updateRespondent(client as any, {
+      respondentId: listRow.respondent_id,
+      expectedUpdatedAt: "2026-07-02T00:00:00.000Z",
+      mobile: "966512345678",
+      name: "Ali",
+      age: 30,
+      nationality: "Saudi",
+      residentType: "saudi",
+      notes: "n",
+    });
+    assert.equal(result.ok, true);
+    assert.equal(calls.length, 1);
+    assert.equal(calls[0].name, "update_respondent");
+    if (result.ok) {
+      assert.equal(result.data.respondentId, detailRow.respondent_id);
+    }
+  });
+
+  for (const op of ["create", "update"] as const) {
+    const cases: Array<{ name: string; data: unknown }> = [
+      { name: "empty array", data: [] },
+      { name: "two valid detail rows", data: [detailRow, detailRow] },
+      {
+        name: "one malformed row",
+        data: [{ ...detailRow, respondent_id: "not-uuid" }],
+      },
+      { name: "non-array valid-looking detail object", data: detailRow },
+      { name: "null result", data: null },
+    ];
+
+    for (const c of cases) {
+      it(`${op}Respondent rejects ${c.name}`, async () => {
+        const { client, calls } = mockClient(() => ({
+          data: c.data,
+          error: null,
+        }));
+        let result;
+        if (op === "create") {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          result = await createRespondent(client as any, {
+            mobile: "0512345678",
+            name: null,
+            age: null,
+            nationality: null,
+            residentType: "unknown",
+            notes: null,
+          });
+        } else {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          result = await updateRespondent(client as any, {
+            respondentId: listRow.respondent_id,
+            expectedUpdatedAt: "2026-07-02T00:00:00.000Z",
+            mobile: "966512345678",
+            name: null,
+            age: null,
+            nationality: null,
+            residentType: "unknown",
+            notes: null,
+          });
+        }
+        assert.equal(result.ok, false);
+        if (!result.ok) {
+          assert.equal(result.code, "unexpected_respondent_error");
+        }
+        assert.equal(calls.length, 1);
+        assert.equal(
+          calls[0].name,
+          op === "create" ? "create_respondent" : "update_respondent"
+        );
+      });
+    }
+  }
+
   it("maps malformed response to unexpected_respondent_error", async () => {
     const { client } = mockClient(() => ({
       data: [{ respondent_id: "bad" }],

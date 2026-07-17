@@ -33,12 +33,22 @@ function fail<T>(code: RespondentErrorCode): RespondentResult<T> {
   return { ok: false, code };
 }
 
+/**
+ * Bounded ISO 8601 datetime with required timezone (Z or ±HH:MM).
+ * Does not reformat; callers must pass the original string through unchanged.
+ */
 function isIsoTimestamp(value: string): boolean {
   if (!value || typeof value !== "string") {
     return false;
   }
+  // YYYY-MM-DDTHH:MM:SS[.fraction](Z|±HH:MM)
+  const ISO_TZ_RE =
+    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/;
+  if (!ISO_TZ_RE.test(value)) {
+    return false;
+  }
   const ms = Date.parse(value);
-  return !Number.isNaN(ms);
+  return Number.isFinite(ms);
 }
 
 export function isUuid(value: string): boolean {
