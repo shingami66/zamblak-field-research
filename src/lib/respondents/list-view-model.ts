@@ -16,6 +16,29 @@ export type RespondentListItemView = {
   detailHref: string;
 };
 
+export type RespondentsEmptyStateKind =
+  | "page_beyond"
+  | "filtered_empty"
+  | "empty_registry";
+
+/**
+ * Empty-state precedence for the Respondents list.
+ * page > 1 always wins so Previous navigation remains available
+ * even when an active search query is present.
+ */
+export function deriveRespondentsEmptyState(options: {
+  page: number;
+  hasSearch: boolean;
+}): RespondentsEmptyStateKind {
+  if (options.page > 1) {
+    return "page_beyond";
+  }
+  if (options.hasSearch) {
+    return "filtered_empty";
+  }
+  return "empty_registry";
+}
+
 export function residentTypeLabel(
   value: RespondentResidentType
 ): string {

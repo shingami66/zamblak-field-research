@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
+  deriveRespondentsEmptyState,
   formatRespondentTimestamp,
   residentTypeLabel,
   respondentsListErrorMessage,
@@ -59,6 +60,43 @@ describe("toRespondentListItemView", () => {
     const label = formatRespondentTimestamp("2026-07-02T15:30:00.000Z");
     assert.notEqual(label, "غير محدد");
     assert.equal(formatRespondentTimestamp("not-a-date"), "غير محدد");
+  });
+});
+
+describe("deriveRespondentsEmptyState", () => {
+  it("page 1, no search → empty_registry", () => {
+    assert.equal(
+      deriveRespondentsEmptyState({ page: 1, hasSearch: false }),
+      "empty_registry"
+    );
+  });
+
+  it("page 1, active search → filtered_empty", () => {
+    assert.equal(
+      deriveRespondentsEmptyState({ page: 1, hasSearch: true }),
+      "filtered_empty"
+    );
+  });
+
+  it("page 2, no search → page_beyond", () => {
+    assert.equal(
+      deriveRespondentsEmptyState({ page: 2, hasSearch: false }),
+      "page_beyond"
+    );
+  });
+
+  it("page 2, active search → page_beyond (wins over filtered_empty)", () => {
+    assert.equal(
+      deriveRespondentsEmptyState({ page: 2, hasSearch: true }),
+      "page_beyond"
+    );
+  });
+
+  it("higher page with active search → page_beyond", () => {
+    assert.equal(
+      deriveRespondentsEmptyState({ page: 5, hasSearch: true }),
+      "page_beyond"
+    );
   });
 });
 

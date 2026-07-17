@@ -9,6 +9,7 @@ import {
   parseRespondentsListSearchParams,
 } from "@/lib/respondents/list-params";
 import {
+  deriveRespondentsEmptyState,
   respondentsListErrorMessage,
   toRespondentListItemViews,
 } from "@/lib/respondents/list-view-model";
@@ -243,7 +244,37 @@ function EmptyPanel({
   page: number;
   search: string | null;
 }) {
-  if (hasSearch) {
+  const emptyState = deriveRespondentsEmptyState({ page, hasSearch });
+
+  if (emptyState === "page_beyond") {
+    return (
+      <div className={styles.emptyState} role="status">
+        <h2 className={styles.emptyTitle}>
+          {respondentsListCopy.pageBeyondResults}
+        </h2>
+        <p className={styles.emptyHint}>
+          {respondentsListCopy.pageBeyondResultsHint}
+        </p>
+        <nav
+          className={styles.pagination}
+          aria-label={respondentsListCopy.paginationNav}
+        >
+          <Link
+            href={buildRespondentsListHref({
+              search,
+              page: page - 1,
+            })}
+            className={styles.pageLink}
+            rel="prev"
+          >
+            {respondentsListCopy.previous}
+          </Link>
+        </nav>
+      </div>
+    );
+  }
+
+  if (emptyState === "filtered_empty") {
     return (
       <div className={styles.emptyState} role="status">
         <h2 className={styles.emptyTitle}>
@@ -258,31 +289,6 @@ function EmptyPanel({
         >
           {respondentsListCopy.resetSearch}
         </Link>
-      </div>
-    );
-  }
-
-  if (page > 1) {
-    return (
-      <div className={styles.emptyState} role="status">
-        <h2 className={styles.emptyTitle}>
-          {respondentsListCopy.pageBeyondResults}
-        </h2>
-        <p className={styles.emptyHint}>
-          {respondentsListCopy.pageBeyondResultsHint}
-        </p>
-        <nav
-          className={styles.pagination}
-          aria-label={respondentsListCopy.paginationNav}
-        >
-          <Link
-            href={buildRespondentsListHref({ search, page: page - 1 })}
-            className={styles.pageLink}
-            rel="prev"
-          >
-            {respondentsListCopy.previous}
-          </Link>
-        </nav>
       </div>
     );
   }
