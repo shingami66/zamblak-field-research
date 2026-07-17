@@ -1465,7 +1465,7 @@ section_j_drift AS (
           AND c.relname = 'respondents'
           AND a.attnum > 0
           AND NOT a.attisdropped
-          AND a.attname <> ALL ((SELECT expected_respondent_columns FROM params))
+          AND a.attname::text <> ALL ((SELECT expected_respondent_columns FROM params))
       ), '[]'::jsonb)
     ) AS payload
 
