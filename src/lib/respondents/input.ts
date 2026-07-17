@@ -33,20 +33,76 @@ function fail<T>(code: RespondentErrorCode): RespondentResult<T> {
   return { ok: false, code };
 }
 
+function isGregorianLeapYear(year: number): boolean {
+  return year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+}
+
+function daysInMonth(year: number, month: number): number {
+  switch (month) {
+    case 1:
+    case 3:
+    case 5:
+    case 7:
+    case 8:
+    case 10:
+    case 12:
+      return 31;
+    case 4:
+    case 6:
+    case 9:
+    case 11:
+      return 30;
+    case 2:
+      return isGregorianLeapYear(year) ? 29 : 28;
+    default:
+      return 0;
+  }
+}
+
 /**
  * Bounded ISO 8601 datetime with required timezone (Z or ±HH:MM).
+ * Explicit calendar and wall-clock validation before Date.parse.
  * Does not reformat; callers must pass the original string through unchanged.
  */
 function isIsoTimestamp(value: string): boolean {
   if (!value || typeof value !== "string") {
     return false;
   }
+
   // YYYY-MM-DDTHH:MM:SS[.fraction](Z|±HH:MM)
   const ISO_TZ_RE =
-    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/;
-  if (!ISO_TZ_RE.test(value)) {
+    /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d+)?(Z|[+-]\d{2}:\d{2})$/;
+  const match = ISO_TZ_RE.exec(value);
+  if (!match) {
     return false;
   }
+
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const hour = Number(match[4]);
+  const minute = Number(match[5]);
+  const second = Number(match[6]);
+
+  if (!Number.isInteger(year) || year < 1 || year > 9999) {
+    return false;
+  }
+  if (!Number.isInteger(month) || month < 1 || month > 12) {
+    return false;
+  }
+  if (!Number.isInteger(day) || day < 1 || day > daysInMonth(year, month)) {
+    return false;
+  }
+  if (!Number.isInteger(hour) || hour < 0 || hour > 23) {
+    return false;
+  }
+  if (!Number.isInteger(minute) || minute < 0 || minute > 59) {
+    return false;
+  }
+  if (!Number.isInteger(second) || second < 0 || second > 59) {
+    return false;
+  }
+
   const ms = Date.parse(value);
   return Number.isFinite(ms);
 }
