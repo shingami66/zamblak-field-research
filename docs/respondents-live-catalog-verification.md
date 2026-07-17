@@ -243,7 +243,8 @@ One ordered result set:
 | 17 | `G_participations_triggers` | Consistency + project-state guard attachments |
 | 18 | `G_participation_enforcement_functions` | Consistency + guard function metadata |
 | 19 | `H_three_month_inventory` | Name/definition search for warning objects |
-| 20 | `I_migration_history` | Applied migration versions if accessible |
+| 20 | `I_migration_history` | Migration-history relation availability (`to_regclass` only) |
+| 20b | `I_migration_history_versions` | **Optional follow-up:** applied version/name metadata when relation exists (no SQL bodies) |
 | 21 | `J_drift_aids` | Compact comparison aids vs expected names |
 | 22 | `Z_packet_meta` | Packet meta |
 
@@ -1371,6 +1372,8 @@ section_h_three_month AS (
 -- ---------------------------------------------------------------------------
 -- I. Migration history availability (best-effort; no SQL bodies; no hard dependency)
 -- Uses to_regclass only so a missing migration-history relation does not fail the packet.
+-- If available=true for supabase_migrations.schema_migrations, Mozfer also runs the
+-- OPTIONAL Section I2 query after this packet (separate statement; not in this WITH).
 -- ---------------------------------------------------------------------------
 section_i_migration_history AS (
   SELECT
@@ -1385,13 +1388,25 @@ section_i_migration_history AS (
       'available',
         (to_regclass('supabase_migrations.schema_migrations') IS NOT NULL
           OR to_regclass('public.schema_migrations') IS NOT NULL),
+      'preferred_relation',
+        CASE
+          WHEN to_regclass('supabase_migrations.schema_migrations') IS NOT NULL
+            THEN 'supabase_migrations.schema_migrations'
+          WHEN to_regclass('public.schema_migrations') IS NOT NULL
+            THEN 'public.schema_migrations'
+          ELSE NULL
+        END,
       'note',
         CASE
           WHEN to_regclass('supabase_migrations.schema_migrations') IS NULL
            AND to_regclass('public.schema_migrations') IS NULL
-          THEN 'unavailable/not-accessible — no migration-history relation found via to_regclass; do not fail the whole packet'
-          ELSE 'relation present via to_regclass; this packet intentionally does not SELECT migration versions or SQL bodies (avoids hard dependency and body exposure)'
+          THEN 'unavailable/not-accessible — no migration-history relation found via to_regclass; skip OPTIONAL Section I2; do not fail the whole packet'
+          WHEN to_regclass('supabase_migrations.schema_migrations') IS NOT NULL
+          THEN 'relation present via to_regclass; run OPTIONAL Section I2 for bounded applied versions (no SQL bodies)'
+          ELSE 'only public.schema_migrations present via to_regclass; Section I2 targets supabase_migrations.schema_migrations — if I2 errors, record error exactly and continue'
         END,
+      'optional_follow_up',
+        'I_migration_history_versions (run only when supabase_migrations.schema_migrations is available)',
       'relevant_source_migration_filenames_static',
         jsonb_build_array(
           '202607060001_zamblak_core_schema.sql',
@@ -1610,6 +1625,69 @@ UNION ALL SELECT * FROM section_j_drift
 UNION ALL SELECT * FROM section_z
 ORDER BY section_order, item_key;
 ```
+
+### Optional Section I2 — applied migration versions (metadata only)
+
+**When to run**
+
+- Run this **only if** main-packet Section `I_migration_history` shows
+  `supabase_migrations.schema_migrations` present / `available` true for that preferred relation
+  (repository-authoritative Supabase migration-history relation).
+- If the relation is **missing or inaccessible**, **do not run** this query. Record
+  `unavailable/not-accessible` for migration versions and **continue**.
+  Absence of migration history alone **does not** invalidate the other catalog results.
+- If this query errors (permission, missing column, etc.), **return the SQL error exactly as shown** and continue. Do not invent rows.
+- Do **not** paste this statement into the same execution as the main packet unless Section I already confirmed the relation exists.
+
+**Safety**
+
+- Read-only: single `SELECT` only.
+- Returns **version**, **name** (when the live relation provides it), and a **statement count** derived only as array length metadata.
+- Does **not** return migration SQL bodies, statement text, or statement array contents.
+- Does **not** read application rows, PII, finance data, or secrets.
+
+**Expected-result notes**
+
+- Zero rows for a listed version prefix means that version string was not found as applied under the filter (not automatically a packet failure).
+- Controller compares returned versions against static source filenames in §16.
+- Column layout of `schema_migrations` can vary by Supabase/Postgres host; report any column error verbatim.
+
+```sql
+-- =============================================================================
+-- OPTIONAL — ZAM-RESPONDENTS-LIVE-CATALOG-PACKET-1 / Section I2
+-- Applied migration versions (metadata only)
+-- Run ONLY after Section I confirms supabase_migrations.schema_migrations exists.
+-- If relation missing/inaccessible: skip; record unavailable; continue other results.
+-- Safety: READ-ONLY. No SQL bodies. No application rows. DEV/DEMO only.
+-- Project ref (UI confirm): gdegnwglakyblnmxgiwx
+-- =============================================================================
+
+SELECT
+  'I_migration_history_versions'::text AS section_key,
+  m.version,
+  m.name,
+  CASE
+    WHEN m.statements IS NULL THEN NULL
+    ELSE cardinality(m.statements)
+  END AS statement_count_metadata_only
+FROM supabase_migrations.schema_migrations AS m
+WHERE
+  -- Bounded filter: relevant repository migration version prefixes only
+  m.version ~ '^(202607060001|202607130001|202607130002|20260715120000|20260716120000|20260716160000|20260716170000)(_|$)'
+ORDER BY m.version;
+```
+
+**Relevant version prefixes (from repository filenames under `supabase/migrations/`)**
+
+| Version prefix | Repository file | Relevance |
+|---|---|---|
+| `202607060001` | `202607060001_zamblak_core_schema.sql` | core schema / respondents |
+| `202607130001` | `202607130001_participation_project_state_guard.sql` | Participation Project-state guard |
+| `202607130002` | `202607130002_role_safe_read_surfaces.sql` | role-safe read surfaces |
+| `20260715120000` | `20260715120000_harden_core_acl_defaults.sql` | core ACL hardening |
+| `20260716120000` | `20260716120000_companies_mvp_schema_rpc.sql` | shared security helpers (Companies) |
+| `20260716160000` | `20260716160000_projects_mvp_schema_rpc.sql` | Projects domain context |
+| `20260716170000` | `20260716170000_projects_mvp_rpc_corrections.sql` | Projects corrections context |
 
 ---
 
