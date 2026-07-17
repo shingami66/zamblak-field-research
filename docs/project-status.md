@@ -1,8 +1,8 @@
 # Project Status
 
-Current phase: **Brand loading mark closed (PASS WITH WARN)**; **Projects MVP runtime acceptance closed (PASS)**; Companies MVP closed. Branded loading-mark design, implementation (`96505757`), and Mozfer manual smoke are **closed** — smoke **PASS WITH WARN** (conditional route appearance expected; browser-extension hydration noise external; no application HOLD). Projects smoke remains PASS (`docs/projects-manual-smoke-result.md`). Production readiness is **not** claimed. Cross-account runtime isolation smoke remains deferred and non-blocking.
+Current phase: **Phase 5 Respondent Registry — live catalog closed (PASS WITH WARN)**; next is schema/RPC design. Brand loading mark closed (PASS WITH WARN); Projects MVP runtime acceptance closed (PASS); Companies MVP closed. Branded loading-mark design, implementation (`96505757`), and Mozfer manual smoke are **closed** — smoke **PASS WITH WARN** (conditional route appearance expected; browser-extension hydration noise external; no application HOLD). Projects smoke remains PASS (`docs/projects-manual-smoke-result.md`). Production readiness is **not** claimed. Cross-account runtime isolation smoke remains deferred and non-blocking.
 
-Next product sequence: **Phase 5 Respondent Registry** — `ZAM-RESPONDENTS-MVP-SCOPE-REVIEW-1`. Product order remains Company → Project → Respondent → Participation → Review → Financials.
+Next product sequence: **Phase 5 Respondent Registry** — **`ZAM-RESPONDENTS-SCHEMA-RPC-DESIGN-1`**. Product order remains Company → Project → Respondent → Participation → Review → Financials.
 
 ## Auth (`ZAM-AUTH-001D`) — CLOSED
 
@@ -318,9 +318,43 @@ Implemented Auth behavior (still current):
 - Supabase migration-history registration **not** claimed.
 - No business-row smoke; no production readiness.
 
+## Respondents (`ZAM-RESPONDENTS-*`) — live catalog CLOSED (PASS WITH WARN)
+
+| Milestone | Status |
+|---|---|
+| Scope review | **PASS WITH WARN** (`ZAM-RESPONDENTS-MVP-SCOPE-REVIEW-1`) |
+| Scope-review evidence close | **PASS WITH WARN** (`ZAM-RESPONDENTS-MVP-SCOPE-REVIEW-EVIDENCE-CLOSE-1`) |
+| Live catalog packet | **Prepared** — `docs/respondents-live-catalog-verification.md` |
+| Live catalog runtime harden | **Complete** — `e81fc962` (packet compatibility) |
+| Live catalog run / review | **PASS WITH WARN** (Mozfer; PG **17.6**; `gdegnwglakyblnmxgiwx`) — result close `ZAM-RESPONDENTS-LIVE-CATALOG-RESULT-CLOSE-1` |
+| Schema/RPC design | **Next** — `ZAM-RESPONDENTS-SCHEMA-RPC-DESIGN-1` |
+| Migration / apply / app / smoke | **Not started** |
+| Production readiness | **Not claimed** |
+
+### Live catalog evidence (DEV/DEMO only; metadata)
+
+- **Runner:** Mozfer, Supabase SQL Editor; project `gdegnwglakyblnmxgiwx`; PostgreSQL **17.6**; session `postgres`.
+- **Writes:** none. **Business rows / PII:** none. Raw CSV/export reviewed, **not** committed.
+- **`public.respondents`:** ordinary table; owner `postgres`; RLS enabled; forced false; exact **14**-column contract; mobile CHECK `^9665[0-9]{8}$`; resident_type CHECK `saudi|non_saudi|unknown`; unique active mobile index `idx_respondents_unique_mobile_per_account` present/valid/ready.
+- **Triggers (2):** `audit_trg_respondents`, `trg_respondents_updated_at` (enabled).
+- **Policies (2):** `sel_respondents` (Owner + same-account + non-deleted SELECT); `ins_respondents` (INSERT policy; catalog role PUBLIC OID 0). No direct UPDATE/DELETE policies.
+- **Relation ACL:** authenticated **SELECT only**; PUBLIC/anon/service_role no relation privileges. PUBLIC-scoped INSERT policy is **not** an open client path without INSERT grant — design must keep **RPC-only** mutation.
+- **CRUD RPCs:** all four candidates absent (overload count 0). No dedicated Respondent mobile-normalization helper; do not reuse `normalize_company_phone` blindly.
+- **Participation boundary:** FKs, unique respondent-per-project index, account-consistency and active Project-state guards present; enforcement functions SECURITY DEFINER without client EXECUTE.
+- **Three-month:** Project column/flag exists; dedicated Respondent/Participation eligibility-warning implementation not proven — expected; product remains warning-only.
+- **Migration history:** relations unavailable; Section I2 skipped — nonblocking WARN; registration not claimed.
+- **Evidence detail:** `docs/respondents-live-catalog-verification.md`.
+
+### Nonblocking warnings (catalog gate)
+
+1. Migration-history relation unavailable.
+2. Respondent CRUD RPCs and dedicated mobile-normalization helper intentionally absent before design.
+3. PUBLIC-scoped INSERT policy exists but remains unreachable due relation ACLs; future design must preserve RPC-only mutation.
+4. Dedicated three-month eligibility-warning computation not implemented yet.
+
 ## Open work
 
-- **Next product phase:** Respondent Registry — `ZAM-RESPONDENTS-MVP-SCOPE-REVIEW-1`.
+- **Next product task:** Respondent Registry schema/RPC design — **`ZAM-RESPONDENTS-SCHEMA-RPC-DESIGN-1`**.
 - Deferred **cross-account** Companies/Projects runtime isolation smoke (second account) — **non-blocking**; not marked PASS.
 - Deferred Companies lifecycle/metrics/import items: `docs/deferred-decisions.md`.
 - Deferred Support Helper **ACL-era** runtime smoke note remains historical P2 for that milestone only; Companies same-account SH smoke is closed above.

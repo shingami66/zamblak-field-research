@@ -1,23 +1,74 @@
 # Respondents live DEV/DEMO catalog verification gate
 
-- **Task:** `ZAM-RESPONDENTS-LIVE-CATALOG-PACKET-1`
-- **Packet status:** **ready for Mozfer manual run** (not executed by the agent)
+- **Task:** `ZAM-RESPONDENTS-LIVE-CATALOG-PACKET-1` / result close `ZAM-RESPONDENTS-LIVE-CATALOG-RESULT-CLOSE-1`
+- **Packet status:** **manually executed** (Mozfer) and **reviewed PASS WITH WARN**
+- **Gate decision:** **PASS WITH WARN** — next: schema/RPC design (`ZAM-RESPONDENTS-SCHEMA-RPC-DESIGN-1`)
 - **Designated DEV/DEMO project ref:** `gdegnwglakyblnmxgiwx`
-- **Authority:** `ZAM-RESPONDENTS-MVP-SCOPE-REVIEW-1` (PASS WITH WARN); `ZAM-RESPONDENTS-MVP-SCOPE-REVIEW-EVIDENCE-CLOSE-1` (PASS WITH WARN); committed migrations
+- **Live PostgreSQL:** **17.6**; session role `postgres` (`current_user` / `session_user`)
+- **Authority:** `ZAM-RESPONDENTS-MVP-SCOPE-REVIEW-1` (PASS WITH WARN); `ZAM-RESPONDENTS-MVP-SCOPE-REVIEW-EVIDENCE-CLOSE-1` (PASS WITH WARN); committed migrations; Mozfer-reviewed live catalog export (metadata only; **not** committed as a repository artifact)
 - **Production readiness:** **not claimed**
-- **Agent SQL execution:** **forbidden** — Mozfer runs this packet in a separate task
+- **Agent SQL execution:** **forbidden** — Mozfer executed this packet; agent did not connect to Supabase
 
-### Live run result (pending)
+### Live run result (reviewed PASS WITH WARN)
 
 | Field | Value |
 |---|---|
 | Runner | Mozfer, Supabase SQL Editor, DEV/DEMO only |
-| Project | `gdegnwglakyblnmxgiwx` (confirm in Dashboard UI) |
-| PG | _pending_ |
-| Writes | Must be **none** |
-| Business rows | Must be **none** |
-| Review | _pending controller review after Mozfer export_ |
-| Next after export | `ZAM-RESPONDENTS-LIVE-CATALOG-MANUAL-RUN-1` |
+| Project | `gdegnwglakyblnmxgiwx` |
+| PG | **17.6** |
+| Session | `postgres` |
+| Writes | **None** |
+| Business rows / PII | **None** |
+| Review | **PASS WITH WARN** (see warnings below) |
+| Raw CSV/export | Reviewed as evidence; **not** committed to the repository |
+| Optional Section I2 | **Skipped** — migration-history relations unavailable/not accessible |
+| Hardened packet commit | `e81fc96271914706c4018f05e8a04e85eaaa7884` (runtime compatibility) |
+| Next controlled task | **`ZAM-RESPONDENTS-SCHEMA-RPC-DESIGN-1`** |
+
+#### Nonblocking warnings
+
+1. `supabase_migrations.schema_migrations` and `public.schema_migrations` **unavailable/not accessible** — migration-history registration **not** claimed; I2 correctly skipped.
+2. Respondent CRUD RPCs (`list_respondents`, `get_respondent`, `create_respondent`, `update_respondent`) and a dedicated Respondent mobile-normalization helper are **intentionally absent** before design.
+3. `ins_respondents` INSERT policy is catalog-scoped to PostgreSQL **PUBLIC** (OID 0), but **PUBLIC / anon / authenticated / service_role** have **no INSERT** relation privilege — not an open client mutation path. Future mutations must use **bounded authenticated RPCs** only; do not grant direct base-table mutation.
+4. Dedicated three-month eligibility-warning computation is **not** implemented yet (expected). Product rule remains **warning-only**, never a hard block solely from the three-month rule; do **not** copy Project history into the Respondent master row.
+
+#### Live findings summary (metadata only)
+
+**`public.respondents`**
+
+- Ordinary table; owner `postgres`; RLS **enabled**; RLS forced **false**.
+- Exact **14** columns (no missing/extra): `id`, `account_id`, `name`, `mobile`, `normalized_mobile`, `age`, `nationality`, `resident_type`, `notes`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`.
+- PK present; account/profile FKs present; age CHECK present.
+- `normalized_mobile` CHECK: `^9665[0-9]{8}$`.
+- `resident_type` CHECK: `saudi` \| `non_saudi` \| `unknown`.
+- Unique active mobile index **present, valid, ready:** `idx_respondents_unique_mobile_per_account` on `(account_id, normalized_mobile) WHERE deleted_at IS NULL`.
+- Triggers (exactly **2**): `audit_trg_respondents`, `trg_respondents_updated_at` — both enabled.
+- Policies (exactly **2**): `sel_respondents` (authenticated SELECT: `is_owner()` + `current_account_matches(account_id)` + `deleted_at IS NULL`); `ins_respondents` (INSERT with same-account/audit checks; roles catalog as PUBLIC OID 0).
+- No direct UPDATE or DELETE policies.
+- Relation privileges: **authenticated SELECT only**; no INSERT/UPDATE/DELETE/TRUNCATE/REFERENCES/TRIGGER for authenticated; **PUBLIC / anon / service_role** no relation privileges; `postgres` owner privileges expected.
+
+**RPC / function inventory**
+
+- Overload counts: `list_respondents` **0**; `get_respondent` **0**; `create_respondent` **0**; `update_respondent` **0**.
+- No dedicated Respondent mobile-normalization helper. `normalize_company_phone` exists but **must not** be reused blindly as the Respondent contract.
+
+**Participation boundary**
+
+- `public.participations` exists; RLS enabled; FKs to respondents and projects present.
+- Active duplicate protection: `idx_participations_unique_respondent_per_project` present.
+- Account-consistency and active/non-deleted Project-state guard trigger/functions present; enforcement functions **SECURITY DEFINER**; PUBLIC/anon/authenticated/service_role cannot directly EXECUTE those trigger functions; `postgres` execute expected.
+- Adjacent review/audit/updated_at triggers are existing behavior — not Respondent Registry CRUD scope.
+
+**Three-month warning**
+
+- `projects.requires_three_month_warning` column exists; existing Project RPC definitions reference the flag.
+- No dedicated Respondent/Participation eligibility-warning implementation proven — expected before design.
+
+**Runtime packet history**
+
+- Earlier Mozfer attempts hit packet-compatibility errors (`42883` name/text vs `text[]`; `42809` `pg_get_functiondef` on aggregate). **No writes** in failed attempts.
+- Final manual run succeeded with corrected equivalent SQL; repository packet later hardened at `e81fc962`.
+- **Do not request another manual SQL run** for this gate.
 
 ---
 
@@ -105,7 +156,7 @@ PostgreSQL does not expose the Supabase project ref as a server setting. Mozfer 
 - confirmation that no write statement was run;
 - confirmation that the packet was run in DEV/DEMO only.
 
-**Next controlled task after export exists:** `ZAM-RESPONDENTS-LIVE-CATALOG-MANUAL-RUN-1` (result capture / review).
+**Manual run and result close:** complete under `ZAM-RESPONDENTS-LIVE-CATALOG-RESULT-CLOSE-1` (**PASS WITH WARN**). Next: **`ZAM-RESPONDENTS-SCHEMA-RPC-DESIGN-1`**.
 
 ---
 
@@ -350,23 +401,26 @@ Do not redact section keys. Redact only secrets if any accidentally appear (they
 
 ## 13. Explicit non-claims
 
-- Live catalog is **not** verified until Mozfer runs this packet and the controller reviews results.
+- Live catalog gate is **closed PASS WITH WARN** on designated DEV/DEMO only (Mozfer metadata run; raw export not committed).
 - No production readiness.
-- No Respondent application implementation authorized by this file alone.
+- No Respondent application implementation authorized by this file alone — next is schema/RPC design.
 - Graphify / LeanCTX are not live DB proof.
 - Absence of a three-month function name is not behavioral proof of product correctness; design must still verify source intent.
+- Migration-history registration is **not** claimed (relations unavailable at run time).
 
 ---
 
-## 14. Exact next task after Mozfer runs it
+## 14. Exact next task after this gate
 
-**`ZAM-RESPONDENTS-LIVE-CATALOG-MANUAL-RUN-1`**
+**`ZAM-RESPONDENTS-SCHEMA-RPC-DESIGN-1`**
 
-Mozfer manually runs the committed packet in project `gdegnwglakyblnmxgiwx` and returns every result section.
+Design Respondent Registry schema/RPC surface from this live catalog PASS WITH WARN and prior scope-review authority. Do not apply migrations or implement UI in the design task unless separately authorized.
 
 ---
 
 ## 15. Metadata-only SQL packet
+
+> **Historical verification evidence.** Keep this packet for reuse. Repository copy is runtime-hardened at `e81fc962`. Do not re-run for this closed gate unless a later task explicitly authorizes a re-verify.
 
 ```sql
 -- =============================================================================
@@ -1629,7 +1683,7 @@ section_z AS (
       'live_catalog_verified_claimed', false,
       'finance_row_queries', false,
       'pii_row_queries', false,
-      'next_task_after_export', 'ZAM-RESPONDENTS-LIVE-CATALOG-MANUAL-RUN-1',
+      'next_task_after_export', 'ZAM-RESPONDENTS-SCHEMA-RPC-DESIGN-1',
       'notes', ARRAY[
         'Metadata/catalog only',
         'Do not SELECT application rows',
@@ -1669,7 +1723,9 @@ ORDER BY section_order, item_key;
 
 ### Optional Section I2 — applied migration versions (metadata only)
 
-**When to run**
+**Closed-run outcome (Mozfer):** Section I reported migration-history relations **unavailable/not accessible**. Optional Section I2 was **skipped** correctly. Do **not** invent applied versions.
+
+**When to run (future re-verify only)**
 
 - Run this **only if** main-packet Section `I_migration_history` shows
   `supabase_migrations.schema_migrations` present / `available` true for that preferred relation
@@ -1746,18 +1802,20 @@ ORDER BY m.version;
 
 ---
 
-## 17. After Mozfer run (template for later result-close)
+## 17. After Mozfer run (result close)
 
 | Field | Value |
 |---|---|
 | Runner | Mozfer |
 | Project | `gdegnwglakyblnmxgiwx` |
-| Decision | _pending_ |
-| PG version | _from export_ |
-| Respondents columns | _from B_respondents_columns_ |
-| Unique mobile index | _from B_respondents_indexes / J_drift_aids_ |
-| Policies / grants | _from D_*_ |
-| CRUD RPC absence | _from F_crud_candidate_absence_ |
-| Participation guard / uniqueness | _from G_*_ |
-| Three-month inventory | _from H_three_month_inventory_ |
-| Next task after export | `ZAM-RESPONDENTS-LIVE-CATALOG-MANUAL-RUN-1` |
+| Decision | **PASS WITH WARN** |
+| PG version | **17.6** |
+| Respondents columns | Exact 14-column contract; no missing/extra |
+| Unique mobile index | `idx_respondents_unique_mobile_per_account` present, valid, ready |
+| Policies / grants | 2 policies (SELECT + INSERT); authenticated SELECT-only privileges |
+| CRUD RPC absence | All four candidates overload count **0** |
+| Participation guard / uniqueness | Present (account consistency + project-state guard + unique respondent/project) |
+| Three-month inventory | Column/flag references only; no dedicated eligibility-warning implementation |
+| Migration history | Unavailable; I2 skipped |
+| Raw export | Not committed |
+| Next task | **`ZAM-RESPONDENTS-SCHEMA-RPC-DESIGN-1`** |

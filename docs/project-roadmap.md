@@ -43,8 +43,13 @@
   - Implementation: `ZAM-BRAND-LOADING-MARK-IMPLEMENT-1` — closed at `96505757f444c20ad0b8331b681a221bf2ea4935`.
   - Mozfer manual smoke: **PASS WITH WARN** (`ZAM-BRAND-LOADING-MARK-SMOKE-CLOSE-1`) — conditional route appearance expected; no artificial delay; browser-extension hydration noise external; no application HOLD.
   - Production readiness not claimed.
-- Phase 5: Respondent Registry (**next**)
-  - **Next product task:** `ZAM-RESPONDENTS-MVP-SCOPE-REVIEW-1`.
+- Phase 5: Respondent Registry (**in progress** — catalog closed; design next)
+  - Scope review: **PASS WITH WARN** (`ZAM-RESPONDENTS-MVP-SCOPE-REVIEW-1` + evidence close).
+  - Live DEV/DEMO catalog verification: **CLOSED — PASS WITH WARN** (Mozfer; PG **17.6**; `gdegnwglakyblnmxgiwx`) — `docs/respondents-live-catalog-verification.md`.
+  - Key live findings (metadata): 14-column `public.respondents` contract; unique active mobile index; Owner SELECT policy; authenticated SELECT-only ACL; no UPDATE/DELETE policies; CRUD RPCs absent; Participation uniqueness + account/project guards present; migration history unavailable (nonblocking).
+  - **Next milestone:** schema/RPC design — **`ZAM-RESPONDENTS-SCHEMA-RPC-DESIGN-1`**.
+  - Keep **Participation add-to-project** and **three-month warning** after registry core unless design proves a minimal shared contract is necessary.
+  - Production readiness not claimed. No application/browser smoke claimed for this gate.
 - Phase 6: Participation
 - Phase 7: Review
 - Phase 8: Financials
