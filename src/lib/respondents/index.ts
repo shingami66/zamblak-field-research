@@ -112,3 +112,24 @@ export {
   toRespondentDetailView,
 } from "./detail-view-model";
 export type { RespondentDetailView } from "./detail-view-model";
+
+export { respondentsEditCopy } from "./edit-copy";
+export type { RespondentsEditCopy } from "./edit-copy";
+export {
+  editRespondentSuccessRedirectPath,
+  editRespondentSuccessRevalidatePaths,
+  formValuesToUpdateInputRaw,
+  initialEditRespondentState,
+  mapEditRespondentErrorPresentation,
+  readEditRespondentFormValues,
+  withEditRespondentFormRevision,
+} from "./edit-form";
+export type {
+  EditRespondentActionState,
+  EditRespondentFieldErrors,
+  EditRespondentFieldKey,
+  EditRespondentFormValues,
+  FormValuesToUpdateInputResult,
+  ReadEditRespondentFormResult,
+  UpdateRespondentActionContext,
+} from "./edit-form";
