@@ -90,7 +90,11 @@ export function initialEditRespondentState(
 export function editRespondentSuccessRevalidatePaths(
   respondentId: string
 ): string[] {
-  return ["/respondents", `/respondents/${respondentId}`];
+  return [
+    "/respondents",
+    `/respondents/${respondentId}`,
+    `/respondents/${respondentId}/edit`,
+  ];
 }
 
 export function editRespondentSuccessRedirectPath(respondentId: string): string {

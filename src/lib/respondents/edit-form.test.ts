@@ -362,11 +362,15 @@ describe("mapEditRespondentErrorPresentation", () => {
 });
 
 describe("edit success navigation targets", () => {
-  it("revalidates list and detail and redirects to detail", () => {
-    assert.deepEqual(editRespondentSuccessRevalidatePaths(respondentId), [
+  it("revalidates list, detail, and edit in stable order; redirects to detail", () => {
+    const paths = editRespondentSuccessRevalidatePaths(respondentId);
+    assert.deepEqual(paths, [
       "/respondents",
       `/respondents/${respondentId}`,
+      `/respondents/${respondentId}/edit`,
     ]);
+    assert.equal(paths.length, 3);
+    assert.equal(new Set(paths).size, 3);
     assert.equal(
       editRespondentSuccessRedirectPath(respondentId),
       `/respondents/${respondentId}`

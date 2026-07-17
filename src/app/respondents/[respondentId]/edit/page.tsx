@@ -37,7 +37,7 @@ export default async function EditRespondentPage({
     return (
       <div className={styles.page}>
         <Link href="/respondents" className={styles.backLink}>
-          ← {respondentsEditCopy.backToDetail}
+          ← {respondentsEditCopy.backToList}
         </Link>
         <div className={styles.formError} role="alert">
           <h1 className={styles.formErrorTitle}>

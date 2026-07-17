@@ -91,9 +91,10 @@ export function EditRespondentForm({
           <p className={styles.formErrorText}>{state.formError}</p>
           {state.showReload ? (
             <p className={styles.formErrorText}>
-              <Link href={editHref} className={styles.cancel}>
+              {/* Native anchor: full document navigation rebinds expectedUpdatedAt. */}
+              <a href={editHref} className={styles.cancel}>
                 {respondentsEditCopy.reloadRecord}
-              </Link>
+              </a>
             </p>
           ) : null}
         </div>

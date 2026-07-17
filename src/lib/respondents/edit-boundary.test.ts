@@ -126,6 +126,38 @@ describe("Respondents edit page source boundary", () => {
     );
   });
 
+  it("stale recovery uses full-document anchor; detail navigation stays Link-based", () => {
+    const form = readFileSync(
+      path.join(root, "src/components/respondents/EditRespondentForm.tsx"),
+      "utf8"
+    );
+    assert.equal(form.includes("<a href={editHref}"), true);
+    assert.equal(form.includes("<Link href={editHref}"), false);
+    assert.equal(form.includes("preventDefault"), false);
+    assert.equal(form.includes("router.push"), false);
+    assert.equal(form.includes("router.replace"), false);
+    assert.equal(form.includes("router.refresh"), false);
+    assert.equal(form.includes("window.location"), false);
+    assert.equal(form.includes("disabled={isStale}"), true);
+    assert.equal(form.includes("href={detailHref}"), true);
+    assert.equal(form.includes("respondentsEditCopy.cancel"), true);
+
+    const page = readFileSync(path.join(editRouteDir, "page.tsx"), "utf8");
+    assert.equal(page.includes('href="/respondents"'), true);
+    assert.equal(page.includes("backToList"), true);
+    assert.equal(page.includes("href={detailHref}"), true);
+    assert.equal(page.includes("backToDetail"), true);
+
+    const copy = readFileSync(path.join(dir, "edit-copy.ts"), "utf8");
+    assert.equal(copy.includes("العودة إلى سجل المستجيبين"), true);
+
+    const formHelper = readFileSync(path.join(dir, "edit-form.ts"), "utf8");
+    assert.equal(
+      formHelper.includes("`/respondents/${respondentId}/edit`"),
+      true
+    );
+  });
+
   it("edit route has only the authorized action module", () => {
     const entries = readdirSync(editRouteDir, { withFileTypes: true });
     assert.equal(
