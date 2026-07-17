@@ -101,3 +101,14 @@ export type {
   FormValuesToCreateInputResult,
   ReadCreateRespondentFormResult,
 } from "./create-form";
+
+export { respondentsDetailCopy } from "./detail-copy";
+export type { RespondentsDetailCopy } from "./detail-copy";
+export { parseRespondentDetailParam } from "./detail-params";
+export type { ParseRespondentDetailParamResult } from "./detail-params";
+export {
+  respondentDetailErrorBehavior,
+  respondentDetailResidentLabel,
+  toRespondentDetailView,
+} from "./detail-view-model";
+export type { RespondentDetailView } from "./detail-view-model";
