@@ -9,6 +9,7 @@ const NAV_ITEMS: Array<{ name: string; href: string; roles: DashboardRole[] }> =
   { name: "الرئيسية", href: "/", roles: ["owner", "support_helper"] },
   { name: "الشركات", href: "/companies", roles: ["owner", "support_helper"] },
   { name: "المشاريع", href: "/projects", roles: ["owner", "support_helper"] },
+  { name: "المستجيبون", href: "/respondents", roles: ["owner", "support_helper"] },
   { name: "المستحقات", href: "/financials", roles: ["owner"] },
 ];
 

@@ -61,3 +61,22 @@ export {
   listRespondents,
   updateRespondent,
 } from "./rpc";
+
+export { respondentsListCopy } from "./list-copy";
+export type { RespondentsListCopy } from "./list-copy";
+export {
+  RESPONDENTS_LIST_PAGE_SIZE,
+  RESPONDENTS_LIST_RPC_LIMIT,
+  buildRespondentsListHref,
+  deriveRespondentsListPagination,
+  parseRespondentsListSearchParams,
+} from "./list-params";
+export type { RespondentsListUrlState } from "./list-params";
+export {
+  formatRespondentTimestamp,
+  residentTypeLabel,
+  respondentsListErrorMessage,
+  toRespondentListItemView,
+  toRespondentListItemViews,
+} from "./list-view-model";
+export type { RespondentListItemView } from "./list-view-model";
