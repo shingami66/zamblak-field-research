@@ -1,8 +1,8 @@
 # Project Status
 
-Current phase: **Phase 5 Respondent Registry — live catalog closed (PASS WITH WARN)**; next is schema/RPC design. Brand loading mark closed (PASS WITH WARN); Projects MVP runtime acceptance closed (PASS); Companies MVP closed. Branded loading-mark design, implementation (`96505757`), and Mozfer manual smoke are **closed** — smoke **PASS WITH WARN** (conditional route appearance expected; browser-extension hydration noise external; no application HOLD). Projects smoke remains PASS (`docs/projects-manual-smoke-result.md`). Production readiness is **not** claimed. Cross-account runtime isolation smoke remains deferred and non-blocking.
+Current phase: **Phase 5 Respondent Registry — schema/RPC design frozen**; next is migration draft. Live catalog closed (PASS WITH WARN). Brand loading mark closed (PASS WITH WARN); Projects MVP runtime acceptance closed (PASS); Companies MVP closed. Branded loading-mark design, implementation (`96505757`), and Mozfer manual smoke are **closed** — smoke **PASS WITH WARN** (conditional route appearance expected; browser-extension hydration noise external; no application HOLD). Projects smoke remains PASS (`docs/projects-manual-smoke-result.md`). Production readiness is **not** claimed. Cross-account runtime isolation smoke remains deferred and non-blocking.
 
-Next product sequence: **Phase 5 Respondent Registry** — **`ZAM-RESPONDENTS-SCHEMA-RPC-DESIGN-1`**. Product order remains Company → Project → Respondent → Participation → Review → Financials.
+Next product sequence: **Phase 5 Respondent Registry** — **`ZAM-RESPONDENTS-SCHEMA-RPC-MIGRATION-1`**. Product order remains Company → Project → Respondent → Participation → Review → Financials.
 
 ## Auth (`ZAM-AUTH-001D`) — CLOSED
 
@@ -318,7 +318,7 @@ Implemented Auth behavior (still current):
 - Supabase migration-history registration **not** claimed.
 - No business-row smoke; no production readiness.
 
-## Respondents (`ZAM-RESPONDENTS-*`) — live catalog CLOSED (PASS WITH WARN)
+## Respondents (`ZAM-RESPONDENTS-*`) — catalog CLOSED (PASS WITH WARN); design FROZEN
 
 | Milestone | Status |
 |---|---|
@@ -327,9 +327,21 @@ Implemented Auth behavior (still current):
 | Live catalog packet | **Prepared** — `docs/respondents-live-catalog-verification.md` |
 | Live catalog runtime harden | **Complete** — `e81fc962` (packet compatibility) |
 | Live catalog run / review | **PASS WITH WARN** (Mozfer; PG **17.6**; `gdegnwglakyblnmxgiwx`) — result close `ZAM-RESPONDENTS-LIVE-CATALOG-RESULT-CLOSE-1` |
-| Schema/RPC design | **Next** — `ZAM-RESPONDENTS-SCHEMA-RPC-DESIGN-1` |
-| Migration / apply / app / smoke | **Not started** |
+| Schema/RPC design | **Frozen** — `docs/respondents-schema-rpc-design.md` (`ZAM-RESPONDENTS-SCHEMA-RPC-DESIGN-1`) |
+| Migration source | **Next** — `ZAM-RESPONDENTS-SCHEMA-RPC-MIGRATION-1` (proposed `20260717120000_respondents_mvp_schema_rpc.sql`) |
+| DEV/DEMO apply / app / smoke | **Not started** |
 | Production readiness | **Not claimed** |
+
+### Schema/RPC design freeze (summary)
+
+- **Table:** preserve `public.respondents` 14 columns; no new public columns; no delete/restore RPCs.
+- **Helper:** internal `normalize_respondent_mobile(text)` → canonical `9665xxxxxxxx`; not client-callable; do not reuse `normalize_company_phone`.
+- **RPCs (exactly four):** `list_respondents`, `get_respondent`, `create_respondent`, `update_respondent` — SECURITY DEFINER; `search_path = pg_catalog, public`; EXECUTE authenticated only; Owner + Support Helper.
+- **Uniqueness:** existing partial unique index remains race authority; map conflicts to `duplicate_respondent_mobile`.
+- **Concurrency:** required `p_expected_updated_at` on update → `stale_respondent_version`.
+- **ACL:** authenticated SELECT-only preserved; no direct mutation grants; `ins_respondents` left unchanged (not a client path); SH reads via RPCs only.
+- **Exclusions:** Participation membership, three-month eligibility, finance, Project history on master row.
+- **Design authority:** `docs/respondents-schema-rpc-design.md`.
 
 ### Live catalog evidence (DEV/DEMO only; metadata)
 
@@ -354,7 +366,7 @@ Implemented Auth behavior (still current):
 
 ## Open work
 
-- **Next product task:** Respondent Registry schema/RPC design — **`ZAM-RESPONDENTS-SCHEMA-RPC-DESIGN-1`**.
+- **Next product task:** Respondent Registry schema/RPC migration — **`ZAM-RESPONDENTS-SCHEMA-RPC-MIGRATION-1`**.
 - Deferred **cross-account** Companies/Projects runtime isolation smoke (second account) — **non-blocking**; not marked PASS.
 - Deferred Companies lifecycle/metrics/import items: `docs/deferred-decisions.md`.
 - Deferred Support Helper **ACL-era** runtime smoke note remains historical P2 for that milestone only; Companies same-account SH smoke is closed above.

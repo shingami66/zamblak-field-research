@@ -43,13 +43,14 @@
   - Implementation: `ZAM-BRAND-LOADING-MARK-IMPLEMENT-1` — closed at `96505757f444c20ad0b8331b681a221bf2ea4935`.
   - Mozfer manual smoke: **PASS WITH WARN** (`ZAM-BRAND-LOADING-MARK-SMOKE-CLOSE-1`) — conditional route appearance expected; no artificial delay; browser-extension hydration noise external; no application HOLD.
   - Production readiness not claimed.
-- Phase 5: Respondent Registry (**in progress** — catalog closed; design next)
+- Phase 5: Respondent Registry (**in progress** — design frozen; migration next)
   - Scope review: **PASS WITH WARN** (`ZAM-RESPONDENTS-MVP-SCOPE-REVIEW-1` + evidence close).
   - Live DEV/DEMO catalog verification: **CLOSED — PASS WITH WARN** (Mozfer; PG **17.6**; `gdegnwglakyblnmxgiwx`) — `docs/respondents-live-catalog-verification.md`.
-  - Key live findings (metadata): 14-column `public.respondents` contract; unique active mobile index; Owner SELECT policy; authenticated SELECT-only ACL; no UPDATE/DELETE policies; CRUD RPCs absent; Participation uniqueness + account/project guards present; migration history unavailable (nonblocking).
-  - **Next milestone:** schema/RPC design — **`ZAM-RESPONDENTS-SCHEMA-RPC-DESIGN-1`**.
-  - Keep **Participation add-to-project** and **three-month warning** after registry core unless design proves a minimal shared contract is necessary.
-  - Production readiness not claimed. No application/browser smoke claimed for this gate.
+  - Schema/RPC design: **FROZEN** — `docs/respondents-schema-rpc-design.md` (`ZAM-RESPONDENTS-SCHEMA-RPC-DESIGN-1`).
+  - Frozen surface: preserve 14-column `respondents`; internal `normalize_respondent_mobile`; four RPCs (`list`/`get`/`create`/`update`); SELECT-only table ACL; RPC-only mutation; optimistic concurrency; no Participation/three-month/finance in registry RPCs.
+  - **Next milestone:** schema/RPC migration — **`ZAM-RESPONDENTS-SCHEMA-RPC-MIGRATION-1`** (proposed `supabase/migrations/20260717120000_respondents_mvp_schema_rpc.sql`).
+  - Keep **Participation add-to-project** and **three-month warning** after registry core (design does not pull them into Phase 5).
+  - Production readiness not claimed. No application/browser smoke claimed for design gate.
 - Phase 6: Participation
 - Phase 7: Review
 - Phase 8: Financials
