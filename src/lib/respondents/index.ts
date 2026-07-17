@@ -80,3 +80,24 @@ export {
   toRespondentListItemViews,
 } from "./list-view-model";
 export type { RespondentListItemView } from "./list-view-model";
+
+export { respondentsCreateCopy } from "./create-copy";
+export type { RespondentsCreateCopy } from "./create-copy";
+export {
+  CREATE_RESPONDENT_SUCCESS_REDIRECT_PATH,
+  CREATE_RESPONDENT_SUCCESS_REVALIDATE_PATH,
+  EMPTY_CREATE_RESPONDENT_STATE,
+  formValuesToCreateInputRaw,
+  mapCreateRespondentErrorPresentation,
+  parseCreateRespondentAgeInput,
+  readCreateRespondentFormValues,
+  withCreateRespondentFormRevision,
+} from "./create-form";
+export type {
+  CreateRespondentActionState,
+  CreateRespondentFieldErrors,
+  CreateRespondentFieldKey,
+  CreateRespondentFormValues,
+  FormValuesToCreateInputResult,
+  ReadCreateRespondentFormResult,
+} from "./create-form";
