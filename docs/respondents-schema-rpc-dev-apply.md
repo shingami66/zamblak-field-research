@@ -594,7 +594,7 @@ section_i_index AS (
         AND ix.indisvalid
         AND ix.indisready
         AND NOT ix.indisprimary
-        AND keys.key_names = ARRAY['account_id', 'normalized_mobile']::text[]
+        AND keys.key_names::text[] = ARRAY['account_id', 'normalized_mobile']::text[]
         AND (
           pg_catalog.pg_get_expr(ix.indpred, ix.indrelid) ILIKE '%deleted_at%IS NULL%'
           OR pg_catalog.pg_get_expr(ix.indpred, ix.indrelid) ILIKE '%deleted_at%is null%'
@@ -901,16 +901,78 @@ Those require separately authorized later tasks.
 
 ## 12. Explicit non-claims
 
-- This document does **not** claim the migration is applied.
-- This document does **not** claim post-apply verification has been run.
+- The migration was **manually applied** to DEV/DEMO project `gdegnwglakyblnmxgiwx`.
+- Post-apply catalog verification **passed** with `fail_count = 0` (see §14).
+- **Migration-history alignment is not claimed** (manual SQL Editor apply; see §14 migration-history note).
 - Production readiness is **not** claimed.
-- Application contracts, UI, Server Actions, and smoke are **not** authorized by this packet alone.
+- Application contracts, UI, Server Actions, and runtime smoke remain **outside** this milestone and are **not** authorized by this packet alone.
 - Graphify / LeanCTX are not live database proof.
 
 ---
 
 ## 13. Exact next task
 
-**`ZAM-RESPONDENTS-SCHEMA-RPC-DEV-APPLY-1`**
+**`ZAM-RESPONDENTS-APP-CONTRACTS-1`**
 
-Mozfer manually applies the committed migration to designated DEV/DEMO project `gdegnwglakyblnmxgiwx` and runs the single verification query in §7, then returns the evidence listed in §9.
+Repository-only task to implement the application contracts that consume the verified Respondent RPCs. No browser smoke. No database mutation.
+
+---
+
+## 14. DEV/DEMO apply and verification result
+
+### Apply
+
+| Field | Value |
+|---|---|
+| Project reference | `gdegnwglakyblnmxgiwx` |
+| Migration file | `supabase/migrations/20260717120000_respondents_mvp_schema_rpc.sql` |
+| Migration SHA-256 | `BA9B1D4558DFB27DD94625FD231941FF17A462E6B5FEA4EB9C5D0F2C44B03F32` |
+| Apply method | Manual execution through Supabase SQL Editor using role `postgres` |
+| Apply result | Successful; no migration error returned |
+
+### Verification
+
+| Field | Value |
+|---|---|
+| Method | Exact corrected SQL block from §7, executed once through `supabase-ro` read-only MCP |
+| `current_user` | `supabase_read_only_user` |
+| `session_user` | `supabase_read_only_user` |
+| Database | `postgres` |
+| PostgreSQL | 17.6 |
+
+| Metric | Value |
+|---|---:|
+| Total rows | 74 |
+| PASS rows | 73 |
+| INFO rows | 1 |
+| FAIL rows | 0 |
+| WARN rows | 0 |
+| `Z_summary.status` | `PASS` |
+| `fail_count` | 0 |
+| `pass_count` (Z_summary payload) | 72 |
+
+### Verified contracts
+
+- Five expected functions present with no unexpected overloads.
+- Function posture and `search_path` contracts PASS.
+- Execute ACL matrix PASS.
+- `public.respondents` exists with RLS enabled and not forced.
+- Complete table ACL matrix PASS.
+- Exactly two policies: `ins_respondents` and `sel_respondents`.
+- No UPDATE or DELETE policies.
+- `sel_respondents` semantics PASS.
+- Both expected triggers attached and enabled with correct functions.
+- Unique partial index exact, valid, ready, and healthy.
+- Mobile, resident_type, and age CHECK contracts PASS.
+- No forbidden relation dependencies.
+
+### Migration-history note
+
+- Schema verification is **PASS**.
+- The authorized migration was applied **manually** through the SQL Editor; this document **does not claim** that its filename/version was inserted into Supabase migration history.
+- A known unauthorized, schema-neutral probe history row remains:
+  - version: `20260717131353`
+  - name: `zz_write_mcp_probe_do_not_use`
+  - SQL was only: `SELECT 1;`
+- **No history repair** was performed in this milestone.
+- Future CLI migration work must account for this anomaly **explicitly**.
