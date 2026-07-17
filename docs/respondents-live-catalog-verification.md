@@ -843,7 +843,11 @@ section_e_functions AS (
         LIMIT 1
       ),
       'proacl', p.proacl::text,
-      'definition', pg_catalog.pg_get_functiondef(p.oid)
+      'definition', CASE
+        WHEN p.prokind IN ('f', 'p')
+          THEN pg_catalog.pg_get_functiondef(p.oid)
+        ELSE NULL
+      END
     ) AS payload
   FROM pg_catalog.pg_proc AS p
   JOIN pg_catalog.pg_namespace AS pn
@@ -1201,7 +1205,11 @@ section_g_enforcement_functions AS (
         THEN has_function_privilege('postgres', p.oid, 'EXECUTE')
         ELSE NULL
       END,
-      'definition', pg_catalog.pg_get_functiondef(p.oid)
+      'definition', CASE
+        WHEN p.prokind IN ('f', 'p')
+          THEN pg_catalog.pg_get_functiondef(p.oid)
+        ELSE NULL
+      END
     ) AS payload
   FROM pg_catalog.pg_proc AS p
   JOIN pg_catalog.pg_namespace AS pn ON pn.oid = p.pronamespace
@@ -1233,7 +1241,14 @@ section_h_three_month AS (
       'function'::text AS source_kind,
       (pn.nspname || '.' || p.proname || '(' || pg_catalog.pg_get_function_identity_arguments(p.oid) || ')') AS object_name,
       'name_or_definition'::text AS match_basis,
-      left(pg_catalog.pg_get_functiondef(p.oid), 500) AS detail
+      left(
+        CASE
+          WHEN p.prokind IN ('f', 'p')
+            THEN pg_catalog.pg_get_functiondef(p.oid)
+          ELSE NULL
+        END,
+        500
+      ) AS detail
     FROM pg_catalog.pg_proc AS p
     JOIN pg_catalog.pg_namespace AS pn ON pn.oid = p.pronamespace
     WHERE pn.nspname = 'public'
@@ -1243,10 +1258,26 @@ section_h_three_month AS (
         OR p.proname ILIKE '%ninety%'
         OR p.proname ILIKE '%same_domain%'
         OR p.proname ILIKE '%domain_warning%'
-        OR pg_catalog.pg_get_functiondef(p.oid) ILIKE '%three_month%'
-        OR pg_catalog.pg_get_functiondef(p.oid) ILIKE '%3_month%'
-        OR pg_catalog.pg_get_functiondef(p.oid) ILIKE '%same_domain%'
-        OR pg_catalog.pg_get_functiondef(p.oid) ILIKE '%requires_three_month_warning%'
+        OR CASE
+          WHEN p.prokind IN ('f', 'p')
+            THEN pg_catalog.pg_get_functiondef(p.oid)
+          ELSE NULL
+        END ILIKE '%three_month%'
+        OR CASE
+          WHEN p.prokind IN ('f', 'p')
+            THEN pg_catalog.pg_get_functiondef(p.oid)
+          ELSE NULL
+        END ILIKE '%3_month%'
+        OR CASE
+          WHEN p.prokind IN ('f', 'p')
+            THEN pg_catalog.pg_get_functiondef(p.oid)
+          ELSE NULL
+        END ILIKE '%same_domain%'
+        OR CASE
+          WHEN p.prokind IN ('f', 'p')
+            THEN pg_catalog.pg_get_functiondef(p.oid)
+          ELSE NULL
+        END ILIKE '%requires_three_month_warning%'
       )
 
     UNION ALL
@@ -1360,7 +1391,11 @@ section_h_three_month AS (
             AND (
               p.proname ILIKE '%three_month%'
               OR p.proname ILIKE '%same_domain%'
-              OR pg_catalog.pg_get_functiondef(p.oid) ILIKE '%requires_three_month_warning%'
+              OR CASE
+                WHEN p.prokind IN ('f', 'p')
+                  THEN pg_catalog.pg_get_functiondef(p.oid)
+                ELSE NULL
+              END ILIKE '%requires_three_month_warning%'
             )
         ) AS q
       ),
@@ -1465,7 +1500,13 @@ section_j_drift AS (
           AND c.relname = 'respondents'
           AND a.attnum > 0
           AND NOT a.attisdropped
-          AND a.attname::text <> ALL ((SELECT expected_respondent_columns FROM params))
+          AND NOT EXISTS (
+            SELECT 1
+            FROM unnest(
+              (SELECT expected_respondent_columns FROM params)
+            ) AS expected(column_name)
+            WHERE expected.column_name = a.attname::text
+          )
       ), '[]'::jsonb)
     ) AS payload
 
