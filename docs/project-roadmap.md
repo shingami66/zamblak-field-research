@@ -43,14 +43,15 @@
   - Implementation: `ZAM-BRAND-LOADING-MARK-IMPLEMENT-1` — closed at `96505757f444c20ad0b8331b681a221bf2ea4935`.
   - Mozfer manual smoke: **PASS WITH WARN** (`ZAM-BRAND-LOADING-MARK-SMOKE-CLOSE-1`) — conditional route appearance expected; no artificial delay; browser-extension hydration noise external; no application HOLD.
   - Production readiness not claimed.
-- Phase 5: Respondent Registry (**in progress** — design frozen; migration next)
-  - Scope review: **PASS WITH WARN** (`ZAM-RESPONDENTS-MVP-SCOPE-REVIEW-1` + evidence close).
-  - Live DEV/DEMO catalog verification: **CLOSED — PASS WITH WARN** (Mozfer; PG **17.6**; `gdegnwglakyblnmxgiwx`) — `docs/respondents-live-catalog-verification.md`.
-  - Schema/RPC design: **FROZEN** — `docs/respondents-schema-rpc-design.md` (`ZAM-RESPONDENTS-SCHEMA-RPC-DESIGN-1`).
-  - Frozen surface: preserve 14-column `respondents`; internal `normalize_respondent_mobile`; four RPCs (`list`/`get`/`create`/`update`); SELECT-only table ACL; RPC-only mutation; optimistic concurrency; no Participation/three-month/finance in registry RPCs.
-  - **Next milestone:** schema/RPC migration — **`ZAM-RESPONDENTS-SCHEMA-RPC-MIGRATION-1`** (proposed `supabase/migrations/20260717120000_respondents_mvp_schema_rpc.sql`).
-  - Keep **Participation add-to-project** and **three-month warning** after registry core (design does not pull them into Phase 5).
-  - Production readiness not claimed. No application/browser smoke claimed for design gate.
+- Phase 5: Respondent Registry (**DEV/DEMO runtime CLOSED — PASS WITH WARN**)
+  - Scope review + live catalog + schema/RPC design: closed (see `docs/project-status.md`, `docs/respondents-schema-rpc-design.md`, `docs/respondents-live-catalog-verification.md`).
+  - Migration: `20260717120000_respondents_mvp_schema_rpc.sql` applied on DEV/DEMO (`gdegnwglakyblnmxgiwx`, PG **17.6**) — apply packet `docs/respondents-schema-rpc-dev-apply.md`.
+  - Application: list/create/detail/edit routes implemented; stale-edit recovery hardened at `22cfa8fab680943e8250926e962f9c458e7e9f50`.
+  - Create blocker: live `audit_trigger_func` repair applied and catalog-verified (`ZAM-RESPONDENTS-CREATE-TRIGGER-AUDIT-FUNCTION-APPLY-1` **PASSED**) — reason extraction uses `(v_new ->> 'review_correction_reason')`.
+  - Runtime smoke (agent browser, Support Helper, DEV/DEMO): create **PASS**; full CRUD + two-tab stale recovery **PASS WITH WARN** (pending-state capture P2 only) — `ZAM-RESPONDENTS-CREATE-TRIGGER-POST-APPLY-UI-SMOKE-RETRY-1`, `ZAM-RESPONDENTS-AGENT-BROWSER-SMOKE-RESUME-1`.
+  - Deferred P2 (nonblocking): list ErrorPanel copy (`R-LIST-ERROR-COPY-1`); Server Action mock-execution gap (`R-TEST-ACTION-GAP-1`); pending UI timing evidence.
+  - **Not claimed:** production readiness; migration-history registration; cross-account isolation PASS.
+  - **Participation / three-month eligibility UI:** remain **after** registry core — **not started**.
 - Phase 6: Participation
 - Phase 7: Review
 - Phase 8: Financials

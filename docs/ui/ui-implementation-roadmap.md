@@ -77,7 +77,7 @@ Support Helper must never see financial amounts, prices, payments, due amounts, 
 
 ## 5. Next product sequence
 
-**Companies MVP CRUD: CLOSED** on designated DEV/DEMO (application + Mozfer smoke). **Projects MVP runtime acceptance: CLOSED — PASS** (Mozfer smoke; `docs/projects-manual-smoke-result.md`; polish + create-form preservation closed). **Branded loading mark: CLOSED — PASS WITH WARN** (implement `96505757`; Mozfer smoke; conditional route visibility expected; no artificial delay). **Next product task: `ZAM-RESPONDENTS-MVP-SCOPE-REVIEW-1`** (Phase 5 Respondent Registry).
+**Companies MVP CRUD: CLOSED** on designated DEV/DEMO (application + Mozfer smoke). **Projects MVP runtime acceptance: CLOSED — PASS** (Mozfer smoke; `docs/projects-manual-smoke-result.md`; polish + create-form preservation closed). **Branded loading mark: CLOSED — PASS WITH WARN** (implement `96505757`; Mozfer smoke; conditional route visibility expected; no artificial delay). **Respondent Registry DEV/DEMO runtime: CLOSED — PASS WITH WARN** (list/create/detail/edit + SH browser smoke; `audit_trigger_func` repair; see `docs/project-status.md`). **Next product phase: Participation** (not started). Production readiness **not** claimed.
 
 Completed Companies gates:
 

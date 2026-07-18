@@ -4,13 +4,15 @@
 
 | Field | Value |
 |---|---|
-| **Packet status** | **Prepared only** — not applied |
-| **Task** | `ZAM-RESPONDENTS-SCHEMA-RPC-DEV-APPLY-PACKET-1` |
-| **Agent SQL execution** | **Forbidden** |
-| **Agent Supabase connection** | **Forbidden** |
-| **Migration apply by agent** | **Forbidden** |
-| **Manual runner** | **Mozfer only** |
-| **Environment** | **DEV/DEMO only** |
+| **Packet status** | **Applied on designated DEV/DEMO** — use for historical apply authority; do not re-apply blindly |
+| **Task** | `ZAM-RESPONDENTS-SCHEMA-RPC-DEV-APPLY-PACKET-1` (packet); subsequent runtime closeout in `docs/project-status.md` |
+| **Agent SQL execution** | **Forbidden** for this packet’s original apply steps (historical) |
+| **Agent Supabase connection** | **Forbidden** for re-apply of this packet without a new authorized apply task |
+| **Migration apply by agent** | **Forbidden** unless a new `SUPABASE_APPLY_*` task authorizes it |
+| **Manual runner (original)** | **Mozfer** for migration apply |
+| **Environment** | **DEV/DEMO only** (`gdegnwglakyblnmxgiwx`, PG **17.6**) |
+| **Post-apply runtime** | Respondent Registry CRUD browser smoke **closed** for DEV/DEMO (PASS WITH WARN) — see `docs/project-status.md` |
+| **Live follow-up repair** | `audit_trigger_func` reason extraction — `ZAM-RESPONDENTS-CREATE-TRIGGER-AUDIT-FUNCTION-APPLY-1` **PASSED** (not part of this migration file body) |
 | **Production readiness** | **Not claimed** |
 
 **Authority**

@@ -1,8 +1,8 @@
 # Project Status
 
-Current phase: **Phase 5 Respondent Registry — schema/RPC design frozen**; next is migration draft. Live catalog closed (PASS WITH WARN). Brand loading mark closed (PASS WITH WARN); Projects MVP runtime acceptance closed (PASS); Companies MVP closed. Branded loading-mark design, implementation (`96505757`), and Mozfer manual smoke are **closed** — smoke **PASS WITH WARN** (conditional route appearance expected; browser-extension hydration noise external; no application HOLD). Projects smoke remains PASS (`docs/projects-manual-smoke-result.md`). Production readiness is **not** claimed. Cross-account runtime isolation smoke remains deferred and non-blocking.
+Current phase: **Phase 5 Respondent Registry — DEV/DEMO runtime CLOSED (PASS WITH WARN)**. Migration applied; application CRUD implemented; create-blocker `audit_trigger_func` repair applied and catalog-verified; Support Helper browser smoke completed (create/detail/edit/duplicate/stale recovery/not-found). Live catalog closed earlier (PASS WITH WARN). Brand loading mark closed (PASS WITH WARN); Projects MVP runtime acceptance closed (PASS); Companies MVP closed. Production readiness is **not** claimed. Cross-account runtime isolation smoke remains deferred and non-blocking. **Participation is not started.**
 
-Next product sequence: **Phase 5 Respondent Registry** — **`ZAM-RESPONDENTS-SCHEMA-RPC-MIGRATION-1`**. Product order remains Company → Project → Respondent → Participation → Review → Financials.
+Next product sequence: **Phase 6 Participation** (after any optional Respondent deferred P2 cleanup). Product order remains Company → Project → Respondent → Participation → Review → Financials.
 
 ## Auth (`ZAM-AUTH-001D`) — CLOSED
 
@@ -318,57 +318,78 @@ Implemented Auth behavior (still current):
 - Supabase migration-history registration **not** claimed.
 - No business-row smoke; no production readiness.
 
-## Respondents (`ZAM-RESPONDENTS-*`) — catalog CLOSED (PASS WITH WARN); design FROZEN
+## Respondents (`ZAM-RESPONDENTS-*`) — DEV/DEMO runtime CLOSED (PASS WITH WARN)
 
 | Milestone | Status |
 |---|---|
 | Scope review | **PASS WITH WARN** (`ZAM-RESPONDENTS-MVP-SCOPE-REVIEW-1`) |
-| Scope-review evidence close | **PASS WITH WARN** (`ZAM-RESPONDENTS-MVP-SCOPE-REVIEW-EVIDENCE-CLOSE-1`) |
-| Live catalog packet | **Prepared** — `docs/respondents-live-catalog-verification.md` |
-| Live catalog runtime harden | **Complete** — `e81fc962` (packet compatibility) |
-| Live catalog run / review | **PASS WITH WARN** (Mozfer; PG **17.6**; `gdegnwglakyblnmxgiwx`) — result close `ZAM-RESPONDENTS-LIVE-CATALOG-RESULT-CLOSE-1` |
-| Schema/RPC design | **Frozen** — `docs/respondents-schema-rpc-design.md` (`ZAM-RESPONDENTS-SCHEMA-RPC-DESIGN-1`) |
-| Migration source | **Next** — `ZAM-RESPONDENTS-SCHEMA-RPC-MIGRATION-1` (proposed `20260717120000_respondents_mvp_schema_rpc.sql`) |
-| DEV/DEMO apply / app / smoke | **Not started** |
+| Live catalog | **PASS WITH WARN** — `docs/respondents-live-catalog-verification.md` |
+| Schema/RPC design | **Frozen** — `docs/respondents-schema-rpc-design.md` |
+| Migration source | **Complete** — `20260717120000_respondents_mvp_schema_rpc.sql` (`e6061af` lineage) |
+| DEV/DEMO migration apply | **Applied** — packet `docs/respondents-schema-rpc-dev-apply.md`; project `gdegnwglakyblnmxgiwx`; PG **17.6** |
+| Application contracts + UI | **Implemented in source** — list/create/detail/edit under `/respondents*`; HEAD `22cfa8fab680943e8250926e962f9c458e7e9f50` includes stale-edit recovery harden |
+| Create runtime blocker repair | **Applied + catalog-verified** — `ZAM-RESPONDENTS-CREATE-TRIGGER-AUDIT-FUNCTION-APPLY-1` **PASSED** |
+| Agent browser create smoke | **PASSED** — `ZAM-RESPONDENTS-CREATE-TRIGGER-POST-APPLY-UI-SMOKE-RETRY-1` (Support Helper) |
+| Agent browser CRUD + stale resume | **PASSED WITH WARN** — `ZAM-RESPONDENTS-AGENT-BROWSER-SMOKE-RESUME-1` |
+| Independent review closure | **PASSED WITH WARN** — stale recovery P1 closed; revalidate/edit-error copy closed; deferred P2 remain (below) |
 | Production readiness | **Not claimed** |
+| Participation | **Not started** |
 
-### Schema/RPC design freeze (summary)
+### Create-blocker repair (`audit_trigger_func`) — DEV/DEMO only
 
-- **Table:** preserve `public.respondents` 14 columns; no new public columns; no delete/restore RPCs.
-- **Helper:** internal `normalize_respondent_mobile(text)` → canonical `9665xxxxxxxx`; not client-callable; do not reuse `normalize_company_phone`.
-- **RPCs (exactly four):** `list_respondents`, `get_respondent`, `create_respondent`, `update_respondent` — SECURITY DEFINER; `search_path = pg_catalog, public`; EXECUTE authenticated only; Owner + Support Helper.
-- **Uniqueness:** existing partial unique index remains race authority; map conflicts to `duplicate_respondent_mobile`.
-- **Concurrency:** required `p_expected_updated_at` on update → `stale_respondent_version`.
-- **ACL:** authenticated SELECT-only preserved; no direct mutation grants; `ins_respondents` left unchanged (not a client path); SH reads via RPCs only.
-- **Exclusions:** Participation membership, three-month eligibility, finance, Project history on master row.
-- **Design authority:** `docs/respondents-schema-rpc-design.md`.
+- **Symptom:** valid UI create returned safe `unexpected_respondent_error`; diagnostic **`42703`**: `record "new" has no field "review_correction_reason"`.
+- **Chain:** `create_respondent` → `INSERT public.respondents` → `audit_trg_respondents` → `public.audit_trigger_func()` → unsafe composite access.
+- **Repair (authorized live function replace only):**
+  `NEW.review_correction_reason` → `(v_new ->> 'review_correction_reason')`
+  still gated by `TG_TABLE_NAME = 'participations' AND TG_OP = 'UPDATE'`.
+- **Post-apply catalog:** OID **17919** retained; owner `postgres`; SECURITY DEFINER; `search_path=public`; ACL `postgres` EXECUTE only; five audit trigger attachments unchanged; Respondent RPCs/ACLs unchanged; no Respondents table column added.
+- **No** repository migration file for this one-line live repair yet; DEV/DEMO runtime evidence is recorded here. Migration-history registration still **not** claimed.
 
-### Live catalog evidence (DEV/DEMO only; metadata)
+### Application surface (static + runtime)
 
-- **Runner:** Mozfer, Supabase SQL Editor; project `gdegnwglakyblnmxgiwx`; PostgreSQL **17.6**; session `postgres`.
-- **Writes:** none. **Business rows / PII:** none. Raw CSV/export reviewed, **not** committed.
-- **`public.respondents`:** ordinary table; owner `postgres`; RLS enabled; forced false; exact **14**-column contract; mobile CHECK `^9665[0-9]{8}$`; resident_type CHECK `saudi|non_saudi|unknown`; unique active mobile index `idx_respondents_unique_mobile_per_account` present/valid/ready.
-- **Triggers (2):** `audit_trg_respondents`, `trg_respondents_updated_at` (enabled).
-- **Policies (2):** `sel_respondents` (Owner + same-account + non-deleted SELECT); `ins_respondents` (INSERT policy; catalog role PUBLIC OID 0). No direct UPDATE/DELETE policies.
-- **Relation ACL:** authenticated **SELECT only**; PUBLIC/anon/service_role no relation privileges. PUBLIC-scoped INSERT policy is **not** an open client path without INSERT grant — design must keep **RPC-only** mutation.
-- **CRUD RPCs:** all four candidates absent (overload count 0). No dedicated Respondent mobile-normalization helper; do not reuse `normalize_company_phone` blindly.
-- **Participation boundary:** FKs, unique respondent-per-project index, account-consistency and active Project-state guards present; enforcement functions SECURITY DEFINER without client EXECUTE.
-- **Three-month:** Project column/flag exists; dedicated Respondent/Participation eligibility-warning implementation not proven — expected; product remains warning-only.
-- **Migration history:** relations unavailable; Section I2 skipped — nonblocking WARN; registration not claimed.
-- **Evidence detail:** `docs/respondents-live-catalog-verification.md`.
+- **Routes:** `/respondents`, `/respondents/new`, `/respondents/[respondentId]`, `/respondents/[respondentId]/edit`.
+- **Roles:** Owner and Support Helper may list/create/detail/edit via authenticated RPCs; Support Helper has **no** financial navigation.
+- **Stale recovery UI:** native full-document `<a href={editHref}>` reload control after `stale_respondent_version`; submit disabled while stale; no automatic retry.
+- **Success navigation:** create → `/respondents`; update → detail; revalidate paths include list, detail, and edit.
 
-### Nonblocking warnings (catalog gate)
+### Runtime smoke evidence (agent browser; DEV/DEMO; Support Helper)
 
-1. Migration-history relation unavailable.
-2. Respondent CRUD RPCs and dedicated mobile-normalization helper intentionally absent before design.
-3. PUBLIC-scoped INSERT policy exists but remains unreachable due relation ACLs; future design must preserve RPC-only mutation.
-4. Dedicated three-month eligibility-warning computation not implemented yet.
+| Check | Result |
+|---|---|
+| Create | **PASS** — synthetic fixture created; redirect list; name search hit |
+| Detail | **PASS** — approved fields only; no finance/Participation/internal IDs |
+| First edit | **PASS** — name update succeeded |
+| Duplicate mobile | **PASS** — safe Arabic block; no second row; no raw SQL |
+| Two-tab stale | **PASS** — Tab B did **not** overwrite Tab A |
+| Stale UI | **PASS** — submitted values retained; save disabled; recovery control present |
+| Full-document recovery | **PASS** — fresh server value loaded; stale cleared |
+| Post-recovery save | **PASS** — final name `ZAM UI SMOKE 20260718A RECOVERED` (synthetic) |
+| Invalid / not-found routes | **PASS** — safe Arabic not-found; no stack/SQL |
+| Finance blindness (SH) | **PASS** — no المستحقات nav; no prices/amounts on Respondents surfaces |
+| Raw DB/framework errors | **None observed** |
+| PostgreSQL **42703** after repair | **Not observed** on successful create/edit path |
+
+### Nonblocking warnings (runtime / review)
+
+1. **Pending-state capture (P2 evidence):** submit pending/disabled often completes within one browser wait cycle — nonblocking; do not change product solely for smoke timing.
+2. **R-LIST-ERROR-COPY-1 (P2 deferred):** list general `ErrorPanel` CTA may use search-reset copy (**مسح البحث**).
+3. **R-TEST-ACTION-GAP-1 (P2 deferred):** Server Actions covered mainly via helpers + source-boundary tests, not full mocked action execution.
+4. Migration-history registration unavailable / unclaimed (historical catalog WARN).
+5. Cross-account isolation smoke deferred (nonblocking).
+
+### Design summary (still current)
+
+- **Table:** 14-column `public.respondents`; no delete/restore RPCs; no `review_correction_reason` on Respondents (Participation-only product field).
+- **RPCs:** `list_respondents`, `get_respondent`, `create_respondent`, `update_respondent`.
+- **Concurrency:** `p_expected_updated_at` → `stale_respondent_version`.
+- **Exclusions:** Participation assignment, three-month eligibility UI, finance, Project history on master row.
+- **Authorities:** `docs/respondents-schema-rpc-design.md`; apply packet `docs/respondents-schema-rpc-dev-apply.md`; pre-apply catalog `docs/respondents-live-catalog-verification.md`.
 
 ## Open work
 
-- **Next product task:** Respondent Registry schema/RPC migration — **`ZAM-RESPONDENTS-SCHEMA-RPC-MIGRATION-1`**.
-- Deferred **cross-account** Companies/Projects runtime isolation smoke (second account) — **non-blocking**; not marked PASS.
+- **Next product task:** **Phase 6 Participation** (Respondent Registry DEV/DEMO runtime closed; optional deferred Respondent P2 cleanup may precede Participation if prioritized).
+- Deferred Respondent P2: **R-LIST-ERROR-COPY-1**, **R-TEST-ACTION-GAP-1**, pending-state evidence capture.
+- Deferred **cross-account** Companies/Projects/Respondents runtime isolation smoke (second account) — **non-blocking**; not marked PASS.
 - Deferred Companies lifecycle/metrics/import items: `docs/deferred-decisions.md`.
-- Deferred Support Helper **ACL-era** runtime smoke note remains historical P2 for that milestone only; Companies same-account SH smoke is closed above.
 - Deferred Auth admin: password recovery/change, invitation and Support Helper administration, Auth-user/profile relinking, account/profile settings, multi-device session controls, sole-Owner recovery.
 - Residual platform note: `supabase_admin`-owned default ACLs remain intentionally out of scope (hosted project-owner limitation).
