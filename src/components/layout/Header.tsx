@@ -41,7 +41,6 @@ export function Header({ role = null, displayName = null }: HeaderProps) {
             </span>
             <span className={styles.brandText}>
               <span className={styles.brandName}>زمبلك للأبحاث الميدانية</span>
-              <span className={styles.brandDescriptor}>مساحة العمل الميداني</span>
             </span>
           </Link>
 

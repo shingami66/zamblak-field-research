@@ -13,6 +13,7 @@ const tajawal = Tajawal({
 export const metadata: Metadata = {
   title: "زمبلك للأبحاث الميدانية",
   description: "Zamblak Field Research Platform",
+  icons: { icon: "/brand/zamblak-mark.svg" },
 };
 
 export default async function RootLayout({
@@ -25,11 +26,12 @@ export default async function RootLayout({
   return (
     <html lang="ar" dir="rtl" className={`${tajawal.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col font-sans">
+        <a className="skipLink" href="#main-content">تخطي إلى المحتوى الرئيسي</a>
         <Header
           role={session?.profile.role ?? null}
           displayName={session?.profile.name ?? null}
         />
-        <main className="flex-1 flex flex-col">{children}</main>
+        <main id="main-content" tabIndex={-1} className="flex-1 flex flex-col">{children}</main>
       </body>
     </html>
   );

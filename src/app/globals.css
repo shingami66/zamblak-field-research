@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  --background: #F5F7F7;
+  --background: #F6F5F1;
   --foreground: #102A2B;
 }
 
@@ -10,10 +10,61 @@
   --color-foreground: var(--foreground);
   --color-primary: #0F3D3E;
   --color-accent: #A8E10C;
+
+  --color-surface: #FFFFFF;
+  --color-surface-hover: #F7F9F8;
+  --color-border: #DDE4E1;
+
+  --color-danger: #DC2626;
+  --color-danger-bg: #FEF2F2;
+  --color-warning: #D97706;
+  --color-warning-bg: #FFFBEB;
+  --color-success: #16A34A;
+  --color-success-bg: #F0FDF4;
+
+  --color-muted: #5D6B69;
+  --color-muted-bg: #EEF2F0;
+
   --font-sans: var(--font-tajawal);
 }
 
 body {
+  min-height: 100vh;
   background: var(--background);
   color: var(--foreground);
+  line-height: 1.6;
+}
+
+.skipLink {
+  position: fixed;
+  z-index: 100;
+  inset-block-start: 0.75rem;
+  inset-inline-start: 0.75rem;
+  transform: translateY(-200%);
+  border-radius: 0.5rem;
+  background: var(--color-primary);
+  padding: 0.75rem 1rem;
+  color: var(--color-surface);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.skipLink:focus { transform: translateY(0); }
+
+/* Global focus rings for accessibility */
+*:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

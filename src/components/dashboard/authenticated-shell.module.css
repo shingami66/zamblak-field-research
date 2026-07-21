@@ -1,14 +1,110 @@
+.dashboard {
+  width: min(100%, 80rem);
+  margin-inline: auto;
+  padding-block: 2.5rem 4.5rem;
+  padding-inline-start: max(1rem, env(safe-area-inset-right));
+  padding-inline-end: max(1rem, env(safe-area-inset-left));
+}
+
+.pageIntro {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-block-end: 2.25rem;
+  animation: dashboard-enter 200ms ease-out both;
+}
+
+.pageTitle {
+  margin: 0;
+  color: var(--color-foreground);
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.5;
+  text-wrap: balance;
+}
+
+.pageDescription {
+  max-width: 42rem;
+  margin-block-start: 0.25rem;
+  color: var(--color-muted);
+  font-size: 1.125rem;
+  line-height: 1.75;
+  text-wrap: pretty;
+}
+
+.workflowGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(24rem, 0.85fr);
+  align-items: stretch;
+  gap: 1.5rem;
+  margin-block-end: 3rem;
+  animation: dashboard-enter 220ms 40ms ease-out both;
+}
+
+.summarySection {
+  min-width: 0;
+  border: 1px solid var(--color-border);
+  border-radius: 1.125rem;
+  background: #eef3f0;
+  padding: 1.5rem;
+  box-shadow: 0 0.5rem 1.75rem rgb(15 61 62 / 5%);
+  animation: dashboard-enter 220ms 80ms ease-out both;
+}
+
+.demoNotice {
+  margin: 0 0 1rem;
+  border: 1px solid #789200;
+  border-radius: 0.75rem;
+  background: #f8fde9;
+  padding: 0.75rem 0.875rem;
+  color: #224d4e;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+.sectionTitle {
+  margin-block-end: 1.25rem;
+  color: var(--color-foreground);
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.summaryGridOperational {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@keyframes dashboard-enter {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .header {
   position: sticky;
   z-index: 20;
   top: 0;
   width: 100%;
-  border-block-end: 1px solid #d9dfde;
-  background: rgb(255 255 255 / 96%);
+  border-block-end: 1px solid var(--color-border);
+  background: var(--color-surface);
+  box-shadow: 0 0.125rem 1rem rgb(15 61 62 / 5%);
 }
 
 .headerInner {
-  width: min(100%, 84rem);
+  width: min(100%, 80rem);
   margin-inline: auto;
   padding-inline-start: max(1rem, env(safe-area-inset-right));
   padding-inline-end: max(1rem, env(safe-area-inset-left));
@@ -29,7 +125,7 @@
   align-items: center;
   gap: 0.75rem;
   border-radius: 0.75rem;
-  color: #0f3d3e;
+  color: var(--color-primary);
   text-decoration: none;
 }
 
@@ -48,9 +144,9 @@
   height: 3.5rem;
   flex: 0 0 auto;
   place-items: center;
-  border: 1px solid #c0c8c8;
+  border: 1px solid var(--color-border);
   border-radius: 0.75rem;
-  background: #ffffff;
+  background: var(--color-surface);
 }
 
 .brandMark {
@@ -69,18 +165,12 @@
 
 .brandName {
   overflow: hidden;
+  color: var(--color-primary);
   font-size: 1.0625rem;
   font-weight: 700;
   line-height: 1.5;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.brandDescriptor {
-  color: #52605f;
-  font-size: 0.8125rem;
-  font-weight: 500;
-  line-height: 1.45;
 }
 
 .desktopNavigation {
@@ -90,7 +180,7 @@
 .compactNavigation {
   overflow-x: auto;
   overscroll-behavior-inline: contain;
-  border-block-start: 1px solid #edf0f0;
+  border-block-start: 1px solid var(--color-border);
 }
 
 .navigation {
@@ -109,8 +199,8 @@
   align-items: center;
   justify-content: center;
   padding-inline: 1rem;
-  border-radius: 0.5rem 0.5rem 0 0;
-  color: #404848;
+  border-radius: 0.75rem 0.75rem 0 0;
+  color: var(--color-muted);
   font-size: 1rem;
   font-weight: 500;
   line-height: 1.5;
@@ -120,13 +210,13 @@
 }
 
 .navigationLink:hover {
-  background: #f2f5f5;
-  color: #0f3d3e;
+  background: var(--color-surface-hover);
+  color: var(--color-primary);
 }
 
 .navigationLinkActive {
-  background: #f0f5e4;
-  color: #0f3d3e;
+  background: var(--color-muted-bg);
+  color: var(--color-primary);
   font-weight: 700;
 }
 
@@ -136,7 +226,7 @@
   inset-inline: 0.75rem;
   height: 0.1875rem;
   border-radius: 999px 999px 0 0;
-  background: #8fbe0a;
+  background: var(--color-accent);
   content: "";
 }
 
@@ -153,9 +243,9 @@
   align-items: center;
   justify-content: center;
   gap: 0.625rem;
-  border: 1px solid #d9dfde;
+  border: 1px solid var(--color-border);
   border-radius: 0.75rem;
-  background: #f8fafa;
+  background: var(--color-surface-hover);
   padding: 0.25rem;
   color: inherit;
   cursor: pointer;
@@ -166,19 +256,15 @@
 
 .accountTrigger:hover,
 .accountTrigger[aria-expanded="true"] {
-  border-color: #aab6b5;
-  background: #f1f5f5;
-}
-
-.accountTrigger:active {
-  background: #e7eeee;
+  border-color: var(--color-primary);
+  background: var(--color-muted-bg);
 }
 
 .accountChevron {
   width: 1.125rem;
   height: 1.125rem;
   flex: 0 0 auto;
-  color: #52605f;
+  color: var(--color-muted);
   transition: transform 180ms ease-out;
 }
 
@@ -190,29 +276,25 @@
   display: none;
 }
 
+.mobileAccountDialog {
+  display: none;
+}
+
 .accountPanel {
   position: absolute;
   z-index: 30;
   inset-block-start: calc(100% + 0.625rem);
   inset-inline-end: 0;
   width: min(20rem, calc(100vw - 2rem));
-  border: 1px solid #cdd5d4;
+  border: 1px solid var(--color-border);
   border-radius: 0.875rem;
-  background: #ffffff;
+  background: var(--color-surface);
   padding: 1rem;
   box-shadow: 0 4px 8px rgb(15 61 62 / 12%);
 }
 
 .accountClose {
   display: none;
-}
-
-.accountClose:hover {
-  background: #e2ebeb;
-}
-
-.accountClose:active {
-  background: #d8e4e4;
 }
 
 .accountSummary {
@@ -230,7 +312,7 @@
 
 .accountPanelText strong {
   overflow: hidden;
-  color: #102a2b;
+  color: var(--color-foreground);
   font-size: 1rem;
   line-height: 1.55;
   text-overflow: ellipsis;
@@ -238,7 +320,7 @@
 }
 
 .accountPanelText span {
-  color: #52605f;
+  color: var(--color-muted);
   font-size: 0.8125rem;
   font-weight: 500;
   line-height: 1.55;
@@ -247,7 +329,7 @@
 .accountDivider {
   height: 1px;
   margin-block: 1rem;
-  background: #e1e6e5;
+  background: var(--color-border);
 }
 
 .accountLogoutForm {
@@ -263,7 +345,7 @@
   gap: 0.5rem;
   border: 1px solid #d2aaa5;
   border-radius: 0.75rem;
-  background: #ffffff;
+  background: var(--color-surface);
   padding-inline: 0.875rem;
   color: #7a2e2e;
   cursor: pointer;
@@ -271,19 +353,11 @@
   font-size: 0.9375rem;
   font-weight: 700;
   line-height: 1.5;
-  white-space: nowrap;
-  transition: border-color 180ms ease-out, background-color 180ms ease-out,
-    color 180ms ease-out;
 }
 
 .logoutButton:hover {
   border-color: #ae746d;
-  background: #fff5f3;
-  color: #651f1f;
-}
-
-.logoutButton:active {
-  background: #fbe7e3;
+  background: var(--color-danger-bg);
 }
 
 .logoutButton svg {
@@ -299,8 +373,8 @@
   flex: 0 0 auto;
   place-items: center;
   border-radius: 50%;
-  background: #0f3d3e;
-  color: #ffffff;
+  background: var(--color-primary);
+  color: var(--color-surface);
   font-size: 1.0625rem;
   font-weight: 700;
 }
@@ -311,7 +385,7 @@
 }
 
 .mobileAccountLabel {
-  color: #102a2b;
+  color: var(--color-foreground);
   font-size: 0.875rem;
   font-weight: 700;
   line-height: 1.5;
@@ -321,7 +395,7 @@
 .userName {
   max-width: 11rem;
   overflow: hidden;
-  color: #102a2b;
+  color: var(--color-foreground);
   font-size: 0.9375rem;
   font-weight: 700;
   line-height: 1.45;
@@ -330,218 +404,10 @@
 }
 
 .userRole {
-  color: #52605f;
+  color: var(--color-muted);
   font-size: 0.75rem;
   font-weight: 500;
   line-height: 1.45;
-}
-
-.dashboard {
-  width: min(100%, 80rem);
-  margin-inline: auto;
-  padding-block: 2rem 3rem;
-  padding-inline-start: max(1rem, env(safe-area-inset-right));
-  padding-inline-end: max(1rem, env(safe-area-inset-left));
-}
-
-.pageIntro {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 1.5rem;
-  margin-block-end: 1.75rem;
-}
-
-.pageTitle {
-  color: #002627;
-  font-size: 2rem;
-  font-weight: 700;
-  line-height: 1.5;
-  text-wrap: balance;
-}
-
-.pageDescription {
-  max-width: 42rem;
-  margin-block-start: 0.25rem;
-  color: #404848;
-  font-size: 1.125rem;
-  line-height: 1.75;
-  text-wrap: pretty;
-}
-
-.roleBadge,
-.statusLabel {
-  display: inline-flex;
-  min-height: 2.75rem;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  border-radius: 999px;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.roleBadge {
-  border: 1px solid #c7d0af;
-  background: #f0f5e4;
-  padding-inline: 1rem;
-  color: #314500;
-  font-size: 0.9375rem;
-}
-
-.emptyState {
-  display: grid;
-  overflow: hidden;
-  grid-template-columns: minmax(0, 1.35fr) minmax(18rem, 0.65fr);
-  border: 1px solid #c0c8c8;
-  border-radius: 1rem;
-  background: #ffffff;
-}
-
-.emptyStateContent {
-  display: flex;
-  min-height: 31rem;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 3.5rem;
-}
-
-.statusLabel {
-  min-height: 2.875rem;
-  background: #edf3f3;
-  padding-inline: 1rem;
-  color: #224d4e;
-  font-size: 0.9375rem;
-}
-
-.emptyStateTitle {
-  max-width: 24ch;
-  margin-block-start: 1.5rem;
-  color: #002627;
-  font-size: 1.75rem;
-  font-weight: 700;
-  line-height: 1.55;
-  text-wrap: balance;
-}
-
-.emptyStateDescription {
-  max-width: 65ch;
-  margin-block-start: 0.875rem;
-  color: #404848;
-  font-size: 1.125rem;
-  line-height: 1.9;
-  text-wrap: pretty;
-}
-
-.nextStep {
-  display: flex;
-  width: 100%;
-  max-width: 42rem;
-  min-height: 5rem;
-  align-items: center;
-  gap: 0.875rem;
-  margin-block-start: 2rem;
-  border-radius: 0.75rem;
-  background: #f5f7f7;
-  padding: 1rem 1.125rem;
-  color: #314344;
-  font-size: 1rem;
-  line-height: 1.75;
-}
-
-.nextStep strong {
-  display: block;
-  color: #0f3d3e;
-  font-size: 1.0625rem;
-}
-
-.nextStepIcon {
-  display: grid;
-  width: 2.75rem;
-  height: 2.75rem;
-  flex: 0 0 auto;
-  place-items: center;
-  border-radius: 50%;
-  background: #a8e10c;
-  color: #102a2b;
-  font-size: 1.375rem;
-  font-weight: 700;
-}
-
-.brandPanel {
-  display: flex;
-  min-height: 31rem;
-  flex-direction: column;
-  justify-content: center;
-  background: #0f3d3e;
-  padding: 3rem;
-  color: #ffffff;
-}
-
-.emptyStateLogoPlate {
-  display: grid;
-  width: 6.5rem;
-  height: 6.5rem;
-  place-items: center;
-  border-radius: 1rem;
-  background: #ffffff;
-}
-
-.emptyStateMark {
-  display: block;
-  width: 5.5rem;
-  height: 5.5rem;
-  object-fit: contain;
-}
-
-.brandPanelTitle {
-  max-width: 16ch;
-  margin-block-start: 1.75rem;
-  color: #ffffff;
-  font-size: 1.5rem;
-  font-weight: 700;
-  line-height: 1.6;
-  text-wrap: balance;
-}
-
-.brandPanelDescription {
-  max-width: 32ch;
-  margin-block-start: 0.5rem;
-  color: #d7e5e5;
-  font-size: 1rem;
-  line-height: 1.8;
-  text-wrap: pretty;
-}
-
-.areaList {
-  width: 100%;
-  margin-block-start: 1.5rem;
-  padding: 0;
-  list-style: none;
-}
-
-.areaList li {
-  display: flex;
-  min-height: 3.25rem;
-  align-items: center;
-  gap: 0.75rem;
-  border-block-start: 1px solid rgb(255 255 255 / 16%);
-  color: #ffffff;
-  font-size: 1rem;
-  font-weight: 500;
-}
-
-.areaList li:last-child {
-  border-block-end: 1px solid rgb(255 255 255 / 16%);
-}
-
-.areaList li > span {
-  width: 0.5rem;
-  height: 0.5rem;
-  flex: 0 0 auto;
-  border-radius: 50%;
-  background: #a8e10c;
 }
 
 @media (min-width: 48rem) {
@@ -558,15 +424,11 @@
   .mobileAccountLabel {
     display: none;
   }
-
-  .accountTrigger {
-    justify-content: flex-start;
-    padding-inline-end: 0.5rem;
-  }
 }
 
 @media (min-width: 64rem) {
-  .headerInner {
+  .headerInner,
+  .dashboard {
     padding-inline-start: max(2rem, env(safe-area-inset-right));
     padding-inline-end: max(2rem, env(safe-area-inset-left));
   }
@@ -593,27 +455,48 @@
   .accountMenuRoot {
     justify-self: end;
   }
-
-  .dashboard {
-    padding-block: 2.5rem 3.5rem;
-    padding-inline-start: max(2rem, env(safe-area-inset-right));
-    padding-inline-end: max(2rem, env(safe-area-inset-left));
-  }
 }
 
 @media (max-width: 63.9375rem) {
-  .emptyState {
-    grid-template-columns: minmax(0, 1.2fr) minmax(16rem, 0.8fr);
+  .workflowGrid {
+    grid-template-columns: 1fr;
   }
 
-  .emptyStateContent,
-  .brandPanel {
-    min-height: 28rem;
-    padding: 2.5rem;
+  .summaryGrid,
+  .summaryGridOperational {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 47.9375rem) {
+  .mobileAccountDialog[open] {
+    display: block;
+  }
+
+  .mobileAccountDialog {
+    width: 100vw;
+    max-width: none;
+    height: 100dvh;
+    max-height: none;
+    margin: 0;
+    border: 0;
+    background: transparent;
+    padding: 0;
+  }
+
+  .mobileAccountDialog::backdrop {
+    background: rgb(0 38 39 / 38%);
+  }
+
+  .mobileAccountDialogPanel {
+    width: min(20rem, calc(100vw - 1rem));
+    min-height: 100%;
+    margin-inline-start: auto;
+    background: var(--color-surface);
+    padding: max(1rem, env(safe-area-inset-top)) 1rem max(1rem, env(safe-area-inset-bottom));
+    box-shadow: -0.25rem 0 1rem rgb(15 61 62 / 16%);
+  }
+
   .accountOverlay {
     position: fixed;
     z-index: 29;
@@ -624,7 +507,6 @@
 
   .accountPanel {
     position: fixed;
-    z-index: 30;
     inset-block: 0;
     inset-inline-end: 0;
     width: min(20rem, calc(100vw - 1rem));
@@ -634,7 +516,6 @@
     border-end-start-radius: 0.875rem;
     padding: max(1rem, env(safe-area-inset-top)) 1rem
       max(1rem, env(safe-area-inset-bottom));
-    box-shadow: 0 0 8px rgb(0 38 39 / 18%);
   }
 
   .accountClose {
@@ -646,21 +527,17 @@
     margin-block-end: 1.25rem;
     border: 0;
     border-radius: 0.625rem;
-    background: #edf3f3;
+    background: var(--color-muted-bg);
     padding-inline: 0.75rem;
-    color: #224d4e;
+    color: var(--color-primary);
     cursor: pointer;
     font: inherit;
     font-size: 0.9375rem;
     font-weight: 700;
   }
 
-  .brandDescriptor {
-    display: none;
-  }
-
   .dashboard {
-    padding-block: 1.5rem 2.5rem;
+    padding-block: 1.5rem 3rem;
   }
 
   .pageIntro {
@@ -678,45 +555,18 @@
     font-size: 1.0625rem;
   }
 
-  .roleBadge {
-    min-height: 2.5rem;
+  .workflowGrid {
+    gap: 1.25rem;
+    margin-block-end: 2rem;
   }
 
-  .emptyState {
+  .summaryGrid,
+  .summaryGridOperational {
     grid-template-columns: 1fr;
   }
 
-  .emptyStateContent,
-  .brandPanel {
-    min-height: auto;
-    padding: 2rem;
-  }
-
-  .brandPanel {
-    grid-row: 1;
-  }
-
-  .emptyStateLogoPlate {
-    width: 5rem;
-    height: 5rem;
-  }
-
-  .emptyStateMark {
-    width: 4.25rem;
-    height: 4.25rem;
-  }
-
-  .brandPanelTitle {
-    margin-block-start: 1.25rem;
-  }
-
-  .emptyStateTitle {
-    margin-block-start: 1.25rem;
-    font-size: 1.5rem;
-  }
-
-  .emptyStateDescription {
-    font-size: 1.0625rem;
+  .summarySection {
+    padding: 1rem;
   }
 }
 
@@ -727,81 +577,28 @@
     padding-inline-end: max(0.75rem, env(safe-area-inset-left));
   }
 
-  .brandLink {
-    gap: 0.5rem;
-  }
-
-  .headerPrimaryRow {
-    gap: 0.5rem;
-  }
-
-  .brandMarkPlate {
-    width: 3.125rem;
-    height: 3.125rem;
-  }
-
-  .brandMark {
-    width: 2.375rem;
-    height: 2.375rem;
-  }
-
   .brandName {
     max-width: 12.5rem;
     font-size: 0.9375rem;
-  }
-
-  .accountTrigger {
-    min-width: 3rem;
-    min-height: 3rem;
-  }
-
-  .userAvatar {
-    width: 2.375rem;
-    height: 2.375rem;
   }
 
   .navigationLink {
     min-height: 3rem;
     padding-inline: 0.875rem;
   }
-
-  .emptyStateContent,
-  .brandPanel {
-    padding: 1.5rem;
-  }
-
-  .statusLabel {
-    width: 100%;
-    justify-content: flex-start;
-    white-space: normal;
-  }
-
-  .nextStep {
-    align-items: flex-start;
-  }
-}
-
-@media (max-height: 40rem) and (min-width: 64rem) {
-  .dashboard {
-    padding-block: 1.5rem 2rem;
-  }
-
-  .pageIntro {
-    margin-block-end: 1rem;
-  }
-
-  .emptyStateContent,
-  .brandPanel {
-    min-height: 25rem;
-    padding-block: 2rem;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .pageIntro,
+  .workflowGrid,
+  .summarySection {
+    animation: none;
+    transform: none;
+  }
+
   .navigationLink,
   .accountTrigger,
-  .accountChevron,
-  .logoutButton {
+  .accountChevron {
     transition: none;
   }
 }
