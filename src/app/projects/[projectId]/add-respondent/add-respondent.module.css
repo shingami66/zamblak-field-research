@@ -1,0 +1,100 @@
+.page {
+  width: min(100%, 64rem);
+  margin-inline: auto;
+  padding-block: 2rem 3rem;
+  padding-inline: max(1rem, env(safe-area-inset-right));
+  color: #002627;
+}
+
+.backLink {
+  display: inline-flex;
+  min-height: 3rem;
+  align-items: center;
+  color: #0f3d3e;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.backLink:hover { text-decoration: underline; text-underline-offset: 0.2em; }
+.backLink:focus-visible, .primaryAction:focus-visible, .respondentOption:focus-within { outline: 3px solid rgb(15 61 62 / 28%); outline-offset: 3px; }
+
+.header { margin-block: 1rem 1.5rem; }
+.title { display: flex; align-items: center; gap: 0.5rem; margin: 0; font-size: clamp(1.75rem, 4vw, 2.25rem); font-weight: 700; line-height: 1.45; }
+.intro { margin: 0.5rem 0 0; color: #405050; font-size: 1.125rem; line-height: 1.7; }
+.formStack { display: grid; gap: 1rem; }
+.toolbar { display: flex; flex-wrap: wrap; align-items: end; gap: 0.75rem; margin-block-end: 1rem; }
+.searchForm { display: flex; flex: 1 1 30rem; flex-wrap: wrap; align-items: end; gap: 0.75rem; }
+.searchLabel { display: block; flex-basis: 100%; font-weight: 700; }
+.searchInput { min-height: 3rem; min-width: min(100%, 16rem); flex: 1 1 16rem; border: 1px solid #9aabb0; border-radius: 0.75rem; background: #fff; padding-inline: 0.875rem; color: #002627; font: inherit; }
+.searchSubmit, .resetSearch { display: inline-flex; min-height: 3rem; align-items: center; justify-content: center; border: 1px solid #0f3d3e; border-radius: 0.75rem; background: #fff; padding-inline: 1rem; color: #0f3d3e; font: inherit; font-weight: 700; text-decoration: none; cursor: pointer; }
+.searchSubmit { background: #0f3d3e; color: #fff; }
+.form, .warningPanel, .emptyState { border: 1px solid #c9d4d4; border-radius: 1rem; background: #fff; padding: 1.25rem; }
+.fieldset { min-inline-size: 0; border: 0; margin: 0; padding: 0; }
+.legend { font-size: 1.25rem; font-weight: 700; margin-block-end: 0.875rem; }
+.respondentList { display: grid; gap: 0.75rem; max-block-size: 30rem; overflow-y: auto; padding-inline-end: 0.25rem; }
+.respondentOption { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 0.75rem; min-height: 3.5rem; border: 1px solid #d5dede; border-radius: 0.75rem; padding-inline: 0.875rem; cursor: pointer; transition: border-color 150ms ease-out, background-color 150ms ease-out; }
+.respondentOption:hover { border-color: #9aabb0; background: #f8fafa; }
+.respondentOption:has(input:checked) { border-color: #0f3d3e; background: #eef7f4; }
+.respondentName { font-weight: 700; overflow-wrap: anywhere; }
+.respondentMobile { color: #405050; font-variant-numeric: tabular-nums; }
+
+.primaryAction {
+  min-height: 3.25rem;
+  border: 0;
+  border-radius: 0.75rem;
+  margin-block-start: 1.25rem;
+  background: #0f3d3e;
+  color: #fff;
+  cursor: pointer;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  padding-inline: 1.25rem;
+  transition: background-color 150ms ease-out;
+}
+
+.primaryAction:hover { background: #082f30; }
+.primaryAction:disabled { cursor: wait; opacity: 0.65; }
+.primaryAction:disabled:hover { background: #0f3d3e; }
+
+/* Error: full border + tinted background. No side-stripe (impeccable ban). */
+.formError {
+  margin: 1rem 0 0;
+  border: 1px solid #ba1a1a;
+  border-radius: 0.75rem;
+  background: #fff5f3;
+  color: #7f1d1d;
+  padding: 0.75rem;
+  font-weight: 700;
+}
+
+/* Warning panel: olive/lime intent, matching project-detail surface radius. */
+.warningPanel { border-color: #789200; background: #f8fde9; }
+.warningTitle { margin: 0 0 0.75rem; font-size: 1.25rem; }
+.warningPanel p { line-height: 1.7; }
+.warningList { margin-block: 0.5rem; padding-inline-start: 1.5rem; line-height: 1.8; }
+.warningProceed { font-weight: 700; }
+
+/* Warning region: layout container for warnings/checking/no-warnings states. */
+.warningRegion { min-block-size: 1.5rem; }
+
+/* Checking state: muted pulsing text while warnings are being fetched. */
+.checking { color: #405050; font-weight: 600; }
+
+/* No-warning state: subtle inline text only, no card or panel. */
+.noWarnings { color: #224d4e; font-weight: 600; line-height: 1.7; }
+
+/* Empty state: subtle, matches project-detail note style. */
+.emptyState { color: #405050; font-size: 1.0625rem; }
+
+@media (max-width: 36rem) {
+  .respondentOption { grid-template-columns: auto minmax(0, 1fr); }
+  .respondentMobile { grid-column: 2; }
+  .primaryAction { inline-size: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .respondentOption,
+  .primaryAction {
+    transition: none;
+  }
+}
