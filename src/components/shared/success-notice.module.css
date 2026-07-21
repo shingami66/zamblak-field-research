@@ -1,0 +1,10 @@
+.notice {
+  margin-block-end: 1rem;
+  border: 1px solid #4b6700;
+  border-radius: 0.75rem;
+  background: #f8fde9;
+  padding: 0.875rem 1rem;
+  color: #224d4e;
+  font-weight: 700;
+  line-height: 1.6;
+}
