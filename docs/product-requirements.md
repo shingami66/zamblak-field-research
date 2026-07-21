@@ -16,6 +16,16 @@
 - Owner-only financial control.
 - Support Helper operational only.
 
+## Free-Text Project Domain Contract
+- Project domain is arbitrary trimmed nonblank text between 1 and 120 characters (`chk_projects_domain`).
+- Accepts Arabic, English, or mixed text. Blank/whitespace-only input is rejected.
+
+## Owner-Only Forms & Collections Prototype Contract
+- Forms, quotas, receivables, and collections are implemented as an Owner-only browser prototype in `sessionStorage` under exact namespace `zamblak.forms-prototype.v1`.
+- Operates entirely in browser memory; zero production or live database table mutations.
+- Access is restricted to `owner`; Support Helper access is blocked (`redirect("/forbidden")`) and remains strictly finance-blind.
+- Live backend database persistence for forms, quotas, receivables, and collections is explicitly deferred.
+
 ## Participation Membership Rules
 - Respondents may be created, searched, and maintained in the Respondent Registry independently of project activation. Registry existence does not create project participation.
 - A draft project may be configured and prepared, including eligibility, quota, dates, domain, company, and other approved project setup.

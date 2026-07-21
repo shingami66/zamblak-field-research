@@ -1,8 +1,46 @@
 # Project Status
 
-Current phase: **Phase 5 Respondent Registry — DEV/DEMO runtime CLOSED (PASS WITH WARN)**. Migration applied; application CRUD implemented; create-blocker `audit_trigger_func` repair applied and catalog-verified; Support Helper browser smoke completed (create/detail/edit/duplicate/stale recovery/not-found). Live catalog closed earlier (PASS WITH WARN). Brand loading mark closed (PASS WITH WARN); Projects MVP runtime acceptance closed (PASS); Companies MVP closed. Production readiness is **not** claimed. Cross-account runtime isolation smoke remains deferred and non-blocking. **Participation is not started.**
+Current phase: **Frontend Milestone Complete — Core CRUD, Participation Assignment, Free-Text Domain, and Owner-Only Forms & Collections Prototype (PASS)**.
+All core frontend modules (Companies, Projects, Respondents/Participants, Participation Assignment, Free-Text Project Domain, and Owner-Only Forms & Collections Prototype) are completed and validated. 472 automated tests pass (445 Node + 27 Vitest UI). TypeScript, ESLint, production build, and git diff checks pass with 0 errors. Production readiness is **not** claimed. Backend persistence for Forms, quotas, receivables, and collections remains explicitly deferred.
 
-Next product sequence: **Phase 6 Participation** (after any optional Respondent deferred P2 cleanup). Product order remains Company → Project → Respondent → Participation → Review → Financials.
+Next product sequence: **Phase 6 Participation & Financials Backend** (following post-milestone commit). Product order remains Company → Project → Respondent → Participation → Review → Financials.
+
+## Frontend Milestone Closure Summary (`ZAM-FRONTEND-MILESTONE`) — CLOSED (PASS)
+
+- **Status:** **Complete & Validated** (Ready for single milestone commit).
+- **Completed Frontend Flows:**
+  - **Companies**: list, create, detail, edit (Server Actions → RPCs).
+  - **Projects**: list, create, detail, edit, lifecycle management (Server Actions → RPCs).
+  - **Respondents / Participants**: list, create, detail, edit, duplicate mobile check, stale recovery.
+  - **Participation Assignment Flow**: respondent search, three-month warning check, assignment RPC integration, list assignment history.
+  - **Free-Text Project Domain Contract**: 1–120 trimmed characters, supports Arabic, English, or mixed text.
+  - **Owner-Only Forms & Collections Browser Prototype**: `/forms` and `/collections` workflows, allocation workspace reflow, responsive desktop/mobile views, date formatting, and success notices.
+
+### Owner-Only Forms & Collections Browser Prototype Contract
+- **Storage Scope**: Browser `sessionStorage` ONLY under exact namespace `zamblak.forms-prototype.v1`.
+- **Database Boundary**: Zero production or live database table mutations. All prototype state lives in client-side memory/sessionStorage.
+- **Role Isolation**: `/forms/**` and `/collections/**` routes are Owner-only and fail closed for `support_helper` (`redirect("/forbidden")`). Support Helper remains strictly finance-blind.
+- **Backend Status**: Backend database schema, RPCs, RLS, and persistence for Forms, quotas, receivables, and collections remain **explicitly deferred**.
+
+### DEV/DEMO Manual Migration Apply Status
+1. **`20260718120000_participation_assign_rpcs.sql`**:
+   - Manually applied to designated DEV/DEMO instance `gdegnwglakyblnmxgiwx` (PostgreSQL 17.6).
+   - Installs `create_participation`, `check_respondent_three_month_warning`, `list_project_participations`, and internal warning helper.
+   - Forward-only, strict `SECURITY DEFINER` posture, postgres owner, authenticated-only EXECUTE.
+2. **`20260719120000_projects_free_text_domain.sql`**:
+   - Manually applied to designated DEV/DEMO instance `gdegnwglakyblnmxgiwx`.
+   - Installs `chk_projects_domain` constraint (1..120 chars, trimmed) and updated `create_project` / `update_project` RPCs.
+   - Forward-only, strict check constraint, authenticated-only EXECUTE.
+
+### Automated Validation Evidence
+- **Node Tests (`npm run test:node`)**: 445 passed, 0 failed.
+- **Vitest UI Tests (`npm run test:ui`)**: 27 passed (2 test suites), 0 failed.
+- **Total Test Suite (`npm run test`)**: 472 passed, 0 failed.
+- **TypeScript (`npx tsc --noEmit`)**: 0 errors.
+- **ESLint (`npx eslint src/`)**: 0 errors, 0 warnings.
+- **Production Build (`npm run build`)**: Succeeded cleanly (24 routes built).
+- **Whitespace / Diff Check (`git diff --check`)**: 0 whitespace errors, 0 conflict markers.
+- **Impeccable Visual Quality Detector**: `[]` (0 findings).
 
 ## Auth (`ZAM-AUTH-001D`) — CLOSED
 
