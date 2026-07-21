@@ -16,6 +16,7 @@ import {
 import { parseUpdateProjectInput } from "@/lib/projects/input";
 import { getProject, updateProject } from "@/lib/projects/rpc";
 import { createClient } from "@/lib/supabase/server";
+import { successRedirectPath } from "@/lib/ui/success-notice";
 
 /**
  * Updates a project via update_project RPC only.
@@ -96,5 +97,5 @@ export async function updateProjectAction(
   for (const path of editProjectSuccessRevalidatePaths(projectId)) {
     revalidatePath(path);
   }
-  redirect(editProjectSuccessRedirectPath(projectId));
+  redirect(successRedirectPath(editProjectSuccessRedirectPath(projectId), "project_updated"));
 }

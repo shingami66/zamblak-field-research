@@ -15,6 +15,7 @@ import {
 import { parseCreateProjectInput } from "@/lib/projects/input";
 import { createProject } from "@/lib/projects/rpc";
 import { createClient } from "@/lib/supabase/server";
+import { successRedirectPath } from "@/lib/ui/success-notice";
 
 /**
  * Creates a project via create_project RPC only.
@@ -62,5 +63,5 @@ export async function createProjectAction(
   void created.data.projectId;
 
   revalidatePath(CREATE_PROJECT_SUCCESS_REVALIDATE_PATH);
-  redirect(CREATE_PROJECT_SUCCESS_REDIRECT_PATH);
+  redirect(successRedirectPath(CREATE_PROJECT_SUCCESS_REDIRECT_PATH, "project_created"));
 }

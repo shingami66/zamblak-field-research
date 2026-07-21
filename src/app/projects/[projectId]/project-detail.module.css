@@ -11,7 +11,7 @@
 
 .backLink {
   display: inline-flex;
-  min-height: 2.75rem;
+  min-height: 3rem;
   align-items: center;
   color: #0f3d3e;
   font-size: 1rem;
@@ -26,9 +26,107 @@
 
 .backLink:focus-visible,
 .editAction:focus-visible,
+.addRespondentAction:focus-visible,
 .lifecycleAction:focus-visible {
   outline: 3px solid rgb(15 61 62 / 28%);
   outline-offset: 3px;
+}
+
+.addRespondentAction {
+  display: inline-flex;
+  min-height: 3rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.75rem;
+  background: #0f3d3e;
+  padding-inline: 1rem;
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.addRespondentAction:hover {
+  background: #002627;
+}
+
+.participationsHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+}
+
+.participationsList {
+  display: grid;
+  gap: 0.625rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.desktopView {
+  display: none;
+}
+
+.mobileView {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  margin-top: 1rem;
+}
+
+@media (min-width: 48rem) {
+  .desktopView {
+    display: block;
+    margin-top: 1rem;
+  }
+  .mobileView {
+    display: none;
+  }
+}
+
+
+.participationItem {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  border: 1px solid #d5dede;
+  border-radius: 0.75rem;
+  padding: 0.875rem 1rem;
+  transition: border-color 150ms ease-out, background-color 150ms ease-out;
+}
+
+.participationItem:hover {
+  border-color: #9aabb0;
+  background: #f8fafa;
+}
+
+.participationName {
+  color: #002627;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.participationMobile {
+  color: #405050;
+  font-variant-numeric: tabular-nums;
+}
+
+.participationsNote,
+.participationsError {
+  margin: 0;
+  color: #405050;
+  line-height: 1.7;
+}
+
+.participationsError {
+  border-inline-start: 0.3rem solid #b3261e;
+  background: #fff0ee;
+  color: #7f1d1d;
+  padding: 0.75rem;
 }
 
 .headerRow {
@@ -103,8 +201,8 @@
 }
 
 .statusActive {
-  border: 1px solid #4b6700;
-  background: #a8e10c;
+  border: 1px solid #789200;
+  background: #edf7d0;
   color: #102a2b;
 }
 
@@ -158,14 +256,12 @@
 }
 
 .lifecycleSection {
-  border: 1px solid #c0c8c8;
-  border-radius: 1rem;
-  background: #f8fafa;
-  padding: 1.25rem 1.5rem;
+  border-block: 1px solid #e1e6e5;
+  padding-block: 1rem;
 }
 
 .lifecycleHint {
-  margin: 0 0 1rem;
+  margin: 0 0 0.75rem;
   color: #52605f;
   font-size: 0.9375rem;
   line-height: 1.65;
@@ -181,6 +277,56 @@
   margin: 0;
 }
 
+.lifecycleDialog {
+  width: min(100% - 2rem, 32rem);
+  border: 1px solid #c0c8c8;
+  border-radius: 1rem;
+  background: #ffffff;
+  padding: 0;
+  color: #102a2b;
+  box-shadow: 0 1rem 3rem rgb(15 61 62 / 22%);
+}
+
+.lifecycleDialog::backdrop {
+  background: rgb(0 38 39 / 42%);
+}
+
+.lifecycleDialogContent {
+  padding: 1.5rem;
+}
+
+.lifecycleDialogTitle {
+  margin: 0;
+  color: #224d4e;
+  font-size: 1.25rem;
+}
+
+.lifecycleDialogText {
+  margin: 0.75rem 0 0;
+  color: #404848;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+
+.lifecycleDialogActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-block-start: 1.5rem;
+}
+
+.lifecycleDialogCancel {
+  min-height: 3rem;
+  border: 1px solid #0f3d3e;
+  border-radius: 0.75rem;
+  background: #ffffff;
+  padding-inline: 1.125rem;
+  color: #0f3d3e;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+}
+
 .lifecycleAction {
   display: inline-flex;
   min-height: 3rem;
@@ -188,7 +334,7 @@
   justify-content: center;
   border: 1px solid #0f3d3e;
   border-radius: 0.75rem;
-  background: #ffffff;
+  background: #f8fafa;
   padding-inline: 1.125rem;
   color: #0f3d3e;
   font: inherit;
@@ -400,12 +546,18 @@
   color: currentColor;
 }
 
+@keyframes skeleton-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
 .skeletonRow {
   height: 4.5rem;
   margin-block-start: 0.875rem;
   border-radius: 0.875rem;
   background: linear-gradient(90deg, #edf3f3 0%, #f8fafa 50%, #edf3f3 100%);
   background-size: 200% 100%;
+  animation: skeleton-shimmer 1.8s ease-in-out infinite;
 }
 
 @media (min-width: 48rem) {
@@ -449,7 +601,12 @@
 
 @media (prefers-reduced-motion: reduce) {
   .editAction,
-  .lifecycleAction {
+  .lifecycleAction,
+  .participationItem {
     transition: none;
+  }
+
+  .skeletonRow {
+    animation: none;
   }
 }

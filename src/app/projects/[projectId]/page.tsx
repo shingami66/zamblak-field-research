@@ -3,6 +3,10 @@ import { notFound } from "next/navigation";
 import { ProjectLifecycleActions } from "@/components/projects/ProjectLifecycleActions";
 import { ProjectLtrToken } from "@/components/projects/ProjectLtrToken";
 import { requireAppSession } from "@/lib/auth/session";
+import { participationCopy } from "@/lib/participations/copy";
+import { listProjectParticipations } from "@/lib/participations/rpc";
+import { DataTable } from "@/components/shared/DataTable";
+import { MobileListCard } from "@/components/shared/MobileListCard";
 import { projectsDetailCopy } from "@/lib/projects/detail-copy";
 import { parseProjectIdParam } from "@/lib/projects/detail-params";
 import {
@@ -12,17 +16,23 @@ import {
 import { getProject } from "@/lib/projects/rpc";
 import type { ProjectStatus } from "@/lib/projects/types";
 import { createClient } from "@/lib/supabase/server";
+import { SuccessNotice } from "@/components/shared/SuccessNotice";
+import { BackLink } from "@/components/shared/BackLink";
+import { getSuccessNotice } from "@/lib/ui/success-notice";
 import styles from "./project-detail.module.css";
 
 type ProjectDetailPageProps = {
   params: Promise<{ projectId: string }>;
+  searchParams: Promise<{ success?: string | string[] }>;
 };
 
 export default async function ProjectDetailPage({
   params,
+  searchParams,
 }: ProjectDetailPageProps) {
   const session = await requireAppSession();
   const { projectId: rawId } = await params;
+  const successNotice = getSuccessNotice((await searchParams).success);
 
   const parsed = parseProjectIdParam(rawId);
   if (!parsed.ok) {
@@ -39,9 +49,7 @@ export default async function ProjectDetailPage({
     }
     return (
       <div className={styles.page}>
-        <Link href="/projects" className={styles.backLink}>
-          ← {projectsDetailCopy.backToList}
-        </Link>
+        <BackLink href="/projects" className={styles.backLink}>{projectsDetailCopy.backToList}</BackLink>
         <div className={styles.errorState} role="alert">
           <h1 className={styles.errorTitle}>
             {behavior.message ?? projectsDetailCopy.errorUnexpected}
@@ -53,12 +61,17 @@ export default async function ProjectDetailPage({
 
   const view = toProjectDetailView(result.data);
   const isOwner = session.profile.role === "owner";
+  const participations = await listProjectParticipations(supabase, {
+    projectId: view.projectId,
+    search: null,
+    limit: 5,
+    offset: 0,
+  });
 
   return (
     <div className={styles.page}>
-      <Link href={view.backHref} className={styles.backLink}>
-        ← {projectsDetailCopy.backToList}
-      </Link>
+      <BackLink href={view.backHref} className={styles.backLink}>{projectsDetailCopy.backToList}</BackLink>
+      <SuccessNotice message={successNotice} />
 
       <header className={styles.headerRow}>
         <div className={styles.headerMain}>
@@ -74,6 +87,14 @@ export default async function ProjectDetailPage({
           </div>
         </div>
         <div className={styles.headerActions}>
+          {view.status === "active" ? (
+            <Link
+              href={`/projects/${view.projectId}/add-respondent`}
+              className={styles.addRespondentAction}
+            >
+              {participationCopy.addRespondent}
+            </Link>
+          ) : null}
           {view.canEdit ? (
             <Link href={view.editHref} className={styles.editAction}>
               {projectsDetailCopy.editProject}
@@ -92,6 +113,7 @@ export default async function ProjectDetailPage({
         <ProjectLifecycleActions
           projectId={view.projectId}
           expectedUpdatedAt={view.expectedUpdatedAt}
+          projectName={view.projectName}
           actions={view.lifecycleActions}
         />
       ) : null}
@@ -183,6 +205,61 @@ export default async function ProjectDetailPage({
             {view.eligibilityNotesLabel}
           </p>
         </div>
+      </section>
+
+      <section className={styles.surface} aria-labelledby="section-project-participations">
+        <div className={styles.participationsHeader}>
+          <h2 id="section-project-participations" className={styles.sectionTitle}>
+            {participationCopy.participationList}
+          </h2>
+          {view.status !== "active" ? (
+            <p className={styles.participationsNote}>{participationCopy.activeOnly}</p>
+          ) : null}
+        </div>
+        {!participations.ok ? (
+          <p className={styles.participationsError} role="alert">
+            {participationCopy.listUnavailable}
+          </p>
+        ) : participations.data.length === 0 ? (
+          <p className={styles.participationsNote}>{participationCopy.noParticipations}</p>
+        ) : (
+          <>
+            <div className={styles.desktopView}>
+              <DataTable
+                data={participations.data}
+                keyExtractor={(item) => item.participationId}
+                columns={[
+                  {
+                    key: "name",
+                    header: "المشارك",
+                    render: (item) => <span className={styles.participationName}>{item.respondentName || participationCopy.noNameFallback}</span>,
+                  },
+                  {
+                    key: "mobile",
+                    header: "رقم الجوال",
+                    render: (item) => <ProjectLtrToken className={styles.participationMobile}>{item.respondentMobile}</ProjectLtrToken>,
+                  },
+                ]}
+              />
+            </div>
+            <div className={styles.mobileView}>
+              {participations.data.map((item) => (
+                <MobileListCard
+                  key={item.participationId}
+                  title={<span className={styles.participationName}>{item.respondentName || participationCopy.noNameFallback}</span>}
+                  details={[
+                    { label: "رقم الجوال", value: <ProjectLtrToken className={styles.participationMobile}>{item.respondentMobile}</ProjectLtrToken> },
+                  ]}
+                />
+              ))}
+            </div>
+            <div className={styles.participationsFooter} style={{ marginTop: "1rem", textAlign: "center" }}>
+              <Link href={`/projects/${view.projectId}/participants`} className={styles.secondaryAction} style={{ textDecoration: "none", color: "var(--color-primary)", fontWeight: "bold" }}>
+                عرض جميع المشاركين
+              </Link>
+            </div>
+          </>
+        )}
       </section>
 
       <section className={styles.surface} aria-labelledby="section-templates">

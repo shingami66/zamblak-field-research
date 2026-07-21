@@ -48,7 +48,7 @@ describe("toProjectDetailView", () => {
     const v = toProjectDetailView(base);
     assert.equal(v.projectName, "مسح ميداني");
     assert.equal(v.companyName, "شركة أكمي");
-    assert.equal(v.domainLabel, "اتصالات");
+    assert.equal(v.domainLabel, "telecom");
     assert.equal(v.statusLabel, "مسودة");
     assert.equal(v.endDateLabel, "غير محدد");
     assert.equal(v.quotaLabel, "غير محددة");

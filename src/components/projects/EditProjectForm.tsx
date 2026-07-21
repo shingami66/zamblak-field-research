@@ -8,6 +8,7 @@ import { ZamblakLoadingMark } from "@/components/brand/ZamblakLoadingMark";
 import { projectsEditCopy } from "@/lib/projects/edit-copy";
 import type { EditProjectActionState } from "@/lib/projects/edit-form";
 import {
+  PROJECT_DOMAIN_MAX_LENGTH,
   PROJECT_LONG_TEXT_MAX_LENGTH,
   PROJECT_NAME_MAX_LENGTH,
 } from "@/lib/projects/input";
@@ -48,14 +49,6 @@ type EditProjectFormProps = {
   currentCompanyName: string;
   statusLabel: string;
 };
-
-const DOMAIN_OPTIONS = [
-  { value: "telecom", label: projectsEditCopy.domainTelecom },
-  { value: "banking", label: projectsEditCopy.domainBanking },
-  { value: "insurance", label: projectsEditCopy.domainInsurance },
-  { value: "product", label: projectsEditCopy.domainProduct },
-  { value: "other", label: projectsEditCopy.domainOther },
-] as const;
 
 const RESIDENT_OPTIONS = [
   { value: "any", label: projectsEditCopy.residentAny },
@@ -251,26 +244,23 @@ export function EditProjectForm({
           <p id="edit-project-domain-hint" className={styles.hint}>
             {projectsEditCopy.domainHint}
           </p>
-          <select
+          <input
             id="edit-project-domain"
             name="domain"
+            type="text"
             required
+            maxLength={PROJECT_DOMAIN_MAX_LENGTH}
             defaultValue={values.domain}
+            placeholder={projectsEditCopy.domainPlaceholder}
+            autoComplete="off"
             aria-invalid={fieldErrors.domain ? true : undefined}
             aria-describedby={
               fieldErrors.domain
                 ? "edit-project-domain-hint edit-project-domain-error"
                 : "edit-project-domain-hint"
             }
-            className={styles.select}
-          >
-            <option value="">{projectsEditCopy.domainPlaceholder}</option>
-            {DOMAIN_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
+            className={styles.input}
+          />
           {fieldErrors.domain ? (
             <p
               id="edit-project-domain-error"

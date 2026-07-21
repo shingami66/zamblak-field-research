@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CreateProjectForm } from "@/components/projects/CreateProjectForm";
+import { BackLink } from "@/components/shared/BackLink";
 import { requireAppSession } from "@/lib/auth/session";
 import { COMPANY_LIST_MAX_LIMIT } from "@/lib/companies/input";
 import { listCompanies } from "@/lib/companies/rpc";
@@ -27,9 +28,7 @@ export default async function CreateProjectPage() {
 
   return (
     <div className={styles.page}>
-      <Link href="/projects" className={styles.backLink}>
-        ← {projectsCreateCopy.backToList}
-      </Link>
+      <BackLink href="/projects" className={styles.backLink}>{projectsCreateCopy.backToList}</BackLink>
       <h1 className={styles.pageTitle}>{projectsCreateCopy.pageTitle}</h1>
       <p className={styles.pageDescription}>
         {projectsCreateCopy.pageDescription}

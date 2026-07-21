@@ -33,12 +33,10 @@ describe("Arabic status and domain labels", () => {
     assert.equal(projectStatusLabel("cancelled"), "ملغي");
   });
 
-  it("maps exact domain labels", () => {
-    assert.equal(projectDomainLabel("telecom"), "اتصالات");
-    assert.equal(projectDomainLabel("banking"), "بنوك");
-    assert.equal(projectDomainLabel("insurance"), "تأمين");
-    assert.equal(projectDomainLabel("product"), "منتجات");
-    assert.equal(projectDomainLabel("other"), "أخرى");
+  it("displays stored domain text exactly", () => {
+    assert.equal(projectDomainLabel("telecom"), "telecom");
+    assert.equal(projectDomainLabel("الرعاية الصحية"), "الرعاية الصحية");
+    assert.equal(projectDomainLabel("الأغذية / Food"), "الأغذية / Food");
   });
 });
 
@@ -65,7 +63,7 @@ describe("toProjectListItemView", () => {
     const v = toProjectListItemView(base);
     assert.equal(v.projectName, "مسح ميداني");
     assert.equal(v.companyName, "شركة أكمي");
-    assert.equal(v.domainLabel, "اتصالات");
+    assert.equal(v.domainLabel, "telecom");
     assert.equal(v.statusLabel, "مسودة");
     assert.equal(v.endDateLabel, projectsListCopy.notSpecified);
     assert.equal(v.quotaLabel, projectsListCopy.quotaUnspecified);

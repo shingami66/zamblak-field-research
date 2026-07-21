@@ -6,6 +6,7 @@ import {
 import type { ProjectListParams, ProjectResult, ProjectStatus } from "./types";
 
 export const PROJECTS_LIST_PAGE_SIZE = PROJECT_LIST_DEFAULT_LIMIT;
+export const PROJECTS_LIST_RPC_LIMIT = PROJECTS_LIST_PAGE_SIZE + 1;
 
 export type ProjectsListUrlState = {
   /** 1-based page for the URL. */
@@ -56,7 +57,7 @@ export function parseProjectsListSearchParams(searchParams: {
     search: qRaw ?? null,
     companyId: companyRaw ?? null,
     status: statusRaw ?? null,
-    limit: PROJECTS_LIST_PAGE_SIZE,
+    limit: PROJECTS_LIST_RPC_LIMIT,
     offset,
   });
 
@@ -125,7 +126,7 @@ export function deriveProjectsListPagination(options: {
 } {
   const page = Math.max(1, options.page);
   const hasPrevious = page > 1;
-  const hasNext = options.returnedCount >= options.pageSize;
+  const hasNext = options.returnedCount > options.pageSize;
   const filter = {
     search: options.search,
     companyId: options.companyId,

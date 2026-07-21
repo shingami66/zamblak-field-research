@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { transitionProjectStatusAction } from "@/app/projects/[projectId]/actions";
 import { ZamblakLoadingMark } from "@/components/brand/ZamblakLoadingMark";
@@ -15,6 +15,7 @@ import styles from "@/app/projects/[projectId]/project-detail.module.css";
 type ProjectLifecycleActionsProps = {
   projectId: string;
   expectedUpdatedAt: string;
+  projectName: string;
   actions: ProjectLifecycleActionView[];
 };
 
@@ -43,7 +44,7 @@ function lifecycleButtonClass(variant: LifecycleVariant): string {
   }
 }
 
-function TransitionSubmitButton({
+function ConfirmationSubmitButton({
   label,
   variant,
 }: {
@@ -77,12 +78,32 @@ function TransitionSubmitButton({
 export function ProjectLifecycleActions({
   projectId,
   expectedUpdatedAt,
+  projectName,
   actions,
 }: ProjectLifecycleActionsProps) {
   const [state, formAction] = useActionState(
     transitionProjectStatusAction,
     EMPTY_TRANSITION_PROJECT_STATE
   );
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const [pendingAction, setPendingAction] = useState<ProjectLifecycleActionView | null>(null);
+
+  useEffect(() => {
+    if (pendingAction && !dialogRef.current?.open) {
+      dialogRef.current?.showModal();
+    }
+  }, [pendingAction]);
+
+  function openConfirmation(action: ProjectLifecycleActionView, trigger: HTMLButtonElement) {
+    triggerRef.current = trigger;
+    setPendingAction(action);
+  }
+
+  function restoreTriggerFocus() {
+    setPendingAction(null);
+    triggerRef.current?.focus();
+  }
 
   if (actions.length === 0) {
     return null;
@@ -113,29 +134,54 @@ export function ProjectLifecycleActions({
 
       <div className={styles.lifecycleActions}>
         {actions.map((action) => (
-          <form
+          <button
             key={action.targetStatus}
-            action={formAction}
-            className={styles.lifecycleForm}
+            type="button"
+            className={lifecycleButtonClass(lifecycleVariant(action.targetStatus))}
+            onClick={(event) => openConfirmation(action, event.currentTarget)}
           >
-            <input type="hidden" name="project_id" value={projectId} />
-            <input
-              type="hidden"
-              name="expected_updated_at"
-              value={expectedUpdatedAt}
-            />
-            <input
-              type="hidden"
-              name="target_status"
-              value={action.targetStatus}
-            />
-            <TransitionSubmitButton
-              label={action.label}
-              variant={lifecycleVariant(action.targetStatus)}
-            />
-          </form>
+            {action.label}
+          </button>
         ))}
       </div>
+
+      <dialog
+        ref={dialogRef}
+        className={styles.lifecycleDialog}
+        aria-labelledby="lifecycle-confirmation-title"
+        onCancel={(event) => {
+          event.preventDefault();
+          dialogRef.current?.close();
+        }}
+        onClose={restoreTriggerFocus}
+      >
+        {pendingAction ? (
+          <div className={styles.lifecycleDialogContent}>
+            <h3 id="lifecycle-confirmation-title" className={styles.lifecycleDialogTitle}>
+              {projectsDetailCopy.confirmLifecycleTitle}
+            </h3>
+            <p className={styles.lifecycleDialogText}>
+              {projectsDetailCopy.confirmLifecycleDescription} <strong>{pendingAction.label}</strong> — {projectName}
+            </p>
+            <div className={styles.lifecycleDialogActions}>
+              <form action={formAction} className={styles.lifecycleForm}>
+                <input type="hidden" name="project_id" value={projectId} />
+                <input type="hidden" name="expected_updated_at" value={expectedUpdatedAt} />
+                <input type="hidden" name="target_status" value={pendingAction.targetStatus} />
+                <ConfirmationSubmitButton
+                  label={projectsDetailCopy.confirmLifecycleProceed}
+                  variant={lifecycleVariant(pendingAction.targetStatus)}
+                />
+              </form>
+              <form method="dialog" className={styles.lifecycleForm}>
+                <button type="submit" className={styles.lifecycleDialogCancel}>
+                  {projectsDetailCopy.confirmLifecycleCancel}
+                </button>
+              </form>
+            </div>
+          </div>
+        ) : null}
+      </dialog>
     </section>
   );
 }

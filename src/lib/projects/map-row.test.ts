@@ -63,7 +63,9 @@ describe("mapProjectListRpcRow", () => {
       mapProjectListRpcRow({ ...listRow, project_id: "bad" }),
       null
     );
-    assert.equal(mapProjectListRpcRow({ ...listRow, domain: "x" }), null);
+    assert.equal(mapProjectListRpcRow({ ...listRow, domain: "الرعاية الصحية" })?.domain, "الرعاية الصحية");
+    assert.equal(mapProjectListRpcRow({ ...listRow, domain: "   " }), null);
+    assert.equal(mapProjectListRpcRow({ ...listRow, domain: "x".repeat(121) }), null);
     assert.equal(mapProjectListRpcRow({ ...listRow, status: "open" }), null);
     assert.equal(mapProjectListRpcRow({ ...listRow, quota: -1 }), null);
     assert.equal(mapProjectListRpcRow(null), null);
@@ -124,7 +126,7 @@ describe("mapProjectListRpcRows / mapProjectDetailRpcRows", () => {
       null
     );
     assert.equal(
-      mapProjectDetailRpcRows([detailRow, { ...detailRow, domain: "nope" }]),
+      mapProjectDetailRpcRows([detailRow, { ...detailRow, domain: "   " }]),
       null
     );
   });

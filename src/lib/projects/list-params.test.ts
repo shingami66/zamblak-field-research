@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
-  PROJECTS_LIST_PAGE_SIZE,
+  PROJECTS_LIST_RPC_LIMIT,
   buildProjectsListHref,
   deriveProjectsListPagination,
   parseProjectsListSearchParams,
@@ -18,7 +18,7 @@ describe("parseProjectsListSearchParams", () => {
       assert.equal(r.data.search, null);
       assert.equal(r.data.companyId, null);
       assert.equal(r.data.status, null);
-      assert.equal(r.data.params.limit, PROJECTS_LIST_PAGE_SIZE);
+      assert.equal(r.data.params.limit, PROJECTS_LIST_RPC_LIMIT);
       assert.equal(r.data.params.offset, 0);
     }
   });
@@ -101,7 +101,7 @@ describe("deriveProjectsListPagination", () => {
     const p = deriveProjectsListPagination({
       page: 1,
       pageSize: 25,
-      returnedCount: 25,
+      returnedCount: 26,
       search: "acme",
       companyId,
       status: "draft",
@@ -132,7 +132,7 @@ describe("deriveProjectsListPagination", () => {
     const p = deriveProjectsListPagination({
       page: 2,
       pageSize: 25,
-      returnedCount: 25,
+      returnedCount: 26,
       search: "x",
       companyId: null,
       status: "closed",

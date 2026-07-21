@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { EditProjectForm } from "@/components/projects/EditProjectForm";
+import { BackLink } from "@/components/shared/BackLink";
 import { requireAppSession } from "@/lib/auth/session";
 import { COMPANY_LIST_MAX_LIMIT } from "@/lib/companies/input";
 import { listCompanies } from "@/lib/companies/rpc";
@@ -42,9 +43,7 @@ export default async function EditProjectPage({
     }
     return (
       <div className={styles.page}>
-        <Link href="/projects" className={styles.backLink}>
-          ← {projectsEditCopy.backToDetail}
-        </Link>
+        <BackLink href="/projects" className={styles.backLink}>{projectsEditCopy.backToDetail}</BackLink>
         <div className={styles.formError} role="alert">
           <h1 className={styles.formErrorTitle}>
             {behavior.message ?? projectsEditCopy.errorAccess}
@@ -66,9 +65,7 @@ export default async function EditProjectPage({
 
     return (
       <div className={styles.page}>
-        <Link href={detailHref} className={styles.backLink}>
-          ← {projectsEditCopy.backToDetail}
-        </Link>
+        <BackLink href={detailHref} className={styles.backLink}>{projectsEditCopy.backToDetail}</BackLink>
         <h1 className={styles.pageTitle}>{projectsEditCopy.pageTitle}</h1>
         <div className={styles.emptyState} role="status">
           <h2 className={styles.emptyTitle}>{statusLabel}</h2>
@@ -114,9 +111,7 @@ export default async function EditProjectPage({
 
   return (
     <div className={styles.page}>
-      <Link href={detailHref} className={styles.backLink}>
-        ← {projectsEditCopy.backToDetail}
-      </Link>
+      <BackLink href={detailHref} className={styles.backLink}>{projectsEditCopy.backToDetail}</BackLink>
       <h1 className={styles.pageTitle}>{projectsEditCopy.pageTitle}</h1>
       <p className={styles.pageDescription}>
         {projectsEditCopy.pageDescription}

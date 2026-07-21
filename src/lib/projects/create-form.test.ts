@@ -151,7 +151,7 @@ describe("formValuesToCreateInputRaw + parseCreateProjectInput", () => {
     if (!longParsed.ok) assert.equal(longParsed.code, "invalid_project_name");
   });
 
-  it("rejects invalid company UUID and domain", () => {
+  it("rejects invalid company UUID and blank or overlong domain", () => {
     const company = formValuesToCreateInputRaw(
       baseValues({ companyId: "not-uuid" })
     );
@@ -162,13 +162,26 @@ describe("formValuesToCreateInputRaw + parseCreateProjectInput", () => {
     if (!companyParsed.ok)
       assert.equal(companyParsed.code, "invalid_company_id");
 
-    const domain = formValuesToCreateInputRaw(baseValues({ domain: "x" }));
-    assert.equal(domain.ok, true);
-    if (!domain.ok) return;
-    const domainParsed = parseCreateProjectInput(domain.data);
-    assert.equal(domainParsed.ok, false);
-    if (!domainParsed.ok)
-      assert.equal(domainParsed.code, "invalid_project_domain");
+    for (const value of ["   ", "x".repeat(121)]) {
+      const domain = formValuesToCreateInputRaw(baseValues({ domain: value }));
+      assert.equal(domain.ok, true);
+      if (!domain.ok) return;
+      const domainParsed = parseCreateProjectInput(domain.data);
+      assert.equal(domainParsed.ok, false);
+      if (!domainParsed.ok)
+        assert.equal(domainParsed.code, "invalid_project_domain");
+    }
+  });
+
+  it("preserves arbitrary domain text through the form boundary", () => {
+    const mapped = formValuesToCreateInputRaw(
+      baseValues({ domain: "  الرعاية الصحية  " })
+    );
+    assert.equal(mapped.ok, true);
+    if (!mapped.ok) return;
+    const parsed = parseCreateProjectInput(mapped.data);
+    assert.equal(parsed.ok, true);
+    if (parsed.ok) assert.equal(parsed.data.domain, "الرعاية الصحية");
   });
 
   it("rejects invalid dates and end before start", () => {

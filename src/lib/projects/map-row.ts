@@ -18,14 +18,6 @@ const PROJECT_STATUSES = new Set<ProjectStatus>([
   "cancelled",
 ]);
 
-const PROJECT_DOMAINS = new Set<ProjectDomain>([
-  "telecom",
-  "banking",
-  "insurance",
-  "product",
-  "other",
-]);
-
 const PROJECT_RESIDENT_TYPES = new Set<ProjectResidentType>([
   "any",
   "saudi",
@@ -130,10 +122,14 @@ function asProjectStatus(value: unknown): ProjectStatus | null {
 }
 
 function asProjectDomain(value: unknown): ProjectDomain | null {
-  if (typeof value !== "string" || !PROJECT_DOMAINS.has(value as ProjectDomain)) {
+  if (
+    typeof value !== "string" ||
+    value.trim() === "" ||
+    value.trim().length > 120
+  ) {
     return null;
   }
-  return value as ProjectDomain;
+  return value;
 }
 
 function asResidentType(value: unknown): ProjectResidentType | null {

@@ -16,8 +16,14 @@ import {
 } from "@/lib/projects/list-view-model";
 import { listProjects } from "@/lib/projects/rpc";
 import type { ProjectStatus } from "@/lib/projects/types";
-import { ProjectLtrToken } from "@/components/projects/ProjectLtrToken";
 import { createClient } from "@/lib/supabase/server";
+import { DataTable } from "@/components/shared/DataTable";
+import { MobileListCard } from "@/components/shared/MobileListCard";
+import { Pagination } from "@/components/shared/Pagination";
+import { StatusBadge } from "@/components/shared/StatusBadge";
+import { ProjectLtrToken } from "@/components/projects/ProjectLtrToken";
+import { SuccessNotice } from "@/components/shared/SuccessNotice";
+import { getSuccessNotice } from "@/lib/ui/success-notice";
 import styles from "./projects-list.module.css";
 
 type ProjectsPageProps = {
@@ -26,6 +32,7 @@ type ProjectsPageProps = {
     company?: string | string[];
     status?: string | string[];
     page?: string | string[];
+    success?: string | string[];
   }>;
 };
 
@@ -46,6 +53,7 @@ export default async function ProjectsPage({
 }: ProjectsPageProps) {
   await requireAppSession();
   const rawParams = await searchParams;
+  const successNotice = getSuccessNotice(rawParams.success);
 
   const parsed = parseProjectsListSearchParams(rawParams);
   if (!parsed.ok) {
@@ -90,16 +98,16 @@ export default async function ProjectsPage({
     );
   }
 
-  const projects = listResult.data.projects;
-  const items = toProjectListItemViews(projects);
+  const rows = listResult.data.projects;
   const pagination = deriveProjectsListPagination({
     page,
     pageSize: PROJECTS_LIST_PAGE_SIZE,
-    returnedCount: projects.length,
+    returnedCount: rows.length,
     search,
     companyId,
     status,
   });
+  const items = toProjectListItemViews(rows.slice(0, PROJECTS_LIST_PAGE_SIZE));
 
   const hasFilters = Boolean(search || companyId || status);
 
@@ -110,147 +118,94 @@ export default async function ProjectsPage({
       status={status}
       companyOptions={companyOptions}
       companiesFilterFailed={companiesFilterFailed}
+      successNotice={successNotice}
     >
       {items.length === 0 ? (
         <EmptyPanel hasFilters={hasFilters} />
       ) : (
         <>
-          <section
-            className={styles.listSection}
-            aria-labelledby="projects-list-heading"
-          >
-            <h2 id="projects-list-heading" className={styles.visuallyHidden}>
-              {projectsListCopy.resultsHeading}
-            </h2>
-            {items.map((item) => (
-              <article key={item.projectId} className={styles.card}>
-                <div className={styles.cardHeader}>
-                  <div className={styles.cardTitleRow}>
-                    <Link href={item.detailHref} className={styles.cardLink}>
-                      {item.projectName}
-                    </Link>
-                    <span
-                      className={`${styles.statusBadge} ${statusBadgeClass(item.status)}`}
-                    >
+          <div className={styles.desktopView}>
+            <DataTable
+              data={items}
+              keyExtractor={(item) => item.projectId}
+              columns={[
+                {
+                  key: "name",
+                  header: "المشروع",
+                  render: (item) => <Link href={item.detailHref} className={styles.cardLink}>{item.projectName}</Link>,
+                },
+                {
+                  key: "company",
+                  header: projectsListCopy.companyName,
+                  render: (item) => item.companyName,
+                },
+                {
+                  key: "domain",
+                  header: projectsListCopy.domain,
+                  render: (item) => item.domainLabel,
+                },
+                {
+                  key: "status",
+                  header: projectsListCopy.status,
+                  render: (item) => (
+                    <StatusBadge variant={item.status === "active" ? "active" : item.status === "closed" ? "neutral" : "warning"}>
                       {item.statusLabel}
-                    </span>
-                  </div>
+                    </StatusBadge>
+                  ),
+                },
+                {
+                  key: "actions",
+                  header: "إجراءات",
+                  render: (item) => (
+                    <div className={styles.cardActions}>
+                      <Link href={item.detailHref} className={styles.textLink}>{projectsListCopy.view}</Link>
+                      <Link href={item.editHref} className={styles.textLink}>{projectsListCopy.edit}</Link>
+                    </div>
+                  ),
+                },
+              ]}
+            />
+          </div>
+          <div className={styles.mobileView}>
+            {items.map((item) => (
+              <MobileListCard
+                key={item.projectId}
+                title={<Link href={item.detailHref} className={styles.cardLink}>{item.projectName}</Link>}
+                badge={
+                  <StatusBadge variant={item.status === "active" ? "active" : item.status === "closed" ? "neutral" : "warning"}>
+                    {item.statusLabel}
+                  </StatusBadge>
+                }
+                details={[
+                  { label: projectsListCopy.companyName, value: item.companyName },
+                  { label: projectsListCopy.domain, value: item.domainLabel },
+                  { label: projectsListCopy.startDate, value: <ProjectLtrToken className={styles.dateLtr}>{item.startDateLabel}</ProjectLtrToken> },
+                  { label: projectsListCopy.endDate, value: <ProjectLtrToken className={styles.dateLtr}>{item.endDateLabel}</ProjectLtrToken> },
+                ]}
+                actions={
                   <div className={styles.cardActions}>
-                    <Link href={item.detailHref} className={styles.textLink}>
-                      {projectsListCopy.view}
-                    </Link>
-                    <Link href={item.editHref} className={styles.textLink}>
-                      {projectsListCopy.edit}
-                    </Link>
+                    <Link href={item.detailHref} className={styles.textLink}>{projectsListCopy.view}</Link>
+                    <Link href={item.editHref} className={styles.textLink}>{projectsListCopy.edit}</Link>
                   </div>
-                </div>
-                <dl className={styles.metaGrid}>
-                  <div className={styles.metaItem}>
-                    <dt className={styles.metaLabel}>
-                      {projectsListCopy.companyName}
-                    </dt>
-                    <dd className={styles.metaValue}>{item.companyName}</dd>
-                  </div>
-                  <div className={styles.metaItem}>
-                    <dt className={styles.metaLabel}>
-                      {projectsListCopy.domain}
-                    </dt>
-                    <dd className={styles.metaValue}>{item.domainLabel}</dd>
-                  </div>
-                  <div className={styles.metaItem}>
-                    <dt className={styles.metaLabel}>
-                      {projectsListCopy.startDate}
-                    </dt>
-                    <dd className={styles.metaValue}>
-                      <ProjectLtrToken className={styles.dateLtr}>
-                        {item.startDateLabel}
-                      </ProjectLtrToken>
-                    </dd>
-                  </div>
-                  <div className={styles.metaItem}>
-                    <dt className={styles.metaLabel}>
-                      {projectsListCopy.endDate}
-                    </dt>
-                    <dd className={styles.metaValue}>
-                      <ProjectLtrToken className={styles.dateLtr}>
-                        {item.endDateLabel}
-                      </ProjectLtrToken>
-                    </dd>
-                  </div>
-                  <div className={styles.metaItem}>
-                    <dt className={styles.metaLabel}>
-                      {projectsListCopy.quota}
-                    </dt>
-                    <dd className={styles.metaValue}>{item.quotaLabel}</dd>
-                  </div>
-                  <div className={styles.metaItem}>
-                    <dt className={styles.metaLabel}>
-                      {projectsListCopy.updatedAt}
-                    </dt>
-                    <dd className={styles.metaValue}>
-                      <ProjectLtrToken className={styles.dateLtr}>
-                        {item.updatedAtLabel}
-                      </ProjectLtrToken>
-                    </dd>
-                  </div>
-                </dl>
-              </article>
+                }
+              />
             ))}
-          </section>
-
-          {(pagination.hasPrevious || pagination.hasNext) && (
-            <nav
-              className={styles.pagination}
-              aria-label={projectsListCopy.paginationNav}
-            >
-              {pagination.previousHref ? (
-                <Link
-                  href={pagination.previousHref}
-                  className={styles.pageLink}
-                  rel="prev"
-                >
-                  {projectsListCopy.previous}
-                </Link>
-              ) : (
-                <span className={styles.pageLinkDisabled} aria-hidden="true">
-                  {projectsListCopy.previous}
-                </span>
-              )}
-              {pagination.nextHref ? (
-                <Link
-                  href={pagination.nextHref}
-                  className={styles.pageLink}
-                  rel="next"
-                >
-                  {projectsListCopy.next}
-                </Link>
-              ) : (
-                <span className={styles.pageLinkDisabled} aria-hidden="true">
-                  {projectsListCopy.next}
-                </span>
-              )}
-            </nav>
-          )}
+          </div>
+          <Pagination
+            currentPage={page}
+            visibleCount={items.length}
+            pageSize={PROJECTS_LIST_PAGE_SIZE}
+            previousHref={pagination.previousHref}
+            nextHref={pagination.nextHref}
+            previousLabel={projectsListCopy.previous}
+            nextLabel={projectsListCopy.next}
+          />
         </>
       )}
     </ProjectsListShell>
   );
 }
 
-function statusBadgeClass(status: ProjectStatus): string {
-  switch (status) {
-    case "draft":
-      return styles.statusDraft;
-    case "active":
-      return styles.statusActive;
-    case "closed":
-      return styles.statusClosed;
-    case "cancelled":
-      return styles.statusCancelled;
-    default:
-      return "";
-  }
-}
 
 function ProjectsListShell({
   children,
@@ -259,6 +214,7 @@ function ProjectsListShell({
   status = null,
   companyOptions = [],
   companiesFilterFailed = false,
+  successNotice = null,
 }: {
   children: ReactNode;
   search?: string | null;
@@ -266,6 +222,7 @@ function ProjectsListShell({
   status?: ProjectStatus | null;
   companyOptions?: CompanyFilterOption[];
   companiesFilterFailed?: boolean;
+  successNotice?: string | null;
 }) {
   const hasFilters = Boolean(search || companyId || status);
 
@@ -282,6 +239,7 @@ function ProjectsListShell({
           {projectsListCopy.addProject}
         </Link>
       </header>
+      <SuccessNotice message={successNotice} />
 
       <div className={styles.toolbar}>
         <form className={styles.filterForm} method="get" action="/projects">

@@ -5,12 +5,8 @@
 
 export type ProjectStatus = "draft" | "active" | "closed" | "cancelled";
 
-export type ProjectDomain =
-  | "telecom"
-  | "banking"
-  | "insurance"
-  | "product"
-  | "other";
+/** Arbitrary trimmed project research domain, stored verbatim after validation. */
+export type ProjectDomain = string;
 
 export type ProjectResidentType =
   | "any"

@@ -39,22 +39,7 @@ export function projectStatusLabel(status: ProjectStatus): string {
 }
 
 export function projectDomainLabel(domain: ProjectDomain): string {
-  switch (domain) {
-    case "telecom":
-      return projectsListCopy.domainTelecom;
-    case "banking":
-      return projectsListCopy.domainBanking;
-    case "insurance":
-      return projectsListCopy.domainInsurance;
-    case "product":
-      return projectsListCopy.domainProduct;
-    case "other":
-      return projectsListCopy.domainOther;
-    default: {
-      const _exhaustive: never = domain;
-      return _exhaustive;
-    }
-  }
+  return domain;
 }
 
 /**

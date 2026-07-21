@@ -11,6 +11,7 @@ import {
   type CreateProjectActionState,
 } from "@/lib/projects/create-form";
 import {
+  PROJECT_DOMAIN_MAX_LENGTH,
   PROJECT_LONG_TEXT_MAX_LENGTH,
   PROJECT_NAME_MAX_LENGTH,
 } from "@/lib/projects/input";
@@ -48,14 +49,6 @@ type CreateProjectFormProps = {
   companyOptions: CompanyOption[];
   initialState?: CreateProjectActionState;
 };
-
-const DOMAIN_OPTIONS = [
-  { value: "telecom", label: projectsCreateCopy.domainTelecom },
-  { value: "banking", label: projectsCreateCopy.domainBanking },
-  { value: "insurance", label: projectsCreateCopy.domainInsurance },
-  { value: "product", label: projectsCreateCopy.domainProduct },
-  { value: "other", label: projectsCreateCopy.domainOther },
-] as const;
 
 const RESIDENT_OPTIONS = [
   { value: "any", label: projectsCreateCopy.residentAny },
@@ -195,26 +188,23 @@ export function CreateProjectForm({
           <p id="project-domain-hint" className={styles.hint}>
             {projectsCreateCopy.domainHint}
           </p>
-          <select
+          <input
             id="project-domain"
             name="domain"
+            type="text"
             required
+            maxLength={PROJECT_DOMAIN_MAX_LENGTH}
             defaultValue={values.domain}
+            placeholder={projectsCreateCopy.domainPlaceholder}
+            autoComplete="off"
             aria-invalid={fieldErrors.domain ? true : undefined}
             aria-describedby={
               fieldErrors.domain
                 ? "project-domain-hint project-domain-error"
                 : "project-domain-hint"
             }
-            className={styles.select}
-          >
-            <option value="">{projectsCreateCopy.domainPlaceholder}</option>
-            {DOMAIN_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
+            className={styles.input}
+          />
           {fieldErrors.domain ? (
             <p
               id="project-domain-error"
