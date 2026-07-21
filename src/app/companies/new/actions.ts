@@ -13,6 +13,7 @@ import {
 import { parseCreateCompanyInput } from "@/lib/companies/input";
 import { createCompany } from "@/lib/companies/rpc";
 import { createClient } from "@/lib/supabase/server";
+import { successRedirectPath } from "@/lib/ui/success-notice";
 
 /**
  * Creates a company via create_company RPC only.
@@ -50,5 +51,5 @@ export async function createCompanyAction(
   void created.data.companyId;
 
   revalidatePath(CREATE_COMPANY_SUCCESS_REVALIDATE_PATH);
-  redirect(CREATE_COMPANY_SUCCESS_REDIRECT_PATH);
+  redirect(successRedirectPath(CREATE_COMPANY_SUCCESS_REDIRECT_PATH, "company_created"));
 }

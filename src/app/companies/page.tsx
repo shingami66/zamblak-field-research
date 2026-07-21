@@ -14,12 +14,18 @@ import {
 } from "@/lib/companies/list-view-model";
 import { listCompanies } from "@/lib/companies/rpc";
 import { createClient } from "@/lib/supabase/server";
+import { DataTable } from "@/components/shared/DataTable";
+import { MobileListCard } from "@/components/shared/MobileListCard";
+import { Pagination } from "@/components/shared/Pagination";
+import { SuccessNotice } from "@/components/shared/SuccessNotice";
+import { getSuccessNotice } from "@/lib/ui/success-notice";
 import styles from "./companies-list.module.css";
 
 type CompaniesPageProps = {
   searchParams: Promise<{
     q?: string | string[];
     page?: string | string[];
+    success?: string | string[];
   }>;
 };
 
@@ -28,6 +34,7 @@ export default async function CompaniesPage({
 }: CompaniesPageProps) {
   await requireAppSession();
   const rawParams = await searchParams;
+  const successNotice = getSuccessNotice(rawParams.success);
 
   const parsed = parseCompaniesListSearchParams(rawParams);
   if (!parsed.ok) {
@@ -50,122 +57,97 @@ export default async function CompaniesPage({
     );
   }
 
-  const companies = listResult.data.companies;
-  const items = toCompanyListItemViews(companies);
+  const rows = listResult.data.companies;
   const pagination = deriveListPagination({
     page,
     pageSize: COMPANIES_LIST_PAGE_SIZE,
-    returnedCount: companies.length,
+    returnedCount: rows.length,
     search,
   });
+  const items = toCompanyListItemViews(rows.slice(0, COMPANIES_LIST_PAGE_SIZE));
 
   const hasSearch = Boolean(search);
 
   return (
-    <CompaniesListShell search={search}>
+    <CompaniesListShell search={search} successNotice={successNotice}>
       {items.length === 0 ? (
         <EmptyPanel hasSearch={hasSearch} search={search} />
       ) : (
         <>
-          <section
-            className={styles.listSection}
-            aria-labelledby="companies-list-heading"
-          >
-            <h2 id="companies-list-heading" className={styles.visuallyHidden}>
-              {companiesListCopy.resultsHeading}
-            </h2>
+          <div className={styles.desktopView}>
+            <DataTable
+              data={items}
+              keyExtractor={(item) => item.companyId}
+              columns={[
+                {
+                  key: "name",
+                  header: "الشركة",
+                  render: (item) => <Link href={item.detailHref} className={styles.cardLink}>{item.name}</Link>,
+                },
+                {
+                  key: "contact",
+                  header: companiesListCopy.contactPerson,
+                  render: (item) => item.contactPersonLabel,
+                },
+                {
+                  key: "phone",
+                  header: companiesListCopy.phone,
+                  render: (item) => (
+                    item.phoneIsLtr ? (
+                      <span dir="ltr" className={styles.phoneLtr}>{item.phoneLabel}</span>
+                    ) : (
+                      item.phoneLabel
+                    )
+                  ),
+                },
+                {
+                  key: "activeProjects",
+                  header: companiesListCopy.activeProjects,
+                  render: (item) => item.activeProjectsCount,
+                },
+                {
+                  key: "actions",
+                  header: "إجراءات",
+                  render: (item) => (
+                    <div className={styles.cardActions}>
+                      <Link href={item.detailHref} className={styles.textLink}>{companiesListCopy.view}</Link>
+                      <Link href={item.editHref} className={styles.textLink}>{companiesListCopy.edit}</Link>
+                    </div>
+                  ),
+                },
+              ]}
+            />
+          </div>
+          <div className={styles.mobileView}>
             {items.map((item) => (
-              <article key={item.companyId} className={styles.card}>
-                <div className={styles.cardHeader}>
-                  <Link href={item.detailHref} className={styles.cardLink}>
-                    {item.name}
-                  </Link>
+              <MobileListCard
+                key={item.companyId}
+                title={<Link href={item.detailHref} className={styles.cardLink}>{item.name}</Link>}
+                details={[
+                  { label: companiesListCopy.contactPerson, value: item.contactPersonLabel },
+                  { label: companiesListCopy.phone, value: item.phoneIsLtr ? <span dir="ltr" className={styles.phoneLtr}>{item.phoneLabel}</span> : item.phoneLabel },
+                  { label: companiesListCopy.activeProjects, value: item.activeProjectsCount },
+                  { label: companiesListCopy.completedProjects, value: item.completedProjectsCount },
+                ]}
+                actions={
                   <div className={styles.cardActions}>
-                    <Link href={item.detailHref} className={styles.textLink}>
-                      {companiesListCopy.view}
-                    </Link>
-                    <Link href={item.editHref} className={styles.textLink}>
-                      {companiesListCopy.edit}
-                    </Link>
+                    <Link href={item.detailHref} className={styles.textLink}>{companiesListCopy.view}</Link>
+                    <Link href={item.editHref} className={styles.textLink}>{companiesListCopy.edit}</Link>
                   </div>
-                </div>
-                <dl className={styles.metaGrid}>
-                  <div className={styles.metaItem}>
-                    <dt className={styles.metaLabel}>
-                      {companiesListCopy.contactPerson}
-                    </dt>
-                    <dd className={styles.metaValue}>
-                      {item.contactPersonLabel}
-                    </dd>
-                  </div>
-                  <div className={styles.metaItem}>
-                    <dt className={styles.metaLabel}>
-                      {companiesListCopy.phone}
-                    </dt>
-                    <dd className={styles.metaValue}>
-                      {item.phoneIsLtr ? (
-                        <span dir="ltr" className={styles.phoneLtr}>
-                          {item.phoneLabel}
-                        </span>
-                      ) : (
-                        item.phoneLabel
-                      )}
-                    </dd>
-                  </div>
-                  <div className={styles.metaItem}>
-                    <dt className={styles.metaLabel}>
-                      {companiesListCopy.activeProjects}
-                    </dt>
-                    <dd className={styles.metaValue}>
-                      {item.activeProjectsCount}
-                    </dd>
-                  </div>
-                  <div className={styles.metaItem}>
-                    <dt className={styles.metaLabel}>
-                      {companiesListCopy.completedProjects}
-                    </dt>
-                    <dd className={styles.metaValue}>
-                      {item.completedProjectsCount}
-                    </dd>
-                  </div>
-                </dl>
-              </article>
+                }
+              />
             ))}
-          </section>
+          </div>
 
-          {(pagination.hasPrevious || pagination.hasNext) && (
-            <nav
-              className={styles.pagination}
-              aria-label={companiesListCopy.paginationNav}
-            >
-              {pagination.previousHref ? (
-                <Link
-                  href={pagination.previousHref}
-                  className={styles.pageLink}
-                  rel="prev"
-                >
-                  {companiesListCopy.previous}
-                </Link>
-              ) : (
-                <span className={styles.pageLinkDisabled} aria-hidden="true">
-                  {companiesListCopy.previous}
-                </span>
-              )}
-              {pagination.nextHref ? (
-                <Link
-                  href={pagination.nextHref}
-                  className={styles.pageLink}
-                  rel="next"
-                >
-                  {companiesListCopy.next}
-                </Link>
-              ) : (
-                <span className={styles.pageLinkDisabled} aria-hidden="true">
-                  {companiesListCopy.next}
-                </span>
-              )}
-            </nav>
-          )}
+          <Pagination
+            currentPage={page}
+            visibleCount={items.length}
+            pageSize={COMPANIES_LIST_PAGE_SIZE}
+            previousHref={pagination.previousHref}
+            nextHref={pagination.nextHref}
+            previousLabel={companiesListCopy.previous}
+            nextLabel={companiesListCopy.next}
+          />
         </>
       )}
     </CompaniesListShell>
@@ -175,9 +157,11 @@ export default async function CompaniesPage({
 function CompaniesListShell({
   children,
   search = null,
+  successNotice = null,
 }: {
   children: ReactNode;
   search?: string | null;
+  successNotice?: string | null;
 }) {
   return (
     <div className={styles.page}>
@@ -192,6 +176,7 @@ function CompaniesListShell({
           {companiesListCopy.addCompany}
         </Link>
       </header>
+      <SuccessNotice message={successNotice} />
 
       <div className={styles.toolbar}>
         <form className={styles.searchForm} method="get" action="/companies">

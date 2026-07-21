@@ -13,6 +13,7 @@ import {
 import { parseUpdateCompanyInput } from "@/lib/companies/input";
 import { updateCompany } from "@/lib/companies/rpc";
 import { createClient } from "@/lib/supabase/server";
+import { successRedirectPath } from "@/lib/ui/success-notice";
 
 /**
  * Updates a company via update_company RPC only.
@@ -51,5 +52,5 @@ export async function updateCompanyAction(
   for (const path of editCompanySuccessRevalidatePaths(companyId)) {
     revalidatePath(path);
   }
-  redirect(editCompanySuccessRedirectPath(companyId));
+  redirect(successRedirectPath(editCompanySuccessRedirectPath(companyId), "company_updated"));
 }

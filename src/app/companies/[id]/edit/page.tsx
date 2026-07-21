@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { EditCompanyForm } from "@/components/companies/EditCompanyForm";
+import { BackLink } from "@/components/shared/BackLink";
 import { requireAppSession } from "@/lib/auth/session";
 import { companiesDetailErrorBehavior } from "@/lib/companies/detail-view-model";
 import { parseCompanyIdParam } from "@/lib/companies/detail-params";
@@ -35,9 +35,7 @@ export default async function EditCompanyPage({
     }
     return (
       <div className={styles.page}>
-        <Link href="/companies" className={styles.backLink}>
-          ← {companiesEditCopy.backToCompany}
-        </Link>
+        <BackLink href="/companies" className={styles.backLink}>{companiesEditCopy.backToCompany}</BackLink>
         <div className={styles.formError} role="alert">
           <h1 className={styles.formErrorTitle}>
             {behavior.message ?? companiesEditCopy.errorAccess}
@@ -52,9 +50,7 @@ export default async function EditCompanyPage({
 
   return (
     <div className={styles.page}>
-      <Link href={detailHref} className={styles.backLink}>
-        ← {companiesEditCopy.backToCompany}
-      </Link>
+      <BackLink href={detailHref} className={styles.backLink}>{companiesEditCopy.backToCompany}</BackLink>
       <h1 className={styles.pageTitle}>{companiesEditCopy.pageTitle}</h1>
       <p className={styles.pageDescription}>
         {companiesEditCopy.pageDescription}

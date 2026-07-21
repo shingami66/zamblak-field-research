@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { BackLink } from "@/components/shared/BackLink";
 import { CreateCompanyForm } from "@/components/companies/CreateCompanyForm";
 import { requireAppSession } from "@/lib/auth/session";
 import { companiesCreateCopy } from "@/lib/companies/create-copy";
@@ -9,9 +9,7 @@ export default async function CreateCompanyPage() {
 
   return (
     <div className={styles.page}>
-      <Link href="/companies" className={styles.backLink}>
-        ← {companiesCreateCopy.backToList}
-      </Link>
+      <BackLink href="/companies" className={styles.backLink}>{companiesCreateCopy.backToList}</BackLink>
       <h1 className={styles.pageTitle}>{companiesCreateCopy.pageTitle}</h1>
       <p className={styles.pageDescription}>
         {companiesCreateCopy.pageDescription}

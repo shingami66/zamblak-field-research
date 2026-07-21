@@ -1,6 +1,6 @@
 /* Centered content column (~672px) so create/edit do not pin to the RTL edge on wide screens. */
 .page {
-  width: min(100%, 42rem);
+  width: min(100%, 48rem);
   margin-inline: auto;
   padding-block: 2rem 3rem;
   padding-inline-start: max(1rem, env(safe-area-inset-right));
@@ -9,7 +9,7 @@
 
 .backLink {
   display: inline-flex;
-  min-height: 2.75rem;
+  min-height: 3rem;
   align-items: center;
   margin-block-end: 1rem;
   color: #0f3d3e;

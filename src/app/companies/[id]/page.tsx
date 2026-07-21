@@ -9,17 +9,23 @@ import {
 } from "@/lib/companies/detail-view-model";
 import { getCompany } from "@/lib/companies/rpc";
 import { createClient } from "@/lib/supabase/server";
+import { SuccessNotice } from "@/components/shared/SuccessNotice";
+import { BackLink } from "@/components/shared/BackLink";
+import { getSuccessNotice } from "@/lib/ui/success-notice";
 import styles from "./company-detail.module.css";
 
 type CompanyDetailPageProps = {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ success?: string | string[] }>;
 };
 
 export default async function CompanyDetailPage({
   params,
+  searchParams,
 }: CompanyDetailPageProps) {
   await requireAppSession();
   const { id: rawId } = await params;
+  const successNotice = getSuccessNotice((await searchParams).success);
 
   const parsed = parseCompanyIdParam(rawId);
   if (!parsed.ok) {
@@ -36,9 +42,7 @@ export default async function CompanyDetailPage({
     }
     return (
       <div className={styles.page}>
-        <Link href="/companies" className={styles.backLink}>
-          ← {companiesDetailCopy.backToList}
-        </Link>
+        <BackLink href="/companies" className={styles.backLink}>{companiesDetailCopy.backToList}</BackLink>
         <div className={styles.errorState} role="alert">
           <h1 className={styles.errorTitle}>
             {behavior.message ?? companiesDetailCopy.errorUnexpected}
@@ -52,9 +56,8 @@ export default async function CompanyDetailPage({
 
   return (
     <div className={styles.page}>
-      <Link href={view.backHref} className={styles.backLink}>
-        ← {companiesDetailCopy.backToList}
-      </Link>
+      <BackLink href={view.backHref} className={styles.backLink}>{companiesDetailCopy.backToList}</BackLink>
+      <SuccessNotice message={successNotice} />
 
       <header className={styles.headerRow}>
         <h1 className={styles.pageTitle}>{view.name}</h1>

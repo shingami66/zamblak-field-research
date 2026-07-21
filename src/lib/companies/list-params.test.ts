@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
-  COMPANIES_LIST_PAGE_SIZE,
+  COMPANIES_LIST_RPC_LIMIT,
   buildCompaniesListHref,
   deriveListPagination,
   parseCompaniesListSearchParams,
@@ -14,7 +14,7 @@ describe("parseCompaniesListSearchParams", () => {
     if (r.ok) {
       assert.equal(r.data.page, 1);
       assert.equal(r.data.search, null);
-      assert.equal(r.data.params.limit, COMPANIES_LIST_PAGE_SIZE);
+      assert.equal(r.data.params.limit, COMPANIES_LIST_RPC_LIMIT);
       assert.equal(r.data.params.offset, 0);
     }
   });
@@ -69,7 +69,7 @@ describe("deriveListPagination", () => {
     const p = deriveListPagination({
       page: 1,
       pageSize: 25,
-      returnedCount: 25,
+      returnedCount: 26,
       search: null,
     });
     assert.equal(p.hasPrevious, false);
@@ -82,7 +82,7 @@ describe("deriveListPagination", () => {
     const p = deriveListPagination({
       page: 2,
       pageSize: 25,
-      returnedCount: 25,
+      returnedCount: 26,
       search: "acme",
     });
     assert.equal(p.previousHref, "/companies?q=acme");
@@ -100,14 +100,14 @@ describe("deriveListPagination", () => {
     assert.equal(p.nextHref, null);
   });
 
-  it("permits next when returned count equals page size", () => {
+  it("hides next when returned count equals the visible page size", () => {
     const p = deriveListPagination({
       page: 3,
       pageSize: 25,
       returnedCount: 25,
       search: null,
     });
-    assert.equal(p.hasNext, true);
+    assert.equal(p.hasNext, false);
     assert.equal(p.hasPrevious, true);
   });
 });
