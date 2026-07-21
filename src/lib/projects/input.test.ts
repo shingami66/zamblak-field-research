@@ -155,11 +155,20 @@ describe("parseCreateProjectInput", () => {
     }
   });
 
-  it("rejects invalid domain, resident, quota, ages, date order", () => {
-    assert.equal(
-      parseCreateProjectInput({ name: "Ok", companyId, domain: "x" }).ok,
-      false
-    );
+  it("accepts arbitrary trimmed Arabic and English domains", () => {
+    for (const domain of ["  الاتصالات  ", "Healthcare", "الرعاية الصحية / Health"]) {
+      const parsed = parseCreateProjectInput({ name: "Ok", companyId, domain });
+      assert.equal(parsed.ok, true);
+      if (parsed.ok) assert.equal(parsed.data.domain, domain.trim());
+    }
+  });
+
+  it("rejects blank or overlong domain, resident, quota, ages, date order", () => {
+    for (const domain of ["   ", "x".repeat(121)]) {
+      const parsed = parseCreateProjectInput({ name: "Ok", companyId, domain });
+      assert.equal(parsed.ok, false);
+      if (!parsed.ok) assert.equal(parsed.code, "invalid_project_domain");
+    }
     assert.equal(
       parseCreateProjectInput({
         name: "Ok",
@@ -250,6 +259,7 @@ describe("parseUpdateProjectInput", () => {
       assert.equal(r.data.projectId, projectId);
       assert.equal(r.data.expectedUpdatedAt, expectedUpdatedAt);
       assert.equal(r.data.name, "Field Study");
+      assert.equal(r.data.domain, "telecom");
       assert.equal(
         Object.prototype.hasOwnProperty.call(r.data, "status"),
         false

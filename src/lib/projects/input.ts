@@ -1,6 +1,5 @@
 import type {
   CreateProjectInput,
-  ProjectDomain,
   ProjectErrorCode,
   ProjectListParams,
   ProjectResidentType,
@@ -19,6 +18,7 @@ export const PROJECT_LIST_DEFAULT_LIMIT = 25;
 export const PROJECT_LIST_MAX_LIMIT = 50;
 export const PROJECT_SEARCH_MAX_LENGTH = 120;
 export const PROJECT_NAME_MAX_LENGTH = 120;
+export const PROJECT_DOMAIN_MAX_LENGTH = 120;
 export const PROJECT_LONG_TEXT_MAX_LENGTH = 2000;
 
 export const PROJECT_STATUSES: readonly ProjectStatus[] = [
@@ -26,14 +26,6 @@ export const PROJECT_STATUSES: readonly ProjectStatus[] = [
   "active",
   "closed",
   "cancelled",
-] as const;
-
-export const PROJECT_DOMAINS: readonly ProjectDomain[] = [
-  "telecom",
-  "banking",
-  "insurance",
-  "product",
-  "other",
 ] as const;
 
 export const PROJECT_RESIDENT_TYPES: readonly ProjectResidentType[] = [
@@ -129,10 +121,6 @@ function parseOptionalLongText(
 
 function isProjectStatus(value: string): value is ProjectStatus {
   return (PROJECT_STATUSES as readonly string[]).includes(value);
-}
-
-function isProjectDomain(value: string): value is ProjectDomain {
-  return (PROJECT_DOMAINS as readonly string[]).includes(value);
 }
 
 function isResidentType(value: string): value is ProjectResidentType {
@@ -264,12 +252,11 @@ function parseWriteFields(
     return fail("invalid_company_id");
   }
 
-  if (
-    raw.domain === null ||
-    raw.domain === undefined ||
-    typeof raw.domain !== "string" ||
-    !isProjectDomain(raw.domain)
-  ) {
+  if (raw.domain === null || raw.domain === undefined || typeof raw.domain !== "string") {
+    return fail("invalid_project_domain");
+  }
+  const domain = raw.domain.trim();
+  if (domain === "" || domain.length > PROJECT_DOMAIN_MAX_LENGTH) {
     return fail("invalid_project_domain");
   }
 
@@ -366,7 +353,7 @@ function parseWriteFields(
     data: {
       name,
       companyId: raw.companyId,
-      domain: raw.domain,
+      domain,
       startDate: startDateResult.data,
       endDate: endDateResult.data,
       quota: quotaResult.data,
