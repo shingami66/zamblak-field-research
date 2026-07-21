@@ -17,7 +17,7 @@ describe("Respondents list navigation invariant", () => {
     assert.equal(matches.length, 1);
     assert.match(
       text,
-      /\{\s*name:\s*"المستجيبون",\s*href:\s*"\/respondents",\s*roles:\s*\["owner",\s*"support_helper"\]\s*\}/
+      /\{\s*name:\s*"المشاركون",\s*href:\s*"\/respondents",\s*roles:\s*\["owner",\s*"support_helper"\]\s*\}/
     );
     assert.match(
       text,

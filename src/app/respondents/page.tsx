@@ -16,12 +16,18 @@ import {
 import { listRespondents } from "@/lib/respondents/rpc";
 import { RESPONDENT_SEARCH_MAX_LENGTH } from "@/lib/respondents/input";
 import { createClient } from "@/lib/supabase/server";
+import { DataTable } from "@/components/shared/DataTable";
+import { MobileListCard } from "@/components/shared/MobileListCard";
+import { Pagination } from "@/components/shared/Pagination";
+import { SuccessNotice } from "@/components/shared/SuccessNotice";
+import { getSuccessNotice } from "@/lib/ui/success-notice";
 import styles from "./respondents-list.module.css";
 
 type RespondentsPageProps = {
   searchParams: Promise<{
     q?: string | string[];
     page?: string | string[];
+    success?: string | string[];
   }>;
 };
 
@@ -30,6 +36,7 @@ export default async function RespondentsPage({
 }: RespondentsPageProps) {
   await requireAppSession();
   const rawParams = await searchParams;
+  const successNotice = getSuccessNotice(rawParams.success);
 
   const parsed = parseRespondentsListSearchParams(rawParams);
   if (!parsed.ok) {
@@ -63,111 +70,77 @@ export default async function RespondentsPage({
   const hasSearch = Boolean(search);
 
   return (
-    <RespondentsListShell search={search}>
+    <RespondentsListShell search={search} successNotice={successNotice}>
       {items.length === 0 ? (
         <EmptyPanel hasSearch={hasSearch} page={page} search={search} />
       ) : (
         <>
-          <section
-            className={styles.listSection}
-            aria-labelledby="respondents-list-heading"
-          >
-            <h2 id="respondents-list-heading" className={styles.visuallyHidden}>
-              {respondentsListCopy.resultsHeading}
-            </h2>
+          <div className={styles.desktopView}>
+            <DataTable
+              data={items}
+              keyExtractor={(item) => item.respondentId}
+              columns={[
+                {
+                  key: "name",
+                  header: "المشارك",
+                  render: (item) => <Link href={item.detailHref} className={styles.cardLink}>{item.nameLabel}</Link>,
+                },
+                {
+                  key: "mobile",
+                  header: respondentsListCopy.mobile,
+                  render: (item) => <bdi dir="ltr" className={styles.ltrToken}>{item.mobileLabel}</bdi>,
+                },
+                {
+                  key: "age",
+                  header: respondentsListCopy.age,
+                  render: (item) => item.ageLabel,
+                },
+                {
+                  key: "nationality",
+                  header: respondentsListCopy.nationality,
+                  render: (item) => item.nationalityLabel,
+                },
+                {
+                  key: "actions",
+                  header: "إجراءات",
+                  render: (item) => (
+                    <div className={styles.cardActions}>
+                      <Link href={item.detailHref} className={styles.textLink}>{respondentsListCopy.view}</Link>
+                    </div>
+                  ),
+                },
+              ]}
+            />
+          </div>
+          <div className={styles.mobileView}>
             {items.map((item) => (
-              <article key={item.respondentId} className={styles.card}>
-                <div className={styles.cardHeader}>
-                  <Link href={item.detailHref} className={styles.cardLink}>
-                    {item.nameLabel}
-                  </Link>
+              <MobileListCard
+                key={item.respondentId}
+                title={<Link href={item.detailHref} className={styles.cardLink}>{item.nameLabel}</Link>}
+                details={[
+                  { label: respondentsListCopy.mobile, value: <bdi dir="ltr" className={styles.ltrToken}>{item.mobileLabel}</bdi> },
+                  { label: respondentsListCopy.age, value: item.ageLabel },
+                  { label: respondentsListCopy.nationality, value: item.nationalityLabel },
+                  { label: respondentsListCopy.residentType, value: item.residentTypeLabel },
+                ]}
+                actions={
                   <div className={styles.cardActions}>
-                    <Link href={item.detailHref} className={styles.textLink}>
-                      {respondentsListCopy.view}
-                    </Link>
+                    <Link href={item.detailHref} className={styles.textLink}>{respondentsListCopy.view}</Link>
                   </div>
-                </div>
-                <dl className={styles.metaGrid}>
-                  <div className={styles.metaItem}>
-                    <dt className={styles.metaLabel}>
-                      {respondentsListCopy.mobile}
-                    </dt>
-                    <dd className={styles.metaValue}>
-                      <bdi dir="ltr" className={styles.ltrToken}>
-                        {item.mobileLabel}
-                      </bdi>
-                    </dd>
-                  </div>
-                  <div className={styles.metaItem}>
-                    <dt className={styles.metaLabel}>
-                      {respondentsListCopy.age}
-                    </dt>
-                    <dd className={styles.metaValue}>{item.ageLabel}</dd>
-                  </div>
-                  <div className={styles.metaItem}>
-                    <dt className={styles.metaLabel}>
-                      {respondentsListCopy.nationality}
-                    </dt>
-                    <dd className={styles.metaValue}>
-                      {item.nationalityLabel}
-                    </dd>
-                  </div>
-                  <div className={styles.metaItem}>
-                    <dt className={styles.metaLabel}>
-                      {respondentsListCopy.residentType}
-                    </dt>
-                    <dd className={styles.metaValue}>
-                      {item.residentTypeLabel}
-                    </dd>
-                  </div>
-                  <div className={styles.metaItem}>
-                    <dt className={styles.metaLabel}>
-                      {respondentsListCopy.updatedAt}
-                    </dt>
-                    <dd className={styles.metaValue}>
-                      <bdi dir="ltr" className={styles.ltrToken}>
-                        {item.updatedAtLabel}
-                      </bdi>
-                    </dd>
-                  </div>
-                </dl>
-              </article>
+                }
+              />
             ))}
-          </section>
+          </div>
 
-          {(pagination.hasPrevious || pagination.hasNext) && (
-            <nav
-              className={styles.pagination}
-              aria-label={respondentsListCopy.paginationNav}
-            >
-              {pagination.previousHref ? (
-                <Link
-                  href={pagination.previousHref}
-                  className={styles.pageLink}
-                  rel="prev"
-                >
-                  {respondentsListCopy.previous}
-                </Link>
-              ) : (
-                <span className={styles.pageLinkDisabled} aria-disabled="true">
-                  {respondentsListCopy.previous}
-                </span>
-              )}
-              {pagination.nextHref ? (
-                <Link
-                  href={pagination.nextHref}
-                  className={styles.pageLink}
-                  rel="next"
-                >
-                  {respondentsListCopy.next}
-                </Link>
-              ) : (
-                <span className={styles.pageLinkDisabled} aria-disabled="true">
-                  {respondentsListCopy.next}
-                </span>
-              )}
-            </nav>
-          )}
+          <Pagination
+            currentPage={page}
+            visibleCount={pagination.visibleCount}
+            pageSize={RESPONDENTS_LIST_PAGE_SIZE}
+            previousHref={pagination.previousHref}
+            nextHref={pagination.nextHref}
+            previousLabel={respondentsListCopy.previous}
+            nextLabel={respondentsListCopy.next}
+          />
         </>
       )}
     </RespondentsListShell>
@@ -177,9 +150,11 @@ export default async function RespondentsPage({
 function RespondentsListShell({
   children,
   search = null,
+  successNotice = null,
 }: {
   children: ReactNode;
   search?: string | null;
+  successNotice?: string | null;
 }) {
   return (
     <div className={styles.page}>
@@ -194,6 +169,7 @@ function RespondentsListShell({
           {respondentsListCopy.addRespondent}
         </Link>
       </header>
+      <SuccessNotice message={successNotice} />
 
       <div className={styles.toolbar}>
         <form

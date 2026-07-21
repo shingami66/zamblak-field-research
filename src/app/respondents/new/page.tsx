@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { BackLink } from "@/components/shared/BackLink";
 import { CreateRespondentForm } from "@/components/respondents/CreateRespondentForm";
 import { requireAppSession } from "@/lib/auth/session";
 import { respondentsCreateCopy } from "@/lib/respondents/create-copy";
@@ -9,9 +9,7 @@ export default async function CreateRespondentPage() {
 
   return (
     <div className={styles.page}>
-      <Link href="/respondents" className={styles.backLink}>
-        ← {respondentsCreateCopy.backToList}
-      </Link>
+      <BackLink href="/respondents" className={styles.backLink}>{respondentsCreateCopy.backToList}</BackLink>
       <h1 className={styles.pageTitle}>{respondentsCreateCopy.pageTitle}</h1>
       <p className={styles.pageDescription}>
         {respondentsCreateCopy.pageDescription}

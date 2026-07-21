@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { EditRespondentForm } from "@/components/respondents/EditRespondentForm";
+import { BackLink } from "@/components/shared/BackLink";
 import { requireAppSession } from "@/lib/auth/session";
 import { parseRespondentDetailParam } from "@/lib/respondents/detail-params";
 import { respondentDetailErrorBehavior } from "@/lib/respondents/detail-view-model";
@@ -36,9 +36,7 @@ export default async function EditRespondentPage({
     }
     return (
       <div className={styles.page}>
-        <Link href="/respondents" className={styles.backLink}>
-          ← {respondentsEditCopy.backToList}
-        </Link>
+        <BackLink href="/respondents" className={styles.backLink}>{respondentsEditCopy.backToList}</BackLink>
         <div className={styles.formError} role="alert">
           <h1 className={styles.formErrorTitle}>
             {behavior.message ?? respondentsEditCopy.errorUnexpected}
@@ -60,9 +58,7 @@ export default async function EditRespondentPage({
 
   return (
     <div className={styles.page}>
-      <Link href={detailHref} className={styles.backLink}>
-        ← {respondentsEditCopy.backToDetail}
-      </Link>
+      <BackLink href={detailHref} className={styles.backLink}>{respondentsEditCopy.backToDetail}</BackLink>
       <h1 className={styles.pageTitle}>{respondentsEditCopy.pageTitle}</h1>
       <p className={styles.pageDescription}>
         {respondentsEditCopy.pageDescription}

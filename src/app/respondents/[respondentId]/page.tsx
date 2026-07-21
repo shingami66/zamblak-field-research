@@ -9,17 +9,23 @@ import {
 } from "@/lib/respondents/detail-view-model";
 import { getRespondent } from "@/lib/respondents/rpc";
 import { createClient } from "@/lib/supabase/server";
+import { SuccessNotice } from "@/components/shared/SuccessNotice";
+import { BackLink } from "@/components/shared/BackLink";
+import { getSuccessNotice } from "@/lib/ui/success-notice";
 import styles from "./respondent-detail.module.css";
 
 type RespondentDetailPageProps = {
   params: Promise<{ respondentId: string }>;
+  searchParams: Promise<{ success?: string | string[] }>;
 };
 
 export default async function RespondentDetailPage({
   params,
+  searchParams,
 }: RespondentDetailPageProps) {
   await requireAppSession();
   const { respondentId: rawId } = await params;
+  const successNotice = getSuccessNotice((await searchParams).success);
 
   const parsed = parseRespondentDetailParam(rawId);
   if (!parsed.ok) {
@@ -36,9 +42,7 @@ export default async function RespondentDetailPage({
     }
     return (
       <div className={styles.page}>
-        <Link href="/respondents" className={styles.backLink}>
-          ← {respondentsDetailCopy.backToList}
-        </Link>
+        <BackLink href="/respondents" className={styles.backLink}>{respondentsDetailCopy.backToList}</BackLink>
         <div className={styles.errorState} role="alert">
           <h1 className={styles.errorTitle}>
             {behavior.message ?? respondentsDetailCopy.errorUnexpected}
@@ -55,9 +59,8 @@ export default async function RespondentDetailPage({
 
   return (
     <div className={styles.page}>
-      <Link href={view.backHref} className={styles.backLink}>
-        ← {respondentsDetailCopy.backToList}
-      </Link>
+      <BackLink href={view.backHref} className={styles.backLink}>{respondentsDetailCopy.backToList}</BackLink>
+      <SuccessNotice message={successNotice} />
 
       <header className={styles.headerRow}>
         <h1 className={styles.pageTitle}>{view.nameLabel}</h1>

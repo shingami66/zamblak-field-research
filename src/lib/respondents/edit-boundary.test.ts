@@ -149,7 +149,7 @@ describe("Respondents edit page source boundary", () => {
     assert.equal(page.includes("backToDetail"), true);
 
     const copy = readFileSync(path.join(dir, "edit-copy.ts"), "utf8");
-    assert.equal(copy.includes("العودة إلى سجل المستجيبين"), true);
+    assert.equal(copy.includes("العودة إلى سجل المشاركين"), true);
 
     const formHelper = readFileSync(path.join(dir, "edit-form.ts"), "utf8");
     assert.equal(

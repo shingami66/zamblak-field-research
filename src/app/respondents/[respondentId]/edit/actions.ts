@@ -16,6 +16,7 @@ import {
 import { parseUpdateRespondentInput } from "@/lib/respondents/input";
 import { updateRespondent } from "@/lib/respondents/rpc";
 import { createClient } from "@/lib/supabase/server";
+import { successRedirectPath } from "@/lib/ui/success-notice";
 
 /**
  * Updates a respondent via update_respondent RPC only.
@@ -68,5 +69,5 @@ export async function updateRespondentAction(
   editRespondentSuccessRevalidatePaths(respondentId).forEach((path) => {
     revalidatePath(path);
   });
-  redirect(editRespondentSuccessRedirectPath(respondentId));
+  redirect(successRedirectPath(editRespondentSuccessRedirectPath(respondentId), "respondent_updated"));
 }

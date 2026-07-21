@@ -3,11 +3,11 @@
  * Local dictionary module (project has no global i18n package yet).
  */
 export const respondentsListCopy = {
-  pageTitle: "سجل المستجيبين",
+  pageTitle: "سجل المشاركين",
   pageDescription:
-    "استعرض المستجيبين وابحث بالاسم أو رقم الجوال. استخدم إضافة مستجيب عند الحاجة.",
-  addRespondent: "إضافة مستجيب",
-  searchLabel: "البحث عن مستجيب",
+    "استعرض المشاركين وابحث بالاسم أو رقم الجوال. استخدم إضافة مشارك عند الحاجة.",
+  addRespondent: "إضافة مشارك",
+  searchLabel: "البحث عن مشارك",
   searchPlaceholder: "ابحث بالاسم أو برقم الجوال",
   searchAction: "بحث",
   resetSearch: "مسح البحث",
@@ -23,22 +23,22 @@ export const respondentsListCopy = {
   residentSaudi: "سعودي",
   residentNonSaudi: "غير سعودي",
   residentUnknown: "غير محدد",
-  noRespondents: "لا يوجد مستجيبون مسجّلون بعد",
-  noRespondentsHint: "ابدأ بإضافة أول مستجيب إلى السجل.",
-  noSearchResults: "لا يوجد مستجيبون مطابقون لبحثك",
+  noRespondents: "لا يوجد مشاركون مسجّلون بعد",
+  noRespondentsHint: "ابدأ بإضافة أول مشارك إلى السجل.",
+  noSearchResults: "لا يوجد مشاركون مطابقون لبحثك",
   noSearchResultsHint: "جرّب كلمات أو رقم جوال مختلف، أو امسح البحث لعرض الكل.",
   pageBeyondResults: "لا توجد نتائج في هذه الصفحة",
   pageBeyondResultsHint: "يمكنك الرجوع إلى الصفحة السابقة إن وُجدت.",
   previous: "السابق",
   next: "التالي",
   view: "عرض التفاصيل",
-  resultsHeading: "قائمة المستجيبين",
-  paginationNav: "تصفح صفحات المستجيبين",
-  loading: "جاري تحميل سجل المستجيبين…",
+  resultsHeading: "قائمة المشاركين",
+  paginationNav: "تصفح صفحات المشاركين",
+  loading: "جاري تحميل سجل المشاركين…",
   errorAccess:
-    "لا يمكن عرض المستجيبين حالياً. تحقق من صلاحية الحساب أو أعد تسجيل الدخول.",
+    "لا يمكن عرض المشاركين حالياً. تحقق من صلاحية الحساب أو أعد تسجيل الدخول.",
   errorPagination: "معاملات التصفح أو البحث غير صالحة. عد إلى الصفحة الأولى.",
-  errorUnexpected: "تعذّر تحميل قائمة المستجيبين. حاول مرة أخرى لاحقاً.",
+  errorUnexpected: "تعذّر تحميل قائمة المشاركين. حاول مرة أخرى لاحقاً.",
 } as const;
 
 export type RespondentsListCopy = typeof respondentsListCopy;

@@ -15,6 +15,7 @@ import {
 import { parseCreateRespondentInput } from "@/lib/respondents/input";
 import { createRespondent } from "@/lib/respondents/rpc";
 import { createClient } from "@/lib/supabase/server";
+import { successRedirectPath } from "@/lib/ui/success-notice";
 
 /**
  * Creates a respondent via create_respondent RPC only.
@@ -71,5 +72,5 @@ export async function createRespondentAction(
   void created.data.respondentId;
 
   revalidatePath(CREATE_RESPONDENT_SUCCESS_REVALIDATE_PATH);
-  redirect(CREATE_RESPONDENT_SUCCESS_REDIRECT_PATH);
+  redirect(successRedirectPath(CREATE_RESPONDENT_SUCCESS_REDIRECT_PATH, "respondent_created"));
 }
