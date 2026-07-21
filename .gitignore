@@ -10,5 +10,8 @@ dist
 .DS_Store
 npm-debug.log*
 *.tsbuildinfo
+# Local IDE and Supabase CLI metadata
+.idea/
+supabase/.temp/
 # Graphify generated navigation index
 graphify-out/
