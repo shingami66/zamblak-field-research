@@ -52,9 +52,11 @@
   - Deferred P2 (nonblocking): list ErrorPanel copy (`R-LIST-ERROR-COPY-1`); Server Action mock-execution gap (`R-TEST-ACTION-GAP-1`); pending UI timing evidence.
   - **Not claimed:** production readiness; migration-history registration; cross-account isolation PASS.
   - **Participation / three-month eligibility UI:** remain **after** registry core — **not started**.
-- Phase 6: Participation
-- Phase 7: Review
-- Phase 8: Financials
+- Phase 6: Forms & Collections Backend Database Schema (**Backend Foundation Complete & History-Registered (Pushed)**)
+  - Backend schema Slices 1, 2, 3 and view fix (`20260723120000` through `20260723150000`) implemented, catalog-verified, registered in remote migration history (`gdegnwglakyblnmxgiwx`), and pushed to `main` at commit [`5c390947c9869928917ebd235356ca91f1a02ccd`](file:///D:/Zamblak/Zamblak-field-research/supabase/migrations/20260723140000_forms_collections_rpcs.sql).
+  - Installs 5 FORCE RLS tables, 2 security-invoker views (`form_financial_summary`, `collection_summary`), 7 Owner-gated mutation RPCs, and 3 internal helpers. All 16 local migrations match remote history 1-to-1 (`db push --dry-run` reports up to date).
+  - Application UI integration and representative DEV/DEMO runtime smoke with safe fixtures are pending. Production readiness unclaimed.
+- Phase 7: Review & Financials Application Integration
 - Later: WhatsApp workflow, Excel import/export, and further UI polish.
 
 Required product sequence: **Company → Project → Respondent → Participation → Review → Financials**.

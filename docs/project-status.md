@@ -1,9 +1,45 @@
 # Project Status
 
-Current phase: **Frontend Milestone Complete — Core CRUD, Participation Assignment, Free-Text Domain, and Owner-Only Forms & Collections Prototype (PASS)**.
-All core frontend modules (Companies, Projects, Respondents/Participants, Participation Assignment, Free-Text Project Domain, and Owner-Only Forms & Collections Prototype) are completed and validated. 472 automated tests pass (445 Node + 27 Vitest UI). TypeScript, ESLint, production build, and git diff checks pass with 0 errors. Production readiness is **not** claimed. Backend persistence for Forms, quotas, receivables, and collections remains explicitly deferred.
+Current phase: **Forms & Collections Backend Schema Foundation Complete & History-Registered (Pushed)**.
+The Forms & Collections backend database schema, RLS policies, security-invoker read views, transactional mutation RPCs, and active-revision view correction are implemented, catalog-verified, registered in remote migration history (`gdegnwglakyblnmxgiwx`), and pushed to `main` at commit [`5c390947c9869928917ebd235356ca91f1a02ccd`](file:///D:/Zamblak/Zamblak-field-research/supabase/migrations/20260723140000_forms_collections_rpcs.sql). 472 automated tests pass (445 Node + 27 Vitest UI). TypeScript, ESLint, production build, and git diff checks pass with 0 errors. Business tables currently contain 0 runtime rows in DEV/DEMO (structural, security, and catalog validation passed; application UI integration and representative DEV/DEMO runtime smoke are pending). Production readiness is **not** claimed.
 
-Next product sequence: **Phase 6 Participation & Financials Backend** (following post-milestone commit). Product order remains Company → Project → Respondent → Participation → Review → Financials.
+Next product sequence: **Forms & Collections Application Integration & UI Wiring** (following backend schema delivery). Product order remains Company → Project → Respondent → Participation → Review → Financials.
+
+## Forms & Collections Backend Schema Delivery (`ZAM-FORMS-COLLECTIONS-BACKEND`) — CLOSED & REGISTERED
+
+- **Status:** **Backend Foundation Complete, Registered & Pushed** (Commit `5c390947c9869928917ebd235356ca91f1a02ccd` on `main`, divergence 0/0).
+- **Target Environment:** Designated DEV/DEMO Supabase project `gdegnwglakyblnmxgiwx` (PostgreSQL 17.6).
+- **Delivered Migrations (4 Files):**
+  1. [`20260723120000_forms_collections_schema.sql`](file:///D:/Zamblak/Zamblak-field-research/supabase/migrations/20260723120000_forms_collections_schema.sql) (Slice 1: 5 core tables, constraints, indexes, version progression, contiguous revision sequence invariants, idempotency protection, audit triggers - SHA256 `b401c15dac48267fffd1bcc436c781df7d374f66bc393dee4c5c732c36fc8172`).
+  2. [`20260723130000_forms_collections_rls_views.sql`](file:///D:/Zamblak/Zamblak-field-research/supabase/migrations/20260723130000_forms_collections_rls_views.sql) (Slice 2: 5 FORCE RLS enablements, 4 Owner SELECT policies, 17 function EXECUTE revokes, 2 security-invoker read views - SHA256 `251722c7a583d71bbd06563546c7ab7c76bbe24ee47b3143b18677d701a4b8f0`).
+  3. [`20260723140000_forms_collections_rpcs.sql`](file:///D:/Zamblak/Zamblak-field-research/supabase/migrations/20260723140000_forms_collections_rpcs.sql) (Slice 3: 7 Owner-gated mutation RPCs, 3 internal helpers, atomic idempotency claim/completion, concurrency-safe code generation, per-form balance exposure enforcement - SHA256 `5859834dd212bd15964d4ba2e54c9423cb9beb7ee67f7f6b3291eb965b2c1647`).
+  4. [`20260723150000_fix_form_financial_summary_active_allocations.sql`](file:///D:/Zamblak/Zamblak-field-research/supabase/migrations/20260723150000_fix_form_financial_summary_active_allocations.sql) (Corrective View Fix: active collection revision filter `COALESCE(SUM(ca.amount) FILTER (WHERE c.id IS NOT NULL), 0.00)` across `allocated_amount`, `outstanding_amount`, and `settlement_state` - SHA256 `737ed57c8c6144b81ef723e037ca3fcd94cf5513377224f9166c09369c5f18ee`).
+
+### Implemented Backend Capabilities
+- **Research Forms Lifecycle**: Submission with sequential per-participation attempt numbering & account-scoped daily form code (`RF-YYYYMMDD-NNN`); review (accept with price snapshot & server-side quota check, reject with mandatory reason, cancel); accepted-form correction to rejected/cancelled (enforces zero active allocations & clears `accepted_at` while preserving historical `accepted_price_snapshot`).
+- **Collections & Allocations Workflow**: Company collection receipt creation (v1 + revision 1); optimistic allocation revisions (v $\rightarrow$ v+1 header creation & new line item set, satisfying two-sided deferred contiguous-revision invariants); voiding active receipts with mandatory reason; replacement receipt creation referencing voided target.
+- **Idempotency & Concurrency Protections**: Permanent `idempotency_keys` lineage store with deterministic SHA-256 request payload hashing (`pg_catalog.sha256`); atomic claim (`INSERT ... ON CONFLICT DO NOTHING RETURNING`) and completion (`UPDATE ... WHERE status = 'processing' RETURNING`); deterministic lock orders (`accounts` `FOR UPDATE` $\rightarrow$ `participations` `FOR UPDATE` $\rightarrow$ `projects` `FOR UPDATE` $\rightarrow$ `research_forms` `ORDER BY id ASC FOR UPDATE`).
+- **Financial Summary Views**: `form_financial_summary` (receivables, 40-day due-date fallback, filtered by active collections & current revisions) and `collection_summary` (receipt totals & allocation progress).
+
+### Security Posture
+- **FORCE RLS**: Enabled and forced on all 5 tables (`research_forms`, `collections`, `collection_allocation_revisions`, `collection_allocations`, `idempotency_keys`).
+- **Direct DML Blocked**: 0 client DML policies exist. Direct client `INSERT`/`UPDATE`/`DELETE` is blocked at RLS and ACL layers.
+- **Role Isolation**: 3 internal helper functions are non-client-callable (0 EXECUTE grants); 7 mutation RPCs are executable ONLY by `authenticated` users and internally Owner-gated (`is_owner() = true`). `anon` and `service_role` execution is explicitly revoked. `support_helper` receives `forbidden` before financial state disclosure.
+
+### Validation Evidence & Remote Alignment
+- **Remote Migration History**: Registered 16/16 migrations as applied 1-to-1 in DEV/DEMO project `gdegnwglakyblnmxgiwx`.
+- **Dry-Run Check**: `npx supabase db push --dry-run --linked` returned `Remote database is up to date.` with 0 pending migrations.
+- **Automated Validation**: 445 Node tests passed, 27 Vitest UI tests passed (472 total). TypeScript clean (0 errors), ESLint clean (0 warnings), production build succeeded.
+- **Git State**: Clean working tree, 0 untracked files, commit `5c390947c9869928917ebd235356ca91f1a02ccd` aligned 0/0 with `origin/main`.
+
+### Current Limitations & Next Ordered Sequence
+- **Current Limitation**: Forms & Collections business tables currently contain `0` runtime rows in DEV/DEMO. Catalog, schema, security, and automated tests passed, but end-to-end runtime behavior with representative DEV/DEMO fixtures remains unexercised.
+- **Ordered Next Task Sequence**:
+  1. Application integration design and contract audit for the 7 RPCs and 2 read views (`ZAM-FORMS-COLLECTIONS-APP-CONTRACTS`).
+  2. Forms list / detail / submission / review UI integration with Server Actions.
+  3. Collections receipt / allocation / revision / void / replacement UI integration with Server Actions.
+  4. Representative DEV/DEMO runtime smoke with safe fixtures.
+  5. Documentation and acceptance closeout.
 
 ## Frontend Milestone Closure Summary (`ZAM-FRONTEND-MILESTONE`) — CLOSED (PASS)
 
