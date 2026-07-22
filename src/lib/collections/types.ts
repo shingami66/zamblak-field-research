@@ -1,6 +1,14 @@
+import type { PaginationInput, PaginationMeta } from "@/lib/forms/types";
+
 export type CollectionPaymentMethod = "bank_transfer" | "cash" | "cheque";
 
 export type CollectionStatus = "active" | "voided";
+
+export type CollectionAllocationState =
+  | "voided"
+  | "unallocated"
+  | "partially_allocated"
+  | "fully_allocated";
 
 export type CollectionsErrorCode =
   | "unauthorized"
@@ -142,3 +150,114 @@ export interface CreateReplacementCollectionReceiptResponse {
   allocated_amount: number;
   unallocated_amount: number;
 }
+
+// ----------------------------------------------------------------------------
+// READ / QUERY CONTRACT TYPES (SLICE A2 CORE)
+// ----------------------------------------------------------------------------
+
+export interface CollectionRow {
+  id: string;
+  account_id: string;
+  company_id: string;
+  code: string;
+  receipt_date: string;
+  total_amount: number;
+  payment_method: CollectionPaymentMethod;
+  reference_number: string | null;
+  status: CollectionStatus;
+  version: number;
+  void_reason: string | null;
+  voided_at: string | null;
+  voided_by: string | null;
+  replaces_collection_id: string | null;
+  notes: string | null;
+  created_by: string;
+  updated_by: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CollectionSummaryRow {
+  collection_id: string;
+  account_id: string;
+  company_id: string;
+  collection_code: string;
+  receipt_date: string;
+  total_amount: number;
+  payment_method: CollectionPaymentMethod;
+  reference_number: string | null;
+  status: CollectionStatus;
+  version: number;
+  void_reason: string | null;
+  voided_at: string | null;
+  replaces_collection_id: string | null;
+  allocated_amount: number;
+  unallocated_amount: number;
+  allocation_state: CollectionAllocationState;
+}
+
+export interface CollectionAllocationRow {
+  id: string;
+  account_id: string;
+  revision_id: string;
+  research_form_id: string;
+  amount: number;
+  created_by: string;
+  created_at: string;
+}
+
+export interface CollectionAllocationRevisionRow {
+  id: string;
+  account_id: string;
+  collection_id: string;
+  revision_number: number;
+  expected_previous_version: number;
+  reason: string | null;
+  created_by: string;
+  created_at: string;
+}
+
+export interface CollectionAllocationRevisionWithLines {
+  revision: CollectionAllocationRevisionRow;
+  allocations: CollectionAllocationRow[];
+}
+
+export interface CollectionCurrentAllocations {
+  collection_id: string;
+  current_version: number;
+  revision: CollectionAllocationRevisionRow;
+  allocations: CollectionAllocationRow[];
+}
+
+export interface CollectionReplacementRelations {
+  current: CollectionRow;
+  replacedParent: CollectionSummaryRow | null;
+  replacementChild: CollectionSummaryRow | null;
+}
+
+export interface CollectionsListFilters extends PaginationInput {
+  companyId?: string;
+  status?: CollectionStatus;
+  paymentMethod?: CollectionPaymentMethod;
+  receiptDateFrom?: string;
+  receiptDateTo?: string;
+  allocationState?: CollectionAllocationState;
+  code?: string;
+}
+
+export interface CollectionsListPage {
+  items: CollectionSummaryRow[];
+  pagination: PaginationMeta;
+}
+
+export type CollectionsQueryErrorCode =
+  | "invalid_query_input"
+  | "collection_not_found"
+  | "collection_revision_not_found"
+  | "stale_collection_read"
+  | "malformed_query_response"
+  | "collections_query_failed";
+
+export type CollectionsQueryResult<T> =
+  | { ok: true; data: T }
+  | { ok: false; code: CollectionsQueryErrorCode };
