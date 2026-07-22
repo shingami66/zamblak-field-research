@@ -3,7 +3,6 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 import React from "react";
 import { Navigation } from "@/components/layout/Navigation";
 import { PrototypeStoreProvider } from "@/lib/forms-prototype/store-context";
-import FormsPage from "@/app/forms/page";
 import NewFormPage from "@/app/forms/new/page";
 import FormDetailPageClient from "@/app/forms/[formId]/FormDetailPageClient";
 import ProjectFormsPageClient from "@/app/forms/projects/[projectId]/ProjectFormsPageClient";
@@ -87,10 +86,10 @@ describe("UI Components & Content Safeguards", () => {
     mockSearchParams = new URLSearchParams();
   });
 
-  it("renders FormsPage with DEV/DEMO warning and no raw IDs", async () => {
+  it("renders FormDetailPageClient with DEV/DEMO warning and no raw IDs", async () => {
     render(
       <PrototypeStoreProvider>
-        <FormsPage />
+        <FormDetailPageClient formId="frm-1" />
       </PrototypeStoreProvider>
     );
 
@@ -183,7 +182,7 @@ describe("UI Components & Content Safeguards", () => {
     });
   });
 
-  it("hydrates state from sessionStorage on mount", async () => {
+  it("hydrates prototype store state from sessionStorage on mount", async () => {
     const mockState = {
       version: 1,
       companies: [],
@@ -209,17 +208,19 @@ describe("UI Components & Content Safeguards", () => {
 
     window.sessionStorage.setItem("zamblak.forms-prototype.v1", JSON.stringify(mockState));
 
-    render(
-      <PrototypeStoreProvider>
-        <FormsPage />
-      </PrototypeStoreProvider>
-    );
+    try {
+      render(
+        <PrototypeStoreProvider>
+          <FormDetailPageClient formId="frm-test" />
+        </PrototypeStoreProvider>
+      );
 
-    await waitFor(() => {
-      expect(screen.queryAllByText("FORM-TEST").length).toBeGreaterThan(0);
-    });
-
-    window.sessionStorage.clear();
+      await waitFor(() => {
+        expect(screen.queryAllByText("FORM-TEST").length).toBeGreaterThan(0);
+      });
+    } finally {
+      window.sessionStorage.clear();
+    }
   });
 
   it("renders FormDetailPageClient with semantic description list, bidi isolation, and no raw IDs", async () => {
@@ -252,21 +253,21 @@ describe("UI Components & Content Safeguards", () => {
     expect(projectLink.getAttribute("href")).toBe("/forms/projects/prj-1");
   });
 
-  it("checks forms overview page uses general field-research copy and separate metrics", async () => {
+  it("checks participant forms page uses general field-research copy and separate metrics", async () => {
     render(
       <PrototypeStoreProvider>
-        <FormsPage />
+        <ParticipantFormsPageClient participantId="pt-1" />
       </PrototypeStoreProvider>
     );
 
     await waitFor(() => {
-      expect(screen.queryByText(/متابعة استمارات ومقابلات المشاريع الميدانية/)).not.toBeNull();
+      expect(screen.queryByText("ملخص المشاركة حسب المشروع")).not.toBeNull();
     });
 
     // Separate summary metrics checked
     expect(screen.queryAllByText("مرفوضة").length).toBeGreaterThan(0);
     expect(screen.queryAllByText("ملغاة").length).toBeGreaterThan(0);
-    expect(screen.queryByText("المتبقي من الكوتة")).not.toBeNull();
+    expect(screen.queryByText("قيد المراجعة")).not.toBeNull();
   });
 });
 
