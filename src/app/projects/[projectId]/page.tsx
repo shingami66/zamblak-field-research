@@ -21,6 +21,47 @@ import { BackLink } from "@/components/shared/BackLink";
 import { getSuccessNotice } from "@/lib/ui/success-notice";
 import styles from "./project-detail.module.css";
 
+function UserPlus(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <line x1="19" y1="8" x2="19" y2="14" />
+      <line x1="16" y1="11" x2="22" y2="11" />
+    </svg>
+  );
+}
+
+function PencilLine(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="M12 20h9" />
+      <path d="M16.376 3.622a1 1 0 0 1 1.414 0l2.588 2.588a1 1 0 0 1 0 1.414L8.5 19.5 3 21l1.5-5.5Z" />
+      <path d="m15 5 3 3" />
+    </svg>
+  );
+}
+
 type ProjectDetailPageProps = {
   params: Promise<{ projectId: string }>;
   searchParams: Promise<{ success?: string | string[] }>;
@@ -92,12 +133,14 @@ export default async function ProjectDetailPage({
               href={`/projects/${view.projectId}/add-respondent`}
               className={styles.addRespondentAction}
             >
-              {participationCopy.addRespondent}
+              <UserPlus className={styles.actionIcon} aria-hidden="true" />
+              <span>{participationCopy.addRespondent}</span>
             </Link>
           ) : null}
           {view.canEdit ? (
             <Link href={view.editHref} className={styles.editAction}>
-              {projectsDetailCopy.editProject}
+              <PencilLine className={styles.actionIcon} aria-hidden="true" />
+              <span>{projectsDetailCopy.editProject}</span>
             </Link>
           ) : null}
         </div>
@@ -107,15 +150,6 @@ export default async function ProjectDetailPage({
         <p className={styles.readOnlyNotice} role="status">
           {projectsDetailCopy.readOnlyNotice}
         </p>
-      ) : null}
-
-      {isOwner && view.lifecycleActions.length > 0 ? (
-        <ProjectLifecycleActions
-          projectId={view.projectId}
-          expectedUpdatedAt={view.expectedUpdatedAt}
-          projectName={view.projectName}
-          actions={view.lifecycleActions}
-        />
       ) : null}
 
       <section className={styles.surface} aria-labelledby="section-basic">
@@ -328,6 +362,15 @@ export default async function ProjectDetailPage({
           </div>
         </dl>
       </section>
+
+      {isOwner && view.lifecycleActions.length > 0 ? (
+        <ProjectLifecycleActions
+          projectId={view.projectId}
+          expectedUpdatedAt={view.expectedUpdatedAt}
+          projectName={view.projectName}
+          actions={view.lifecycleActions}
+        />
+      ) : null}
     </div>
   );
 }

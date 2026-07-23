@@ -6,7 +6,6 @@ import { listCompanies } from "@/lib/companies/rpc";
 import { projectsListCopy } from "@/lib/projects/list-copy";
 import {
   PROJECTS_LIST_PAGE_SIZE,
-  buildProjectsListHref,
   deriveProjectsListPagination,
   parseProjectsListSearchParams,
 } from "@/lib/projects/list-params";
@@ -24,7 +23,47 @@ import { StatusBadge } from "@/components/shared/StatusBadge";
 import { ProjectLtrToken } from "@/components/projects/ProjectLtrToken";
 import { SuccessNotice } from "@/components/shared/SuccessNotice";
 import { getSuccessNotice } from "@/lib/ui/success-notice";
+import { ProjectsFilterToolbar } from "@/components/projects/ProjectsFilterToolbar";
 import styles from "./projects-list.module.css";
+
+function Eye(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+}
+
+function PencilLine(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="M12 20h9" />
+      <path d="M16.376 3.622a1 1 0 0 1 1.414 0l2.588 2.588a1 1 0 0 1 0 1.414L8.5 19.5 3 21l1.5-5.5Z" />
+      <path d="m15 5 3 3" />
+    </svg>
+  );
+}
 
 type ProjectsPageProps = {
   searchParams: Promise<{
@@ -157,9 +196,23 @@ export default async function ProjectsPage({
                   key: "actions",
                   header: "إجراءات",
                   render: (item) => (
-                    <div className={styles.cardActions}>
-                      <Link href={item.detailHref} className={styles.textLink}>{projectsListCopy.view}</Link>
-                      <Link href={item.editHref} className={styles.textLink}>{projectsListCopy.edit}</Link>
+                    <div className={styles.tableActions}>
+                      <Link
+                        href={item.detailHref}
+                        className={styles.iconActionButton}
+                        aria-label="عرض المشروع"
+                        title="عرض المشروع"
+                      >
+                        <Eye className={styles.actionIcon} aria-hidden="true" />
+                      </Link>
+                      <Link
+                        href={item.editHref}
+                        className={styles.iconActionButton}
+                        aria-label="تعديل المشروع"
+                        title="تعديل المشروع"
+                      >
+                        <PencilLine className={styles.actionIcon} aria-hidden="true" />
+                      </Link>
                     </div>
                   ),
                 },
@@ -184,8 +237,24 @@ export default async function ProjectsPage({
                 ]}
                 actions={
                   <div className={styles.cardActions}>
-                    <Link href={item.detailHref} className={styles.textLink}>{projectsListCopy.view}</Link>
-                    <Link href={item.editHref} className={styles.textLink}>{projectsListCopy.edit}</Link>
+                    <Link
+                      href={item.detailHref}
+                      className={styles.mobileActionButton}
+                      aria-label="عرض المشروع"
+                      title="عرض المشروع"
+                    >
+                      <Eye className={styles.actionIcon} aria-hidden="true" />
+                      <span>{projectsListCopy.view}</span>
+                    </Link>
+                    <Link
+                      href={item.editHref}
+                      className={styles.mobileActionButton}
+                      aria-label="تعديل المشروع"
+                      title="تعديل المشروع"
+                    >
+                      <PencilLine className={styles.actionIcon} aria-hidden="true" />
+                      <span>{projectsListCopy.edit}</span>
+                    </Link>
                   </div>
                 }
               />
@@ -207,6 +276,26 @@ export default async function ProjectsPage({
 }
 
 
+function FolderPlus2(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="M12 10v6" />
+      <path d="M9 13h6" />
+      <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z" />
+    </svg>
+  );
+}
+
 function ProjectsListShell({
   children,
   search = null,
@@ -224,8 +313,6 @@ function ProjectsListShell({
   companiesFilterFailed?: boolean;
   successNotice?: string | null;
 }) {
-  const hasFilters = Boolean(search || companyId || status);
-
   return (
     <div className={styles.page}>
       <header className={styles.pageIntro}>
@@ -236,81 +323,29 @@ function ProjectsListShell({
           </p>
         </div>
         <Link href="/projects/new" className={styles.primaryAction}>
-          {projectsListCopy.addProject}
+          <FolderPlus2 className={styles.actionIcon} aria-hidden="true" />
+          <span>مشروع جديد</span>
         </Link>
       </header>
       <SuccessNotice message={successNotice} />
 
-      <div className={styles.toolbar}>
-        <form className={styles.filterForm} method="get" action="/projects">
-          <div className={styles.searchField}>
-            <label className={styles.searchLabel} htmlFor="project-search">
-              {projectsListCopy.searchLabel}
-            </label>
-            <input
-              id="project-search"
-              className={styles.searchInput}
-              type="search"
-              name="q"
-              defaultValue={search ?? ""}
-              maxLength={120}
-              placeholder={projectsListCopy.searchPlaceholder}
-              autoComplete="off"
-            />
-          </div>
-
-          <div className={styles.searchField}>
-            <label className={styles.searchLabel} htmlFor="project-company">
-              {projectsListCopy.companyFilterLabel}
-            </label>
-            <select
-              id="project-company"
-              className={styles.selectInput}
-              name="company"
-              defaultValue={companyId ?? ""}
-            >
-              <option value="">{projectsListCopy.companyFilterAll}</option>
-              {companyOptions.map((option) => (
-                <option key={option.companyId} value={option.companyId}>
-                  {option.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className={styles.searchField}>
-            <label className={styles.searchLabel} htmlFor="project-status">
-              {projectsListCopy.statusFilterLabel}
-            </label>
-            <select
-              id="project-status"
-              className={styles.selectInput}
-              name="status"
-              defaultValue={status ?? ""}
-            >
-              <option value="">{projectsListCopy.statusFilterAll}</option>
-              {STATUS_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <button type="submit" className={styles.searchSubmit}>
-            {projectsListCopy.searchAction}
-          </button>
-        </form>
-
-        {hasFilters ? (
-          <Link
-            href={buildProjectsListHref({})}
-            className={styles.secondaryAction}
-          >
-            {projectsListCopy.resetFilters}
-          </Link>
-        ) : null}
-      </div>
+      {/* Filter parameters contract: name="q", name="company", name="status" */}
+      <ProjectsFilterToolbar
+        initialSearch={search}
+        initialCompanyId={companyId}
+        initialStatus={status}
+        companyOptions={companyOptions}
+        statusOptions={STATUS_OPTIONS}
+        copy={{
+          searchLabel: projectsListCopy.searchLabel,
+          searchPlaceholder: projectsListCopy.searchPlaceholder,
+          searchAction: projectsListCopy.searchAction,
+          companyFilterLabel: projectsListCopy.companyFilterLabel,
+          companyFilterAll: projectsListCopy.companyFilterAll,
+          statusFilterLabel: projectsListCopy.statusFilterLabel,
+          statusFilterAll: projectsListCopy.statusFilterAll,
+        }}
+      />
 
       {companiesFilterFailed ? (
         <p className={styles.filterWarning} role="status">
@@ -328,13 +363,9 @@ function EmptyPanel({ hasFilters }: { hasFilters: boolean }) {
     return (
       <div className={styles.emptyState} role="status">
         <h2 className={styles.emptyTitle}>{projectsListCopy.noFilterResults}</h2>
-        <p className={styles.emptyHint}>{projectsListCopy.noFilterResultsHint}</p>
-        <Link
-          href={buildProjectsListHref({})}
-          className={styles.secondaryAction}
-        >
-          {projectsListCopy.resetFilters}
-        </Link>
+        <p className={styles.emptyHint}>
+          غيّر كلمة البحث أو اختر كل الشركات أو كل الحالات.
+        </p>
       </div>
     );
   }

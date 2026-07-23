@@ -5,9 +5,8 @@ export const projectsDetailCopy = {
   backToList: "العودة إلى المشاريع",
   editProject: "تعديل المشروع",
   readOnlyNotice: "هذا المشروع للعرض فقط",
-  lifecycleHeading: "تغيير حالة المشروع",
-  lifecycleHint:
-    "متاح للمالك فقط. تُطبَّق القواعد النهائية في قاعدة البيانات. يُستخدم وقت آخر تحديث المحمّل من التفاصيل دون تغييره في المتصفح. راجع نص الإجراء قبل التأكيد.",
+  lifecycleHeading: "إدارة حالة المشروع",
+  lifecycleHint: "استخدم هذه الخيارات عند انتهاء المشروع أو عند الحاجة إلى إلغائه.",
   transitionToActive: "تفعيل المشروع",
   transitionToClosed: "إغلاق المشروع",
   transitionToCancelled: "إلغاء المشروع",

@@ -34,19 +34,23 @@
 
 .addRespondentAction {
   display: inline-flex;
-  min-height: 3rem;
+  min-height: 3.25rem;
   align-items: center;
   justify-content: center;
+  gap: 0.5rem;
   border-radius: 0.75rem;
   background: #0f3d3e;
-  padding-inline: 1rem;
+  padding-inline: 1.25rem;
   color: #fff;
+  font-size: 1rem;
   font-weight: 700;
   text-decoration: none;
+  transition: background-color 180ms ease-out, transform 180ms ease-out;
 }
 
 .addRespondentAction:hover {
-  background: #002627;
+  background: #082f30;
+  transform: translateY(-1px);
 }
 
 .participationsHeader {
@@ -242,17 +246,29 @@
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
+  gap: 0.5rem;
+  border: 1px solid var(--color-border);
   border-radius: 0.75rem;
-  background: #0f3d3e;
+  background: #fbfcfb;
   padding-inline: 1.25rem;
-  color: #ffffff;
+  color: #0f3d3e;
   font-size: 1rem;
   font-weight: 700;
   text-decoration: none;
+  transition: background-color 180ms ease-out, border-color 180ms ease-out,
+    transform 180ms ease-out;
 }
 
 .editAction:hover {
-  background: #082f30;
+  background: #edf3f3;
+  border-color: #b8c9c5;
+  transform: translateY(-1px);
+}
+
+.actionIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
 }
 
 .lifecycleSection {

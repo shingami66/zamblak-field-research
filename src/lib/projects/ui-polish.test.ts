@@ -106,4 +106,51 @@ describe("Projects UI polish invariants", () => {
       }
     }
   });
+
+  it("uses Eye and PencilLine lucide icons with accessible Arabic labels for view and edit row actions", () => {
+    const list = readFileSync(
+      join(repoSrc, "app", "projects", "page.tsx"),
+      "utf8"
+    );
+    assert.equal(list.includes("Eye"), true, "Must include Eye icon");
+    assert.equal(list.includes("PencilLine"), true, "Must include PencilLine icon");
+    assert.equal(list.includes('aria-label="عرض المشروع"'), true, "Must have accessible Arabic label for View");
+    assert.equal(list.includes('aria-label="تعديل المشروع"'), true, "Must have accessible Arabic label for Edit");
+    assert.equal(list.includes('title="عرض المشروع"'), true, "Must have title tooltip for View");
+    assert.equal(list.includes('title="تعديل المشروع"'), true, "Must have title tooltip for Edit");
+    assert.equal(list.includes("item.detailHref"), true, "Must preserve detailHref");
+    assert.equal(list.includes("item.editHref"), true, "Must preserve editHref");
+  });
+
+  it("project detail page enforces action hierarchy and relocated lifecycle section", () => {
+    const list = readFileSync(
+      join(repoSrc, "app", "projects", "page.tsx"),
+      "utf8"
+    );
+    assert.equal(list.includes("FolderPlus2"), true, "Must include FolderPlus2 icon for new project");
+    assert.equal(list.includes("مشروع جديد"), true, "Must use مشروع جديد label");
+
+    const detail = readFileSync(
+      join(repoSrc, "app", "projects", "[projectId]", "page.tsx"),
+      "utf8"
+    );
+    assert.equal(detail.includes("UserPlus"), true, "Must include UserPlus icon for add-respondent");
+    assert.equal(detail.includes("PencilLine"), true, "Must include PencilLine icon for edit project");
+    assert.equal(detail.includes("add-respondent"), true, "Must preserve add-respondent href");
+    assert.equal(detail.includes("view.editHref"), true, "Must preserve edit href");
+
+    // Lifecycle section relocated after audit section
+    const auditPos = detail.indexOf('id="section-audit"');
+    const lifecyclePos = detail.indexOf("<ProjectLifecycleActions");
+    assert.ok(auditPos > 0, "Audit section must exist");
+    assert.ok(lifecyclePos > 0, "Lifecycle actions must exist");
+    assert.ok(lifecyclePos > auditPos, "Lifecycle section must be relocated after audit section");
+
+    const copy = readFileSync(
+      join(repoSrc, "lib", "projects", "detail-copy.ts"),
+      "utf8"
+    );
+    assert.equal(copy.includes("إدارة حالة المشروع"), true);
+    assert.equal(copy.includes("استخدم هذه الخيارات عند انتهاء المشروع أو عند الحاجة إلى إلغائه."), true);
+  });
 });
