@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { FormsFilterToolbar } from "@/components/forms/FormsFilterToolbar";
 import {
   listResearchForms,
   listSubmittedResearchForms,
@@ -144,106 +145,8 @@ async function renderFormsPage(searchParams?: SearchParams) {
         )}
       </section>
 
-      {/* FILTER FORM */}
-      <section className={styles.toolbar}>
-        <form method="GET" action="/forms" className={styles.filterForm} style={{ flexDirection: "column", gap: "1rem" }}>
-          {/* Row 1: Code Search & Review Status */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "1rem", width: "100%" }}>
-            <div className={styles.filterField}>
-              <label className={styles.filterLabel} htmlFor="code-filter">
-                بحث بالرمز
-              </label>
-              <input
-                id="code-filter"
-                type="text"
-                name="code"
-                className={styles.filterInput}
-                defaultValue={filters.code || ""}
-                placeholder="مثال: RF-001"
-              />
-            </div>
-
-            <div className={styles.filterField}>
-              <label className={styles.filterLabel} htmlFor="status-filter">
-                حالة المراجعة
-              </label>
-              <select
-                id="status-filter"
-                name="reviewStatus"
-                className={styles.filterInput}
-                defaultValue={filters.reviewStatus || ""}
-              >
-                <option value="">جميع الحالات</option>
-                <option value="submitted">قيد المراجعة</option>
-                <option value="accepted">مقبول</option>
-                <option value="rejected">مرفوض</option>
-                <option value="cancelled">ملغى</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Row 2: Submitted Dates, Page Size, and Actions */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: "1rem", width: "100%", alignItems: "flex-end" }}>
-            <div className={styles.filterField}>
-              <label className={styles.filterLabel} htmlFor="date-from-filter">
-                تاريخ التقديم من
-              </label>
-              <input
-                id="date-from-filter"
-                type="date"
-                name="submittedDateFrom"
-                className={styles.filterInput}
-                defaultValue={filters.submittedDateFrom || ""}
-              />
-              <span style={{ fontSize: "0.75rem", color: "var(--color-muted)", marginTop: "0.125rem" }}>
-                يوم / شهر / سنة
-              </span>
-            </div>
-
-            <div className={styles.filterField}>
-              <label className={styles.filterLabel} htmlFor="date-to-filter">
-                تاريخ التقديم إلى
-              </label>
-              <input
-                id="date-to-filter"
-                type="date"
-                name="submittedDateTo"
-                className={styles.filterInput}
-                defaultValue={filters.submittedDateTo || ""}
-              />
-              <span style={{ fontSize: "0.75rem", color: "var(--color-muted)", marginTop: "0.125rem" }}>
-                يوم / شهر / سنة
-              </span>
-            </div>
-
-            <div className={styles.filterField}>
-              <label className={styles.filterLabel} htmlFor="pagesize-filter">
-                عدد العناصر بالصفحة
-              </label>
-              <select
-                id="pagesize-filter"
-                name="pageSize"
-                className={styles.filterInput}
-                defaultValue={filters.pageSize || 20}
-              >
-                <option value="10">10</option>
-                <option value="20">20</option>
-                <option value="50">50</option>
-                <option value="100">100</option>
-              </select>
-            </div>
-
-            <div style={{ display: "flex", alignItems: "flex-end", gap: "0.5rem", flexWrap: "wrap", paddingBottom: "0.125rem" }}>
-              <button type="submit" className={styles.primaryAction}>
-                تطبيق الفلاتر
-              </button>
-              <Link href="/forms" className={styles.secondaryAction}>
-                مسح الفلاتر
-              </Link>
-            </div>
-          </div>
-        </form>
-      </section>
+      {/* FILTER TOOLBAR */}
+      <FormsFilterToolbar initialFilters={filters} />
 
       {/* MAIN FORMS LIST TABLE */}
       <section className={styles.detailCard}>
