@@ -6,7 +6,8 @@ export const successNoticeMessages = {
   respondent_created: "تمت إضافة المشارك بنجاح.",
   respondent_updated: "تم تحديث بيانات المشارك بنجاح.",
   participant_assigned: "تمت إضافة المشارك إلى المشروع بنجاح.",
-  create_collection: "تم تسجيل التحصيل وتوزيع المبلغ بنجاح.",
+  create_collection: "تم تسجيل الدفعة النقدية وربطها بالاستمارات المحددة.",
+  create_form: "تم تسجيل الاستمارة وإرسالها للمراجعة.",
 } as const;
 
 export type SuccessNoticeCode = keyof typeof successNoticeMessages;

@@ -22,6 +22,46 @@ const STATUS_LABELS: Record<ResearchFormReviewStatus, string> = {
   cancelled: "ملغى",
 };
 
+function FilePlus2(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="M4 22h14a2 2 0 0 0 2-2V7.5L14.5 2H6a2 2 0 0 0-2 2v4" />
+      <polyline points="14 2 14 8 20 8" />
+      <path d="M3 15h6" />
+      <path d="M6 12v6" />
+    </svg>
+  );
+}
+
+function Eye(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+}
+
 export default function FormsPage({
   searchParams,
 }: {
@@ -86,6 +126,10 @@ async function renderFormsPage(searchParams?: SearchParams) {
             إدارة ومراجعة نماذج البحث الميداني وحالات التقييم والمالية.
           </p>
         </div>
+        <Link href="/forms/new" className={styles.primaryAction}>
+          <FilePlus2 className={styles.actionIcon} aria-hidden="true" />
+          <span>استمارة جديدة</span>
+        </Link>
       </header>
 
       {/* SUBMITTED REVIEW QUEUE SECTION */}
@@ -169,13 +213,16 @@ async function renderFormsPage(searchParams?: SearchParams) {
               لا توجد استمارات بعد
             </h2>
             <p style={{ fontSize: "0.9375rem", color: "var(--color-muted)", margin: 0, maxWidth: "32rem", lineHeight: 1.6 }}>
-              ستظهر هنا نماذج البحث بعد تسجيلها ومراجعتها.
+              {hasActiveFilters
+                ? "لا توجد نتائج مطابقة للفلاتر الحالية."
+                : "ابدأ بتسجيل استمارة لأحد المشاركين في مشروع نشط."}
             </p>
-            {hasActiveFilters ? (
-              <p style={{ fontSize: "0.875rem", color: "#92400e", backgroundColor: "#fef3c7", padding: "0.375rem 0.75rem", borderRadius: "0.5rem", margin: "0.25rem 0 0 0" }}>
-                لا توجد نتائج مطابقة للفلاتر الحالية.
-              </p>
-            ) : null}
+            {!hasActiveFilters && (
+              <Link href="/forms/new" className={styles.primaryAction} style={{ marginTop: "0.5rem" }}>
+                <FilePlus2 className={styles.actionIcon} aria-hidden="true" />
+                <span>تسجيل استمارة جديدة</span>
+              </Link>
+            )}
           </div>
         ) : (
           <>
@@ -246,9 +293,16 @@ async function renderFormsPage(searchParams?: SearchParams) {
                           : "-"}
                       </td>
                       <td style={{ padding: "0.75rem" }}>
-                        <Link href={`/forms/${item.id}`} className={styles.textLink}>
-                          التفاصيل &larr;
-                        </Link>
+                        <div className={styles.tableActions}>
+                          <Link
+                            href={`/forms/${item.id}`}
+                            className={styles.iconActionButton}
+                            aria-label="عرض النموذج"
+                            title="عرض النموذج"
+                          >
+                            <Eye className={styles.actionIcon} aria-hidden="true" />
+                          </Link>
+                        </div>
                       </td>
                     </tr>
                   ))}

@@ -83,6 +83,43 @@ describe("Forms Query Contracts (Slice A2 Core)", () => {
       );
     });
 
+    it("parses accepted_price_snapshot as number or numeric string", () => {
+      const rawValid = {
+        id: VALID_UUID_1,
+        account_id: VALID_UUID_1,
+        project_id: VALID_UUID_1,
+        company_id: VALID_UUID_1,
+        respondent_id: VALID_UUID_1,
+        participation_id: VALID_UUID_1,
+        code: "RF-001",
+        attempt_number: 1,
+        submitted_date: "2026-07-23",
+        review_status: "accepted",
+        submitted_at: "2026-07-23T10:00:00Z",
+        reviewed_at: "2026-07-23T10:00:00Z",
+        accepted_at: "2026-07-23T10:00:00Z",
+        rejected_at: null,
+        cancelled_at: null,
+        rejection_reason: null,
+        review_correction_reason: null,
+        accepted_price_snapshot: "150.00",
+        quota_limit_snapshot: null,
+        accepted_count_before: null,
+        quota_override_reason: null,
+        quota_overridden_at: null,
+        quota_overridden_by: null,
+        notes: null,
+        created_by: VALID_UUID_1,
+        updated_by: VALID_UUID_1,
+        created_at: "2026-07-23T10:00:00Z",
+        updated_at: "2026-07-23T10:00:00Z",
+      };
+
+      const parsed = parseResearchFormRow(rawValid);
+      assert.notEqual(parsed, null);
+      assert.equal(parsed?.accepted_price_snapshot, 150);
+    });
+
     it("parses valid FormFinancialSummaryRow and rejects invalid rows", () => {
       const rawValid = {
         research_form_id: VALID_UUID_1,

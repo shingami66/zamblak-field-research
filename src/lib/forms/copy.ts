@@ -8,6 +8,7 @@ export const FORMS_ERROR_MESSAGES: Record<FormsErrorCode, string> = {
   research_form_not_found: "نموذج البحث غير موجود في حسابك.",
   research_form_state_invalid: "حالة نموذج البحث الحالية لا تسمح بإجراء هذه العملية.",
   duplicate_accepted_form: "يوجد بالفعل نموذج مقبول للمشارك في هذا المشروع.",
+  duplicate_participation: "تم تسجيل استمارة لهذا المشارك في المشروع بالفعل.",
   accepted_price_unavailable: "لم يتم تحديد السعر المتفق عليه أو الافتراضي لهذا النموذج.",
   quota_override_reason_required: "تم الوصول إلى الحد الأقصى للمشروع. يرجى تقديم سبب التجاوز.",
   accepted_form_has_active_allocations: "لا يمكن تعديل نموذج مقبول مرتبط بتخصيصات مالية نشطة.",

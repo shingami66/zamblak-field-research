@@ -96,7 +96,9 @@ export function parseResearchFormRow(raw: unknown): ResearchFormRow | null {
   const cancelled_at = r.cancelled_at === null || typeof r.cancelled_at === "string" ? (r.cancelled_at as string | null) : undefined;
   const rejection_reason = r.rejection_reason === null || typeof r.rejection_reason === "string" ? (r.rejection_reason as string | null) : undefined;
   const review_correction_reason = r.review_correction_reason === null || typeof r.review_correction_reason === "string" ? (r.review_correction_reason as string | null) : undefined;
-  const accepted_price_snapshot = r.accepted_price_snapshot === null || (typeof r.accepted_price_snapshot === "number" && !isNaN(r.accepted_price_snapshot) && r.accepted_price_snapshot >= 0) ? (r.accepted_price_snapshot as number | null) : undefined;
+  const rawPrice = r.accepted_price_snapshot;
+  const numPrice = rawPrice === null ? null : typeof rawPrice === "number" ? rawPrice : typeof rawPrice === "string" ? Number(rawPrice) : undefined;
+  const accepted_price_snapshot = numPrice === null || (typeof numPrice === "number" && !isNaN(numPrice) && numPrice >= 0) ? numPrice : undefined;
   const quota_limit_snapshot = r.quota_limit_snapshot === null || (typeof r.quota_limit_snapshot === "number" && Number.isInteger(r.quota_limit_snapshot) && r.quota_limit_snapshot >= 0) ? (r.quota_limit_snapshot as number | null) : undefined;
   const accepted_count_before = r.accepted_count_before === null || (typeof r.accepted_count_before === "number" && Number.isInteger(r.accepted_count_before) && r.accepted_count_before >= 0) ? (r.accepted_count_before as number | null) : undefined;
   const quota_override_reason = r.quota_override_reason === null || typeof r.quota_override_reason === "string" ? (r.quota_override_reason as string | null) : undefined;

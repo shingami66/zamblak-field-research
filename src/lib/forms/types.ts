@@ -16,6 +16,7 @@ export type FormsErrorCode =
   | "research_form_not_found"
   | "research_form_state_invalid"
   | "duplicate_accepted_form"
+  | "duplicate_participation"
   | "accepted_price_unavailable"
   | "quota_override_reason_required"
   | "accepted_form_has_active_allocations"

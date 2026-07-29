@@ -12,11 +12,33 @@ import { StatusBadge } from "@/components/shared/StatusBadge";
 import { ProjectLtrToken } from "@/components/projects/ProjectLtrToken";
 import { participationCopy } from "@/lib/participations/copy";
 import { Pagination } from "@/components/shared/Pagination";
+import { listResearchForms } from "@/lib/forms/queries";
 import styles from "./participants.module.css";
 
 export const metadata = {
   title: "المشاركون في المشروع | زمبلك",
 };
+
+function FilePlus2(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="M4 22h14a2 2 0 0 0 2-2V7.5L14.5 2H6a2 2 0 0 0-2 2v4" />
+      <polyline points="14 2 14 8 20 8" />
+      <path d="M3 15h6" />
+      <path d="M6 12v6" />
+    </svg>
+  );
+}
 
 export default async function ProjectParticipantsPage(props: {
   params: Promise<{ projectId: string }>;
@@ -85,6 +107,14 @@ export default async function ProjectParticipantsPage(props: {
   const hasNextPage = participations.length > limit;
   if (hasNextPage) {
     participations = participations.slice(0, limit);
+  }
+
+  const formsResult = await listResearchForms(supabase, { projectId, pageSize: 100 });
+  const existingFormIdMap = new Map<string, string>();
+  if (formsResult.ok) {
+    for (const f of formsResult.data.items) {
+      existingFormIdMap.set(f.participation_id, f.id);
+    }
   }
 
   return (
@@ -179,23 +209,76 @@ export default async function ProjectParticipantsPage(props: {
                       </ProjectLtrToken>
                     ),
                   },
+                  {
+                    key: "formAction",
+                    header: "الاستمارة",
+                    render: (item) => {
+                      const existingFormId = existingFormIdMap.get(item.participationId);
+                      if (existingFormId) {
+                        return (
+                          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                            <span style={{ fontSize: "0.85rem", color: "var(--color-success, #166534)", fontWeight: 600 }}>
+                              تم تسجيل الاستمارة
+                            </span>
+                            <Link href={`/forms/${existingFormId}`} className={styles.pageLink} style={{ fontSize: "0.85rem" }}>
+                              عرض الاستمارة
+                            </Link>
+                          </div>
+                        );
+                      }
+                      return (
+                        <Link
+                          href={`/forms/new?project=${projectId}&participant=${item.participationId}`}
+                          className={styles.secondaryAction}
+                          style={{ minHeight: "2.25rem", paddingInline: "0.75rem", fontSize: "0.85rem", display: "inline-flex", alignItems: "center", gap: "0.375rem" }}
+                        >
+                          <FilePlus2 style={{ width: "16px", height: "16px" }} aria-hidden="true" />
+                          <span>تسجيل استمارة</span>
+                        </Link>
+                      );
+                    },
+                  },
                 ]}
               />
             </div>
 
             <div className={styles.mobileView}>
-              {participations.map((item) => (
-                <MobileListCard
-                  key={item.participationId}
-                  title={item.respondentName || participationCopy.noNameFallback}
-                  details={[
-                    { label: "رقم الجوال", value: <ProjectLtrToken>{item.respondentMobile}</ProjectLtrToken> },
-                    { label: "العمر", value: item.respondentAge ?? "-" },
-                    { label: "نوع الإقامة", value: item.respondentResidentType === "saudi" ? "سعودي" : item.respondentResidentType === "non_saudi" ? "مقيم" : "-" },
-                    { label: "تاريخ التعيين", value: <ProjectLtrToken>{new Date(item.createdAt).toLocaleDateString("en-SA")}</ProjectLtrToken> },
-                  ]}
-                />
-              ))}
+              {participations.map((item) => {
+                const existingFormId = existingFormIdMap.get(item.participationId);
+                return (
+                  <MobileListCard
+                    key={item.participationId}
+                    title={item.respondentName || participationCopy.noNameFallback}
+                    details={[
+                      { label: "رقم الجوال", value: <ProjectLtrToken>{item.respondentMobile}</ProjectLtrToken> },
+                      { label: "العمر", value: item.respondentAge ?? "-" },
+                      { label: "نوع الإقامة", value: item.respondentResidentType === "saudi" ? "سعودي" : item.respondentResidentType === "non_saudi" ? "مقيم" : "-" },
+                      { label: "تاريخ التعيين", value: <ProjectLtrToken>{new Date(item.createdAt).toLocaleDateString("en-SA")}</ProjectLtrToken> },
+                    ]}
+                    actions={
+                      existingFormId ? (
+                        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                          <span style={{ fontSize: "0.85rem", color: "var(--color-success, #166534)", fontWeight: 600 }}>
+                            تم تسجيل الاستمارة
+                          </span>
+                          <Link href={`/forms/${existingFormId}`} className={styles.pageLink} style={{ fontSize: "0.85rem" }}>
+                            عرض الاستمارة
+                          </Link>
+                        </div>
+                      ) : (
+                        <Link
+                          href={`/forms/new?project=${projectId}&participant=${item.participationId}`}
+                          className={styles.secondaryAction}
+                          style={{ minHeight: "2.25rem", paddingInline: "0.75rem", fontSize: "0.85rem", display: "inline-flex", alignItems: "center", gap: "0.375rem" }}
+                        >
+                          <FilePlus2 style={{ width: "16px", height: "16px" }} aria-hidden="true" />
+                          <span>تسجيل استمارة</span>
+                        </Link>
+                      )
+                    }
+                  />
+                );
+              })}
             </div>
 
             <Pagination
