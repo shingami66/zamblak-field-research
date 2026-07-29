@@ -14,6 +14,45 @@ import { BackLink } from "@/components/shared/BackLink";
 import { getSuccessNotice } from "@/lib/ui/success-notice";
 import styles from "./respondent-detail.module.css";
 
+function User(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+      <circle cx="12" cy="7" r="4" />
+    </svg>
+  );
+}
+
+function PencilLine(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="M12 20h9" />
+      <path d="M16.376 3.622a1 1 0 0 1 1.414 0l2.588 2.588a1 1 0 0 1 0 1.414L8.5 19.5 3 21l1.5-5.5Z" />
+      <path d="m15 5 3 3" />
+    </svg>
+  );
+}
+
 type RespondentDetailPageProps = {
   params: Promise<{ respondentId: string }>;
   searchParams: Promise<{ success?: string | string[] }>;
@@ -63,10 +102,16 @@ export default async function RespondentDetailPage({
       <SuccessNotice message={successNotice} />
 
       <header className={styles.headerRow}>
-        <h1 className={styles.pageTitle}>{view.nameLabel}</h1>
-        <Link href={view.editHref} className={styles.editAction}>
-          {respondentsDetailCopy.editRespondent}
-        </Link>
+        <div className={styles.headerMain}>
+          <User className={styles.identityIcon} aria-hidden="true" />
+          <h1 className={styles.pageTitle}>{view.nameLabel}</h1>
+        </div>
+        <div className={styles.headerActions}>
+          <Link href={view.editHref} className={styles.editAction}>
+            <PencilLine className={styles.actionIcon} aria-hidden="true" />
+            <span>{respondentsDetailCopy.editRespondent}</span>
+          </Link>
+        </div>
       </header>
 
       <section className={styles.surface} aria-labelledby="section-basic">

@@ -14,14 +14,74 @@ import {
   toRespondentListItemViews,
 } from "@/lib/respondents/list-view-model";
 import { listRespondents } from "@/lib/respondents/rpc";
-import { RESPONDENT_SEARCH_MAX_LENGTH } from "@/lib/respondents/input";
 import { createClient } from "@/lib/supabase/server";
 import { DataTable } from "@/components/shared/DataTable";
 import { MobileListCard } from "@/components/shared/MobileListCard";
 import { Pagination } from "@/components/shared/Pagination";
 import { SuccessNotice } from "@/components/shared/SuccessNotice";
 import { getSuccessNotice } from "@/lib/ui/success-notice";
+import { RespondentsFilterToolbar } from "@/components/respondents/RespondentsFilterToolbar";
 import styles from "./respondents-list.module.css";
+
+function UserPlus(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <line x1="19" x2="19" y1="8" y2="14" />
+      <line x1="16" x2="22" y1="11" y2="11" />
+    </svg>
+  );
+}
+
+function Eye(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+}
+
+function PencilLine(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="M12 20h9" />
+      <path d="M16.376 3.622a1 1 0 0 1 1.414 0l2.588 2.588a1 1 0 0 1 0 1.414L8.5 19.5 3 21l1.5-5.5Z" />
+      <path d="m15 5 3 3" />
+    </svg>
+  );
+}
 
 type RespondentsPageProps = {
   searchParams: Promise<{
@@ -104,8 +164,23 @@ export default async function RespondentsPage({
                   key: "actions",
                   header: "إجراءات",
                   render: (item) => (
-                    <div className={styles.cardActions}>
-                      <Link href={item.detailHref} className={styles.textLink}>{respondentsListCopy.view}</Link>
+                    <div className={styles.tableActions}>
+                      <Link
+                        href={item.detailHref}
+                        className={styles.iconActionButton}
+                        aria-label="عرض المشارك"
+                        title="عرض المشارك"
+                      >
+                        <Eye className={styles.actionIcon} aria-hidden="true" />
+                      </Link>
+                      <Link
+                        href={`/respondents/${item.respondentId}/edit`}
+                        className={styles.iconActionButton}
+                        aria-label="تعديل المشارك"
+                        title="تعديل المشارك"
+                      >
+                        <PencilLine className={styles.actionIcon} aria-hidden="true" />
+                      </Link>
                     </div>
                   ),
                 },
@@ -125,7 +200,24 @@ export default async function RespondentsPage({
                 ]}
                 actions={
                   <div className={styles.cardActions}>
-                    <Link href={item.detailHref} className={styles.textLink}>{respondentsListCopy.view}</Link>
+                    <Link
+                      href={item.detailHref}
+                      className={styles.mobileActionButton}
+                      aria-label="عرض المشارك"
+                      title="عرض المشارك"
+                    >
+                      <Eye className={styles.actionIcon} aria-hidden="true" />
+                      <span>{respondentsListCopy.view}</span>
+                    </Link>
+                    <Link
+                      href={`/respondents/${item.respondentId}/edit`}
+                      className={styles.mobileActionButton}
+                      aria-label="تعديل المشارك"
+                      title="تعديل المشارك"
+                    >
+                      <PencilLine className={styles.actionIcon} aria-hidden="true" />
+                      <span>تعديل</span>
+                    </Link>
                   </div>
                 }
               />
@@ -165,46 +257,24 @@ function RespondentsListShell({
             {respondentsListCopy.pageDescription}
           </p>
         </div>
-        <Link href="/respondents/new" className={styles.primaryAction}>
-          {respondentsListCopy.addRespondent}
-        </Link>
+        <div className={styles.headerActionRow}>
+          <Link href="/respondents/new" className={styles.primaryAction}>
+            <UserPlus className={styles.actionIcon} aria-hidden="true" />
+            <span>مشارك جديد</span>
+          </Link>
+        </div>
       </header>
       <SuccessNotice message={successNotice} />
 
-      <div className={styles.toolbar}>
-        <form
-          className={styles.searchForm}
-          method="get"
-          action="/respondents"
-        >
-          <div className={styles.searchField}>
-            <label className={styles.searchLabel} htmlFor="respondent-search">
-              {respondentsListCopy.searchLabel}
-            </label>
-            <input
-              id="respondent-search"
-              className={styles.searchInput}
-              type="search"
-              name="q"
-              defaultValue={search ?? ""}
-              maxLength={RESPONDENT_SEARCH_MAX_LENGTH}
-              placeholder={respondentsListCopy.searchPlaceholder}
-              autoComplete="off"
-            />
-          </div>
-          <button type="submit" className={styles.searchSubmit}>
-            {respondentsListCopy.searchAction}
-          </button>
-        </form>
-        {search ? (
-          <Link
-            href={buildRespondentsListHref({})}
-            className={styles.secondaryAction}
-          >
-            {respondentsListCopy.resetSearch}
-          </Link>
-        ) : null}
-      </div>
+      <RespondentsFilterToolbar
+        name="q"
+        initialSearch={search}
+        copy={{
+          searchLabel: respondentsListCopy.searchLabel,
+          searchPlaceholder: respondentsListCopy.searchPlaceholder,
+          searchAction: respondentsListCopy.searchAction,
+        }}
+      />
 
       {children}
     </div>
@@ -257,14 +327,11 @@ function EmptyPanel({
           {respondentsListCopy.noSearchResults}
         </h2>
         <p className={styles.emptyHint}>
-          {respondentsListCopy.noSearchResultsHint}
+          غيّر كلمة البحث أو امسحها لعرض كل المشاركين.
         </p>
-        <Link
-          href={buildRespondentsListHref({})}
-          className={styles.secondaryAction}
-        >
-          {respondentsListCopy.resetSearch}
-        </Link>
+        {search ? (
+          <p className={styles.visuallyHidden}>البحث الحالي: {search}</p>
+        ) : null}
       </div>
     );
   }
@@ -274,7 +341,8 @@ function EmptyPanel({
       <h2 className={styles.emptyTitle}>{respondentsListCopy.noRespondents}</h2>
       <p className={styles.emptyHint}>{respondentsListCopy.noRespondentsHint}</p>
       <Link href="/respondents/new" className={styles.primaryAction}>
-        {respondentsListCopy.addRespondent}
+        <UserPlus className={styles.actionIcon} aria-hidden="true" />
+        <span>مشارك جديد</span>
       </Link>
     </div>
   );
@@ -284,9 +352,6 @@ function ErrorPanel({ message }: { message: string }) {
   return (
     <div className={styles.errorState} role="alert">
       <h2 className={styles.errorTitle}>{message}</h2>
-      <Link href="/respondents" className={styles.secondaryAction}>
-        {respondentsListCopy.resetSearch}
-      </Link>
     </div>
   );
 }
