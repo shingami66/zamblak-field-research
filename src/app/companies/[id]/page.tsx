@@ -14,6 +14,50 @@ import { BackLink } from "@/components/shared/BackLink";
 import { getSuccessNotice } from "@/lib/ui/success-notice";
 import styles from "./company-detail.module.css";
 
+function Building2(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z" />
+      <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2" />
+      <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 0 2 2h-4" />
+      <path d="M10 6h4" />
+      <path d="M10 10h4" />
+      <path d="M10 14h4" />
+      <path d="M10 18h4" />
+    </svg>
+  );
+}
+
+function PencilLine(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="M12 20h9" />
+      <path d="M16.376 3.622a1 1 0 0 1 1.414 0l2.588 2.588a1 1 0 0 1 0 1.414L8.5 19.5 3 21l1.5-5.5Z" />
+      <path d="m15 5 3 3" />
+    </svg>
+  );
+}
+
 type CompanyDetailPageProps = {
   params: Promise<{ id: string }>;
   searchParams: Promise<{ success?: string | string[] }>;
@@ -60,10 +104,16 @@ export default async function CompanyDetailPage({
       <SuccessNotice message={successNotice} />
 
       <header className={styles.headerRow}>
-        <h1 className={styles.pageTitle}>{view.name}</h1>
-        <Link href={view.editHref} className={styles.editAction}>
-          {companiesDetailCopy.editCompany}
-        </Link>
+        <div className={styles.headerMain}>
+          <Building2 className={styles.identityIcon} aria-hidden="true" />
+          <h1 className={styles.pageTitle}>{view.name}</h1>
+        </div>
+        <div className={styles.headerActions}>
+          <Link href={view.editHref} className={styles.editAction}>
+            <PencilLine className={styles.actionIcon} aria-hidden="true" />
+            <span>{companiesDetailCopy.editCompany}</span>
+          </Link>
+        </div>
       </header>
 
       <section className={styles.surface} aria-labelledby="company-details">

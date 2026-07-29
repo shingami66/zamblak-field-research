@@ -4,7 +4,6 @@ import { requireAppSession } from "@/lib/auth/session";
 import { companiesListCopy } from "@/lib/companies/list-copy";
 import {
   COMPANIES_LIST_PAGE_SIZE,
-  buildCompaniesListHref,
   deriveListPagination,
   parseCompaniesListSearchParams,
 } from "@/lib/companies/list-params";
@@ -19,7 +18,71 @@ import { MobileListCard } from "@/components/shared/MobileListCard";
 import { Pagination } from "@/components/shared/Pagination";
 import { SuccessNotice } from "@/components/shared/SuccessNotice";
 import { getSuccessNotice } from "@/lib/ui/success-notice";
+import { CompaniesFilterToolbar } from "@/components/companies/CompaniesFilterToolbar";
 import styles from "./companies-list.module.css";
+
+function Building2(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z" />
+      <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2" />
+      <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 0 2 2h-4" />
+      <path d="M10 6h4" />
+      <path d="M10 10h4" />
+      <path d="M10 14h4" />
+      <path d="M10 18h4" />
+    </svg>
+  );
+}
+
+function Eye(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+}
+
+function PencilLine(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="M12 20h9" />
+      <path d="M16.376 3.622a1 1 0 0 1 1.414 0l2.588 2.588a1 1 0 0 1 0 1.414L8.5 19.5 3 21l1.5-5.5Z" />
+      <path d="m15 5 3 3" />
+    </svg>
+  );
+}
 
 type CompaniesPageProps = {
   searchParams: Promise<{
@@ -109,9 +172,23 @@ export default async function CompaniesPage({
                   key: "actions",
                   header: "إجراءات",
                   render: (item) => (
-                    <div className={styles.cardActions}>
-                      <Link href={item.detailHref} className={styles.textLink}>{companiesListCopy.view}</Link>
-                      <Link href={item.editHref} className={styles.textLink}>{companiesListCopy.edit}</Link>
+                    <div className={styles.tableActions}>
+                      <Link
+                        href={item.detailHref}
+                        className={styles.iconActionButton}
+                        aria-label="عرض الشركة"
+                        title="عرض الشركة"
+                      >
+                        <Eye className={styles.actionIcon} aria-hidden="true" />
+                      </Link>
+                      <Link
+                        href={item.editHref}
+                        className={styles.iconActionButton}
+                        aria-label="تعديل الشركة"
+                        title="تعديل الشركة"
+                      >
+                        <PencilLine className={styles.actionIcon} aria-hidden="true" />
+                      </Link>
                     </div>
                   ),
                 },
@@ -131,8 +208,24 @@ export default async function CompaniesPage({
                 ]}
                 actions={
                   <div className={styles.cardActions}>
-                    <Link href={item.detailHref} className={styles.textLink}>{companiesListCopy.view}</Link>
-                    <Link href={item.editHref} className={styles.textLink}>{companiesListCopy.edit}</Link>
+                    <Link
+                      href={item.detailHref}
+                      className={styles.mobileActionButton}
+                      aria-label="عرض الشركة"
+                      title="عرض الشركة"
+                    >
+                      <Eye className={styles.actionIcon} aria-hidden="true" />
+                      <span>{companiesListCopy.view}</span>
+                    </Link>
+                    <Link
+                      href={item.editHref}
+                      className={styles.mobileActionButton}
+                      aria-label="تعديل الشركة"
+                      title="تعديل الشركة"
+                    >
+                      <PencilLine className={styles.actionIcon} aria-hidden="true" />
+                      <span>{companiesListCopy.edit}</span>
+                    </Link>
                   </div>
                 }
               />
@@ -172,39 +265,24 @@ function CompaniesListShell({
             {companiesListCopy.pageDescription}
           </p>
         </div>
-        <Link href="/companies/new" className={styles.primaryAction}>
-          {companiesListCopy.addCompany}
-        </Link>
+        <div className={styles.headerActionRow}>
+          <Link href="/companies/new" className={styles.primaryAction}>
+            <Building2 className={styles.actionIcon} aria-hidden="true" />
+            <span>شركة جديدة</span>
+          </Link>
+        </div>
       </header>
       <SuccessNotice message={successNotice} />
 
-      <div className={styles.toolbar}>
-        <form className={styles.searchForm} method="get" action="/companies">
-          <div className={styles.searchField}>
-            <label className={styles.searchLabel} htmlFor="company-search">
-              {companiesListCopy.searchLabel}
-            </label>
-            <input
-              id="company-search"
-              className={styles.searchInput}
-              type="search"
-              name="q"
-              defaultValue={search ?? ""}
-              maxLength={120}
-              placeholder={companiesListCopy.searchPlaceholder}
-              autoComplete="off"
-            />
-          </div>
-          <button type="submit" className={styles.searchSubmit}>
-            {companiesListCopy.searchAction}
-          </button>
-        </form>
-        {search ? (
-          <Link href={buildCompaniesListHref({})} className={styles.secondaryAction}>
-            {companiesListCopy.resetSearch}
-          </Link>
-        ) : null}
-      </div>
+      <CompaniesFilterToolbar
+        name="q"
+        initialSearch={search}
+        copy={{
+          searchLabel: companiesListCopy.searchLabel,
+          searchPlaceholder: companiesListCopy.searchPlaceholder,
+          searchAction: companiesListCopy.searchAction,
+        }}
+      />
 
       {children}
     </div>
@@ -222,13 +300,7 @@ function EmptyPanel({
     return (
       <div className={styles.emptyState} role="status">
         <h2 className={styles.emptyTitle}>{companiesListCopy.noSearchResults}</h2>
-        <p className={styles.emptyHint}>{companiesListCopy.noSearchResultsHint}</p>
-        <Link
-          href={buildCompaniesListHref({})}
-          className={styles.secondaryAction}
-        >
-          {companiesListCopy.resetSearch}
-        </Link>
+        <p className={styles.emptyHint}>غيّر كلمة البحث أو امسحها لعرض كل الشركات.</p>
         {search ? (
           <p className={styles.visuallyHidden}>البحث الحالي: {search}</p>
         ) : null}
@@ -241,7 +313,8 @@ function EmptyPanel({
       <h2 className={styles.emptyTitle}>{companiesListCopy.noCompanies}</h2>
       <p className={styles.emptyHint}>{companiesListCopy.noCompaniesHint}</p>
       <Link href="/companies/new" className={styles.primaryAction}>
-        {companiesListCopy.addCompany}
+        <Building2 className={styles.actionIcon} aria-hidden="true" />
+        <span>شركة جديدة</span>
       </Link>
     </div>
   );
@@ -251,9 +324,6 @@ function ErrorPanel({ message }: { message: string }) {
   return (
     <div className={styles.errorState} role="alert">
       <h2 className={styles.errorTitle}>{message}</h2>
-      <Link href="/companies" className={styles.secondaryAction}>
-        {companiesListCopy.resetSearch}
-      </Link>
     </div>
   );
 }
