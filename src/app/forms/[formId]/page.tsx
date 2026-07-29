@@ -7,10 +7,15 @@ import {
 } from "@/lib/forms/queries";
 import type { ResearchFormReviewStatus, SettlementState } from "@/lib/forms/types";
 import { normalizeFormIdParam, requireOwnerSession } from "../route-state";
+import { getSuccessNotice } from "@/lib/ui/success-notice";
+import { BackLink } from "@/components/shared/BackLink";
+import { SuccessNotice } from "@/components/shared/SuccessNotice";
+import { StatusBadge } from "@/components/shared/StatusBadge";
 import styles from "../forms.module.css";
 
 type Props = {
   params: Promise<{ formId: string }>;
+  searchParams?: Promise<{ success?: string }>;
 };
 
 const STATUS_LABELS: Record<ResearchFormReviewStatus, string> = {
@@ -34,6 +39,8 @@ async function renderFormDetailPage(props: Props) {
   await requireOwnerSession();
 
   const { formId: rawFormId } = await props.params;
+  const searchParams = props.searchParams ? await props.searchParams : undefined;
+  const successNotice = getSuccessNotice(searchParams?.success);
   const formId = normalizeFormIdParam(rawFormId);
   if (!formId) {
     notFound();
@@ -47,16 +54,14 @@ async function renderFormDetailPage(props: Props) {
       notFound();
     }
     return (
-      <div className={styles.container}>
-        <header className={styles.header}>
-          <h1 className={styles.title}>تفاصيل نموذج البحث</h1>
-        </header>
-        <div className={styles.card} style={{ borderColor: "#ef4444", padding: "1.5rem" }}>
-          <h2 style={{ color: "#dc2626", marginBottom: "0.5rem" }}>خطأ في التحميل</h2>
-          <p style={{ marginBottom: "1rem" }}>
+      <div className={styles.page}>
+        <BackLink href="/forms">العودة إلى الاستمارات</BackLink>
+        <div className={styles.detailCard} style={{ borderColor: "var(--color-danger)", padding: "1.5rem", marginTop: "1rem" }} role="alert">
+          <h2 style={{ color: "var(--color-danger)", marginBottom: "0.5rem" }}>خطأ في التحميل</h2>
+          <p style={{ marginBottom: "1rem", color: "var(--color-muted)" }}>
             حدث خطأ أثناء تحميل بيانات نموذج البحث. يرجى المحاولة لاحقاً.
           </p>
-          <Link href="/forms" className={styles.primaryButton}>
+          <Link href="/forms" className={styles.secondaryAction}>
             العودة إلى القائمة
           </Link>
         </div>
@@ -79,228 +84,222 @@ async function renderFormDetailPage(props: Props) {
     }
   }
 
+  const statusVariant =
+    form.review_status === "accepted"
+      ? "active"
+      : form.review_status === "submitted"
+      ? "warning"
+      : form.review_status === "rejected"
+      ? "danger"
+      : "neutral";
+
   return (
-    <div className={styles.container}>
-      <header className={styles.header} style={{ marginBottom: "1.5rem" }}>
-        <div>
-          <div style={{ marginBottom: "0.5rem" }}>
-            <Link href="/forms" style={{ textDecoration: "none", color: "#4b5563", fontSize: "0.875rem" }}>
-              &rarr; العودة إلى نماذج البحث
-            </Link>
-          </div>
-          <h1 className={styles.title}>نموذج البحث: {form.code}</h1>
-          <p className={styles.subtitle}>
-            تفاصيل الحالة والمالية والمراجعة لنموذج البحث الميداني.
-          </p>
+    <div className={styles.page}>
+      <BackLink href="/forms">العودة إلى الاستمارات</BackLink>
+      <SuccessNotice message={successNotice} />
+
+      <header className={styles.pageIntro} style={{ marginTop: "1rem" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap" }}>
+          <h1 className={styles.pageTitle}>
+            نموذج البحث: <bdi dir="ltr" className={styles.ltrToken}>{form.code}</bdi>
+          </h1>
+          <StatusBadge variant={statusVariant}>
+            {STATUS_LABELS[form.review_status]}
+          </StatusBadge>
         </div>
+        <p className={styles.pageDescription}>
+          تفاصيل الحالة والمالية والمراجعة لنموذج البحث الميداني.
+        </p>
       </header>
 
-      {/* CORE IDENTITY & STATUS CARD */}
-      <section className={styles.card} style={{ marginBottom: "1.5rem" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
-          <h2 style={{ fontSize: "1.25rem", fontWeight: 600 }}>البيانات الأساسية</h2>
-          <span
-            style={{
-              padding: "0.35rem 0.75rem",
-              borderRadius: "9999px",
-              fontSize: "0.875rem",
-              fontWeight: 600,
-              backgroundColor:
-                form.review_status === "accepted"
-                  ? "#dcfce7"
-                  : form.review_status === "submitted"
-                  ? "#fef3c7"
-                  : form.review_status === "rejected"
-                  ? "#fee2e2"
-                  : "#f3f4f6",
-              color:
-                form.review_status === "accepted"
-                  ? "#166534"
-                  : form.review_status === "submitted"
-                  ? "#92400e"
-                  : form.review_status === "rejected"
-                  ? "#991b1b"
-                  : "#374151",
-            }}
-          >
-            {STATUS_LABELS[form.review_status]}
-          </span>
-        </div>
-
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem" }}>
-          <div>
-            <div style={{ fontSize: "0.875rem", color: "#6b7280" }}>رمز النموذج</div>
-            <div style={{ fontWeight: 600, fontSize: "1.125rem" }}>{form.code}</div>
-          </div>
-
-          <div>
-            <div style={{ fontSize: "0.875rem", color: "#6b7280" }}>تاريخ التقديم</div>
-            <div style={{ fontWeight: 600 }}>{form.submitted_date}</div>
-          </div>
-
-          <div>
-            <div style={{ fontSize: "0.875rem", color: "#6b7280" }}>رقم المحاولة</div>
-            <div style={{ fontWeight: 600 }}>{form.attempt_number}</div>
-          </div>
-
-          <div>
-            <div style={{ fontSize: "0.875rem", color: "#6b7280" }}>السعر المقبول المستحق</div>
-            <div style={{ fontWeight: 600 }}>
-              {form.accepted_price_snapshot !== null
-                ? `${form.accepted_price_snapshot.toFixed(2)} ر.س`
-                : "غير محدد"}
+      <div className={styles.detailRows} style={{ gap: "1.5rem" }}>
+        {/* CORE IDENTITY & METADATA CARD */}
+        <section className={styles.detailCard}>
+          <h2 className={styles.detailTitle}>البيانات الأساسية</h2>
+          <dl className={styles.metaGrid}>
+            <div className={styles.descriptionRow}>
+              <dt className={styles.descriptionLabel}>رمز النموذج</dt>
+              <dd className={styles.descriptionValue}>
+                <bdi dir="ltr" className={styles.ltrToken}>{form.code}</bdi>
+              </dd>
             </div>
-          </div>
-        </div>
 
-        <hr style={{ margin: "1rem 0", border: 0, borderTop: "1px solid #e5e7eb" }} />
+            <div className={styles.descriptionRow}>
+              <dt className={styles.descriptionLabel}>تاريخ التقديم</dt>
+              <dd className={styles.descriptionValue}>{form.submitted_date}</dd>
+            </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "1rem" }}>
-          <div>
-            <div style={{ fontSize: "0.875rem", color: "#6b7280" }}>معرف المشروع</div>
-            <div style={{ fontFamily: "monospace", fontSize: "0.9rem" }}>{form.project_id}</div>
-          </div>
-          <div>
-            <div style={{ fontSize: "0.875rem", color: "#6b7280" }}>معرف الشركة</div>
-            <div style={{ fontFamily: "monospace", fontSize: "0.9rem" }}>{form.company_id}</div>
-          </div>
-          <div>
-            <div style={{ fontSize: "0.875rem", color: "#6b7280" }}>معرف المشارك (الرئيسي)</div>
-            <div style={{ fontFamily: "monospace", fontSize: "0.9rem" }}>{form.respondent_id}</div>
-          </div>
-          <div>
-            <div style={{ fontSize: "0.875rem", color: "#6b7280" }}>معرف المشاركة</div>
-            <div style={{ fontFamily: "monospace", fontSize: "0.9rem" }}>{form.participation_id}</div>
-          </div>
-        </div>
-      </section>
+            <div className={styles.descriptionRow}>
+              <dt className={styles.descriptionLabel}>رقم المحاولة</dt>
+              <dd className={styles.descriptionValue}>{form.attempt_number}</dd>
+            </div>
 
-      {/* ACCEPTED FINANCIAL SNAPSHOT SECTION */}
-      {form.review_status === "accepted" && (
-        <section className={styles.card} style={{ marginBottom: "1.5rem" }}>
-          <h2 style={{ fontSize: "1.25rem", fontWeight: 600, marginBottom: "1rem" }}>
-            الملخص المالي والتحصيل
-          </h2>
+            <div className={styles.descriptionRow}>
+              <dt className={styles.descriptionLabel}>السعر المقبول المستحق</dt>
+              <dd className={styles.descriptionValue}>
+                {form.accepted_price_snapshot !== null
+                  ? `${form.accepted_price_snapshot.toFixed(2)} ر.س`
+                  : "غير محدد"}
+              </dd>
+            </div>
+          </dl>
 
-          {financialWarning && (
-            <div style={{ padding: "0.75rem", backgroundColor: "#fffbeb", borderColor: "#fcd34d", border: "1px solid", borderRadius: "0.375rem", color: "#92400e", marginBottom: "1rem" }}>
-              تنبيه: ملخص التحصيل المالي لهذا النموذج المقبول قيد التحديث أو غير مكتمل حالياً.
+          <hr style={{ margin: "1.25rem 0", border: 0, borderTop: "1px solid var(--color-border)" }} />
+
+          <h3 className={styles.detailTitle} style={{ fontSize: "1rem", marginBottom: "0.75rem" }}>
+            المعرفات المرتبطة
+          </h3>
+          <dl className={styles.metaGrid}>
+            <div className={styles.descriptionRow}>
+              <dt className={styles.descriptionLabel}>معرف المشروع</dt>
+              <dd className={styles.descriptionValue} style={{ fontFamily: "monospace", fontSize: "0.9rem" }}>
+                <bdi dir="ltr" className={styles.ltrToken}>{form.project_id}</bdi>
+              </dd>
+            </div>
+            <div className={styles.descriptionRow}>
+              <dt className={styles.descriptionLabel}>معرف الشركة</dt>
+              <dd className={styles.descriptionValue} style={{ fontFamily: "monospace", fontSize: "0.9rem" }}>
+                <bdi dir="ltr" className={styles.ltrToken}>{form.company_id}</bdi>
+              </dd>
+            </div>
+            <div className={styles.descriptionRow}>
+              <dt className={styles.descriptionLabel}>معرف المشارك (الرئيسي)</dt>
+              <dd className={styles.descriptionValue} style={{ fontFamily: "monospace", fontSize: "0.9rem" }}>
+                <bdi dir="ltr" className={styles.ltrToken}>{form.respondent_id}</bdi>
+              </dd>
+            </div>
+            <div className={styles.descriptionRow}>
+              <dt className={styles.descriptionLabel}>معرف المشاركة</dt>
+              <dd className={styles.descriptionValue} style={{ fontFamily: "monospace", fontSize: "0.9rem" }}>
+                <bdi dir="ltr" className={styles.ltrToken}>{form.participation_id}</bdi>
+              </dd>
+            </div>
+          </dl>
+        </section>
+
+        {/* ACCEPTED FINANCIAL SNAPSHOT SECTION */}
+        {form.review_status === "accepted" && (
+          <section className={styles.detailCard}>
+            <h2 className={styles.detailTitle}>الملخص المالي والتحصيل</h2>
+
+            {financialWarning && (
+              <div style={{ padding: "0.75rem", backgroundColor: "#fffbeb", borderColor: "#fcd34d", border: "1px solid", borderRadius: "0.375rem", color: "#92400e", marginBottom: "1rem" }}>
+                تنبيه: ملخص التحصيل المالي لهذا النموذج المقبول قيد التحديث أو غير مكتمل حالياً.
+              </div>
+            )}
+
+            {financialSummary ? (
+              <dl className={styles.metaGrid}>
+                <div className={styles.descriptionRow}>
+                  <dt className={styles.descriptionLabel}>السعر المقبول</dt>
+                  <dd className={styles.descriptionValue}>
+                    {financialSummary.accepted_price_snapshot.toFixed(2)} ر.س
+                  </dd>
+                </div>
+                <div className={styles.descriptionRow}>
+                  <dt className={styles.descriptionLabel}>المبلغ المخصص (المحصل)</dt>
+                  <dd className={styles.descriptionValue} style={{ color: "var(--color-success)" }}>
+                    {financialSummary.allocated_amount.toFixed(2)} ر.س
+                  </dd>
+                </div>
+                <div className={styles.descriptionRow}>
+                  <dt className={styles.descriptionLabel}>المتبقي المستحق</dt>
+                  <dd className={styles.descriptionValue} style={{ color: "var(--color-danger)" }}>
+                    {financialSummary.outstanding_amount.toFixed(2)} ر.س
+                  </dd>
+                </div>
+                <div className={styles.descriptionRow}>
+                  <dt className={styles.descriptionLabel}>حالة التسوية</dt>
+                  <dd className={styles.descriptionValue}>
+                    {SETTLEMENT_LABELS[financialSummary.settlement_state]}
+                  </dd>
+                </div>
+                <div className={styles.descriptionRow}>
+                  <dt className={styles.descriptionLabel}>تاريخ الاستحقاق</dt>
+                  <dd className={styles.descriptionValue}>{financialSummary.due_date}</dd>
+                </div>
+              </dl>
+            ) : (
+              <p className={styles.descriptionValueText}>
+                سعر النموذج المقبول: {form.accepted_price_snapshot !== null ? `${form.accepted_price_snapshot.toFixed(2)} ر.س` : "غير محدد"}
+              </p>
+            )}
+          </section>
+        )}
+
+        {/* LIFECYCLE & REVISION EVIDENCE CARD */}
+        <section className={styles.detailCard}>
+          <h2 className={styles.detailTitle}>سجل الحالة والأدلة</h2>
+          <dl className={styles.metaGrid}>
+            <div className={styles.descriptionRow}>
+              <dt className={styles.descriptionLabel}>وقت التقديم</dt>
+              <dd className={styles.descriptionValue}>{new Date(form.submitted_at).toLocaleString("ar-SA")}</dd>
+            </div>
+            {form.reviewed_at && (
+              <div className={styles.descriptionRow}>
+                <dt className={styles.descriptionLabel}>وقت المراجعة</dt>
+                <dd className={styles.descriptionValue}>{new Date(form.reviewed_at).toLocaleString("ar-SA")}</dd>
+              </div>
+            )}
+            {form.accepted_at && (
+              <div className={styles.descriptionRow}>
+                <dt className={styles.descriptionLabel}>وقت القبول</dt>
+                <dd className={styles.descriptionValue}>{new Date(form.accepted_at).toLocaleString("ar-SA")}</dd>
+              </div>
+            )}
+            {form.rejected_at && (
+              <div className={styles.descriptionRow}>
+                <dt className={styles.descriptionLabel}>وقت الرفض</dt>
+                <dd className={styles.descriptionValue}>{new Date(form.rejected_at).toLocaleString("ar-SA")}</dd>
+              </div>
+            )}
+            {form.cancelled_at && (
+              <div className={styles.descriptionRow}>
+                <dt className={styles.descriptionLabel}>وقت الإلغاء</dt>
+                <dd className={styles.descriptionValue}>{new Date(form.cancelled_at).toLocaleString("ar-SA")}</dd>
+              </div>
+            )}
+          </dl>
+
+          {form.rejection_reason && (
+            <div style={{ marginTop: "1rem" }}>
+              <div className={styles.descriptionLabel} style={{ color: "var(--color-danger)", fontWeight: 700 }}>سبب الرفض:</div>
+              <div style={{ backgroundColor: "#fef2f2", padding: "0.75rem", borderRadius: "0.5rem", marginTop: "0.25rem", color: "var(--color-danger)" }}>
+                {form.rejection_reason}
+              </div>
             </div>
           )}
 
-          {financialSummary ? (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "1rem" }}>
-              <div>
-                <div style={{ fontSize: "0.875rem", color: "#6b7280" }}>السعر المقبول</div>
-                <div style={{ fontWeight: 600, fontSize: "1.125rem" }}>
-                  {financialSummary.accepted_price_snapshot.toFixed(2)} ر.س
-                </div>
-              </div>
-              <div>
-                <div style={{ fontSize: "0.875rem", color: "#6b7280" }}>المبلغ المخصص (المحصل)</div>
-                <div style={{ fontWeight: 600, fontSize: "1.125rem", color: "#166534" }}>
-                  {financialSummary.allocated_amount.toFixed(2)} ر.س
-                </div>
-              </div>
-              <div>
-                <div style={{ fontSize: "0.875rem", color: "#6b7280" }}>المتبقي المستحق</div>
-                <div style={{ fontWeight: 600, fontSize: "1.125rem", color: "#991b1b" }}>
-                  {financialSummary.outstanding_amount.toFixed(2)} ر.س
-                </div>
-              </div>
-              <div>
-                <div style={{ fontSize: "0.875rem", color: "#6b7280" }}>حالة التسوية</div>
-                <div style={{ fontWeight: 600, fontSize: "1rem" }}>
-                  {SETTLEMENT_LABELS[financialSummary.settlement_state]}
-                </div>
-              </div>
-              <div>
-                <div style={{ fontSize: "0.875rem", color: "#6b7280" }}>تاريخ الاستحقاق</div>
-                <div style={{ fontWeight: 600 }}>{financialSummary.due_date}</div>
+          {form.review_correction_reason && (
+            <div style={{ marginTop: "1rem" }}>
+              <div className={styles.descriptionLabel} style={{ color: "#b45309", fontWeight: 700 }}>سبب تصحيح المراجعة:</div>
+              <div style={{ backgroundColor: "#fffbeb", padding: "0.75rem", borderRadius: "0.5rem", marginTop: "0.25rem", color: "#92400e" }}>
+                {form.review_correction_reason}
               </div>
             </div>
-          ) : (
-            <div style={{ fontSize: "0.9rem", color: "#4b5563" }}>
-              سعر النموذج المقبول: {form.accepted_price_snapshot !== null ? `${form.accepted_price_snapshot.toFixed(2)} ر.س` : "غير محدد"}
+          )}
+
+          {form.quota_override_reason && (
+            <div style={{ marginTop: "1rem" }}>
+              <div className={styles.descriptionLabel} style={{ color: "#6b21a8", fontWeight: 700 }}>دليل تجاوز الحد الأقصى (الكوتا):</div>
+              <div style={{ backgroundColor: "#faf5ff", padding: "0.75rem", borderRadius: "0.5rem", marginTop: "0.25rem", color: "#581c87" }}>
+                <p style={{ margin: 0, marginBottom: "0.5rem" }}>{form.quota_override_reason}</p>
+                <div style={{ fontSize: "0.8rem", color: "var(--color-muted)" }}>
+                  الحد: {form.quota_limit_snapshot} | المقبولة سابقاً: {form.accepted_count_before} | وقت التجاوز: {form.quota_overridden_at ? new Date(form.quota_overridden_at).toLocaleString("ar-SA") : "-"}
+                </div>
+              </div>
             </div>
           )}
         </section>
-      )}
 
-      {/* LIFECYCLE & REVISION EVIDENCE CARD */}
-      <section className={styles.card} style={{ marginBottom: "1.5rem" }}>
-        <h2 style={{ fontSize: "1.25rem", fontWeight: 600, marginBottom: "1rem" }}>
-          سجل الحالة والأدلة
-        </h2>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem" }}>
-          <div>
-            <div style={{ fontSize: "0.875rem", color: "#6b7280" }}>وقت التقديم</div>
-            <div style={{ fontSize: "0.9rem" }}>{new Date(form.submitted_at).toLocaleString("ar-SA")}</div>
-          </div>
-          {form.reviewed_at && (
-            <div>
-              <div style={{ fontSize: "0.875rem", color: "#6b7280" }}>وقت المراجعة</div>
-              <div style={{ fontSize: "0.9rem" }}>{new Date(form.reviewed_at).toLocaleString("ar-SA")}</div>
-            </div>
-          )}
-          {form.accepted_at && (
-            <div>
-              <div style={{ fontSize: "0.875rem", color: "#6b7280" }}>وقت القبول</div>
-              <div style={{ fontSize: "0.9rem" }}>{new Date(form.accepted_at).toLocaleString("ar-SA")}</div>
-            </div>
-          )}
-          {form.rejected_at && (
-            <div>
-              <div style={{ fontSize: "0.875rem", color: "#6b7280" }}>وقت الرفض</div>
-              <div style={{ fontSize: "0.9rem" }}>{new Date(form.rejected_at).toLocaleString("ar-SA")}</div>
-            </div>
-          )}
-          {form.cancelled_at && (
-            <div>
-              <div style={{ fontSize: "0.875rem", color: "#6b7280" }}>وقت الإلغاء</div>
-              <div style={{ fontSize: "0.9rem" }}>{new Date(form.cancelled_at).toLocaleString("ar-SA")}</div>
-            </div>
-          )}
-        </div>
-
-        {form.rejection_reason && (
-          <div style={{ marginTop: "1rem" }}>
-            <div style={{ fontSize: "0.875rem", color: "#dc2626", fontWeight: 600 }}>سبب الرفض:</div>
-            <div style={{ backgroundColor: "#fef2f2", padding: "0.75rem", borderRadius: "0.375rem", marginTop: "0.25rem" }}>
-              {form.rejection_reason}
-            </div>
-          </div>
+        {/* NOTES CARD */}
+        {form.notes && (
+          <section className={styles.detailCard}>
+            <h2 className={styles.detailTitle}>الملاحظات</h2>
+            <p className={styles.descriptionValueText}>{form.notes}</p>
+          </section>
         )}
-
-        {form.review_correction_reason && (
-          <div style={{ marginTop: "1rem" }}>
-            <div style={{ fontSize: "0.875rem", color: "#b45309", fontWeight: 600 }}>سبب تصحيح المراجعة:</div>
-            <div style={{ backgroundColor: "#fffbebf", padding: "0.75rem", borderRadius: "0.375rem", marginTop: "0.25rem" }}>
-              {form.review_correction_reason}
-            </div>
-          </div>
-        )}
-
-        {form.quota_override_reason && (
-          <div style={{ marginTop: "1rem" }}>
-            <div style={{ fontSize: "0.875rem", color: "#6b21a8", fontWeight: 600 }}>دليل تجاوز الحد الأقصى (الكوتا):</div>
-            <div style={{ backgroundColor: "#faf5ff", padding: "0.75rem", borderRadius: "0.375rem", marginTop: "0.25rem" }}>
-              <p style={{ margin: 0, marginBottom: "0.5rem" }}>{form.quota_override_reason}</p>
-              <div style={{ fontSize: "0.8rem", color: "#6b7280" }}>
-                الحد: {form.quota_limit_snapshot} | المقبولة سابقاً: {form.accepted_count_before} | وقت التجاوز: {form.quota_overridden_at ? new Date(form.quota_overridden_at).toLocaleString("ar-SA") : "-"}
-              </div>
-            </div>
-          </div>
-        )}
-      </section>
-
-      {/* NOTES & AUDIT FOOTER */}
-      {form.notes && (
-        <section className={styles.card}>
-          <h2 style={{ fontSize: "1.125rem", fontWeight: 600, marginBottom: "0.5rem" }}>الملاحظات</h2>
-          <p style={{ margin: 0, color: "#374151" }}>{form.notes}</p>
-        </section>
-      )}
+      </div>
     </div>
   );
 }
