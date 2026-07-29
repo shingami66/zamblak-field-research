@@ -3,7 +3,7 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 import React from "react";
 import { Navigation } from "@/components/layout/Navigation";
 import { PrototypeStoreProvider } from "@/lib/forms-prototype/store-context";
-import NewFormPage from "@/app/forms/new/page";
+import { CreateResearchFormClient } from "@/components/forms/CreateResearchFormClient";
 import FormDetailPageClient from "@/app/forms/[formId]/FormDetailPageClient";
 import ProjectFormsPageClient from "@/app/forms/projects/[projectId]/ProjectFormsPageClient";
 import ParticipantFormsPageClient from "@/app/forms/participants/[participantId]/ParticipantFormsPageClient";
@@ -12,7 +12,6 @@ import NewCollectionPage from "@/app/collections/new/page";
 import CollectionDetailPageClient from "@/app/collections/[collectionId]/CollectionDetailPageClient";
 import FormsLayout from "@/app/forms/layout";
 import CollectionsLayout from "@/app/collections/layout";
-import { COLLECTION_STATE_LABELS } from "@/lib/forms-prototype/copy";
 
 let mockSearchParams = new URLSearchParams();
 
@@ -103,16 +102,88 @@ describe("UI Components & Content Safeguards", () => {
     expect(screen.queryByText("frm-1")).toBeNull();
   });
 
-  it("renders NewFormPage and allows selecting projects", async () => {
+  it("renders CreateResearchFormClient and allows selecting projects", async () => {
     render(
-      <PrototypeStoreProvider>
-        <NewFormPage />
-      </PrototypeStoreProvider>
+      <CreateResearchFormClient
+        prefilledContext={null}
+        prefilledError={null}
+        eligibleProjects={[
+          {
+            id: "prj-1",
+            name: "مشروع بحث ميداني",
+            availableCount: 1,
+            participants: [
+              {
+                participationId: "pt-1",
+                respondentId: "rsp-1",
+                name: "علي أحمد",
+                mobile: "0501234567",
+              },
+            ],
+          },
+        ]}
+      />
     );
 
     await waitFor(() => {
-      expect(screen.queryByLabelText("المشروع")).not.toBeNull();
+      expect(screen.queryByLabelText(/المشروع/)).not.toBeNull();
     });
+    expect(screen.getByText(/مشروع بحث ميداني/)).toBeDefined();
+    expect(screen.queryByLabelText(/رمز الاستمارة/)).toBeNull();
+    expect(screen.queryByLabelText(/السعر المقبول/)).toBeNull();
+  });
+
+  it("displays prefilled locked context card when prefilledContext is provided", async () => {
+    render(
+      <CreateResearchFormClient
+        prefilledContext={{
+          projectId: "prj-1",
+          projectName: "مشروع الصحة الرياضية",
+          participationId: "pt-1",
+          participantName: "خالد سعيد",
+          participantMobile: "0559988776",
+        }}
+        prefilledError={null}
+        eligibleProjects={[]}
+      />
+    );
+
+    await waitFor(() => {
+      expect(screen.queryByText("سياق المشارك المحدد")).not.toBeNull();
+    });
+
+    expect(screen.getByText("مشروع الصحة الرياضية")).toBeDefined();
+    expect(screen.getByText("خالد سعيد")).toBeDefined();
+    expect(screen.getByText("0559988776")).toBeDefined();
+  });
+
+  it("renders deliberate empty state when no eligible projects exist and disables inputs", async () => {
+    render(
+      <CreateResearchFormClient
+        prefilledContext={null}
+        prefilledError={null}
+        eligibleProjects={[]}
+      />
+    );
+
+    await waitFor(() => {
+      expect(screen.queryByText("لا توجد مشاريع متاحة لتسجيل استمارات")).not.toBeNull();
+    });
+
+    expect(
+      screen.getByText("أضف مشاركاً إلى مشروع نشط، أو راجع المشاركين الذين تم تسجيل استمارات لهم.")
+    ).toBeDefined();
+
+    const projectSelect = screen.getByLabelText(/المشروع/) as HTMLSelectElement;
+    expect(projectSelect.disabled).toBe(true);
+
+    const participantSelect = screen.getByLabelText(/المشارك/) as HTMLSelectElement;
+    expect(participantSelect.disabled).toBe(true);
+
+    const submitBtn = screen.getByRole("button", { name: "حفظ الاستمارة" }) as HTMLButtonElement;
+    expect(submitBtn.disabled).toBe(true);
+
+    expect(screen.getByText("عرض المشاريع")).toBeDefined();
   });
 
   it("renders ProjectFormsPage with progress values", async () => {
@@ -148,7 +219,7 @@ describe("UI Components & Content Safeguards", () => {
     );
 
     await waitFor(() => {
-      expect(screen.queryByText("إجمالي المقبوضات")).not.toBeNull();
+      expect(screen.queryByText("الدفعات النقدية")).not.toBeNull();
     });
   });
 
@@ -160,8 +231,8 @@ describe("UI Components & Content Safeguards", () => {
     );
 
     await waitFor(() => {
-      expect(screen.queryByText("بيانات سند التحصيل")).not.toBeNull();
-      expect(screen.queryByText("تفاصيل توزيع المبالغ")).not.toBeNull();
+      expect(screen.queryByText("بيانات الدفعة النقدية")).not.toBeNull();
+      expect(screen.queryByText("الاستمارات المدفوعة في هذه الدفعة")).not.toBeNull();
     });
   });
 
@@ -285,21 +356,21 @@ describe("Collections Allocation Reflow & Responsive Safeguards", () => {
     );
 
     await waitFor(() => {
-      expect(screen.queryByText("الخطوة 1: تفاصيل الدفعة")).not.toBeNull();
+      expect(screen.queryByText("الخطوة 1: اختيار الشركة والمشروع")).not.toBeNull();
     });
 
     // Step Indicator validation
-    const stepNav = screen.getByRole("navigation", { name: "خطوات تسديد التحصيل" });
+    const stepNav = screen.getByRole("navigation", { name: "خطوات تسجيل الدفعة النقدية" });
     expect(stepNav).toBeDefined();
 
-    const activeStep = screen.getByText("الخطوة 1: تفاصيل الدفعة").closest("li");
+    const activeStep = screen.getByText("الخطوة 1: اختيار الشركة والمشروع").closest("li");
     expect(activeStep?.getAttribute("aria-current")).toBe("step");
 
-    const inactiveStep = screen.getByText("الخطوة 2: توزيع المبلغ").closest("li");
+    const inactiveStep = screen.getByText("الخطوة 2: اختيار الاستمارات المدفوعة").closest("li");
     expect(inactiveStep?.getAttribute("aria-current")).toBeNull();
 
     // Primary and Secondary button order
-    const primaryBtn = screen.getByRole("button", { name: "متابعة لتوزيع المبلغ" });
+    const primaryBtn = screen.getByRole("button", { name: "متابعة لاختيار الاستمارات" });
     const secondaryLink = screen.getByRole("link", { name: "إلغاء" });
 
     // Primary action comes first in DOM order
@@ -314,37 +385,32 @@ describe("Collections Allocation Reflow & Responsive Safeguards", () => {
     );
 
     await waitFor(() => {
-      expect(screen.queryByLabelText("الشركة المحصّل منها")).not.toBeNull();
+      expect(screen.queryByLabelText(/الشركة/)).not.toBeNull();
     });
 
     // Fill Step 1 values to proceed to Step 2
-    fireEvent.change(screen.getByLabelText("الشركة المحصّل منها"), { target: { value: "cmp-1" } });
-    fireEvent.change(screen.getByLabelText("إجمالي المبلغ المحصّل (ر.س)"), { target: { value: "1000" } });
-    fireEvent.change(screen.getByLabelText("طريقة الدفع"), { target: { value: "bank_transfer" } });
+    fireEvent.change(screen.getByLabelText(/الشركة/), { target: { value: "cmp-1" } });
+    fireEvent.change(screen.getByLabelText(/المشروع/), { target: { value: "prj-1" } });
 
-    fireEvent.click(screen.getByRole("button", { name: "متابعة لتوزيع المبلغ" }));
+    fireEvent.click(screen.getByRole("button", { name: "متابعة لاختيار الاستمارات" }));
 
     await waitFor(() => {
-      expect(screen.queryByText("الاستمارات المقبولة المعلقة بالتحصيل")).not.toBeNull();
+      expect(screen.queryByText("الخطوة 2: اختيار الاستمارات المدفوعة")).not.toBeNull();
     });
 
     // Step 2 Step Indicator semantics
-    const step2Active = screen.getByText("الخطوة 2: توزيع المبلغ").closest("li");
+    const step2Active = screen.getByText("الخطوة 2: اختيار الاستمارات المدفوعة").closest("li");
     expect(step2Active?.getAttribute("aria-current")).toBe("step");
 
-    // Check Summary Bar metrics
-    expect(screen.getByText("شركة أفق للاتصالات")).toBeDefined();
-    expect(screen.getByText("المبلغ المراد توزيعه")).toBeDefined();
-    expect(screen.getByText("إجمالي المبلغ المخصص")).toBeDefined();
-    expect(screen.getByText("المتبقي غير الموزع")).toBeDefined();
+    // Check Live Summary Bar
+    expect(screen.getByText("الاستمارات المحددة:")).toBeDefined();
 
     // Desktop Table headers
     expect(screen.getByRole("columnheader", { name: "اختر" })).toBeDefined();
     expect(screen.getByRole("columnheader", { name: "رمز الاستمارة" })).toBeDefined();
-    expect(screen.getByRole("columnheader", { name: "المشروع" })).toBeDefined();
     expect(screen.getByRole("columnheader", { name: "المشارك" })).toBeDefined();
-    expect(screen.getByRole("columnheader", { name: "المتبقي المستحق" })).toBeDefined();
-    expect(screen.getByRole("columnheader", { name: "المبلغ الموزع" })).toBeDefined();
+    expect(screen.getByRole("columnheader", { name: "تاريخ القبول" })).toBeDefined();
+    expect(screen.getByRole("columnheader", { name: "القيمة" })).toBeDefined();
 
     // Verify BDI tags for LTR tokens
     const bdiElements = screen.getAllByText("FORM-2026-0001");
@@ -353,12 +419,12 @@ describe("Collections Allocation Reflow & Responsive Safeguards", () => {
     expect(codeBdi?.getAttribute("dir")).toBe("ltr");
 
     // RTL Action buttons order in Step 2
-    const confirmBtn = screen.getByRole("button", { name: "تأكيد وحفظ التحصيل" });
-    const backBtn = screen.getByRole("button", { name: "الرجوع" });
-    expect(confirmBtn.compareDocumentPosition(backBtn) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    const reviewBtn = screen.getByRole("button", { name: "مراجعة الدفعة" });
+    const backBtn = screen.getByRole("button", { name: "العودة لاختيار المشروع" });
+    expect(reviewBtn.compareDocumentPosition(backBtn) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
-  it("renders collection detail page reflowed into vertical sections without row sharing", async () => {
+  it("renders collection detail page with cash payment data", async () => {
     render(
       <PrototypeStoreProvider>
         <CollectionDetailPageClient collectionId="col-1" />
@@ -366,18 +432,13 @@ describe("Collections Allocation Reflow & Responsive Safeguards", () => {
     );
 
     await waitFor(() => {
-      expect(screen.queryByText("بيانات سند التحصيل")).not.toBeNull();
-      expect(screen.queryByText("تفاصيل توزيع المبالغ")).not.toBeNull();
+      expect(screen.queryByText("بيانات الدفعة النقدية")).not.toBeNull();
     });
 
-    // Metadata card title and allocation table title
-    const metaHeading = screen.getByText("بيانات سند التحصيل");
-    const allocHeading = screen.getByText("تفاصيل توزيع المبالغ");
+    const metaHeading = screen.getByText("بيانات الدفعة النقدية");
+    expect(metaHeading).toBeDefined();
 
-    // Metadata card heading comes before allocation heading in DOM
-    expect(metaHeading.compareDocumentPosition(allocHeading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-
-    // Verify BDI directional isolation on amounts and codes
+    // Verify BDI directional isolation on codes
     const codeBdi = screen.getAllByText("COL-2026-0001").find((el) => el.tagName === "BDI");
     expect(codeBdi).toBeDefined();
     expect(codeBdi?.getAttribute("dir")).toBe("ltr");
@@ -404,7 +465,7 @@ describe("Collections P1 Consistency Safeguards", () => {
     );
 
     await waitFor(() => {
-      const notice = screen.getByText("تم تسجيل التحصيل وتوزيع المبلغ بنجاح.");
+      const notice = screen.getByText("تم تسجيل الدفعة النقدية وربطها بالاستمارات المحددة.");
       expect(notice).toBeDefined();
       expect(notice.getAttribute("role")).toBe("status");
     });
@@ -421,11 +482,11 @@ describe("Collections P1 Consistency Safeguards", () => {
 
     await waitFor(() => {
       expect(screen.queryByText("invalid_test_param")).toBeNull();
-      expect(screen.queryByText("تم تسجيل التحصيل وتوزيع المبلغ بنجاح.")).toBeNull();
+      expect(screen.queryByText("تم تسجيل الدفعة النقدية وربطها بالاستمارات المحددة.")).toBeNull();
     });
   });
 
-  it("uses updated unambiguous collection allocation status copy while preserving form settlement labels", async () => {
+  it("renders cash payments page title and summary cards correctly and verifies payment method absence", async () => {
     render(
       <PrototypeStoreProvider>
         <CollectionsPage />
@@ -433,37 +494,32 @@ describe("Collections P1 Consistency Safeguards", () => {
     );
 
     await waitFor(() => {
-      expect(screen.queryAllByText("مبلغ السند موزع بالكامل").length).toBeGreaterThan(0);
+      expect(screen.queryByText("الدفعات النقدية")).not.toBeNull();
     });
 
-    // Form collection state labels remain intact and unchanged
-    expect(COLLECTION_STATE_LABELS.uncollected).toBe("غير محصلة");
-    expect(COLLECTION_STATE_LABELS.partially_collected).toBe("محصلة جزئياً");
-    expect(COLLECTION_STATE_LABELS.collected).toBe("محصلة");
+    expect(screen.getByText("عدد الاستمارات المدفوعة")).toBeDefined();
+    expect(screen.queryByText("طريقة الدفع")).toBeNull();
+    expect(screen.queryByText("نقداً")).toBeNull();
   });
 
-  it("renders formatted date preview as DD/MM/YYYY under native date inputs in NewCollectionPage", async () => {
+  it("requires accepted form amount entry on form acceptance dialog", async () => {
     render(
       <PrototypeStoreProvider>
-        <NewCollectionPage />
+        <FormDetailPageClient formId="frm-5" />
       </PrototypeStoreProvider>
     );
 
     await waitFor(() => {
-      expect(screen.queryByLabelText("تاريخ التحصيل")).not.toBeNull();
+      expect(screen.queryByText("قبول الاستمارة")).not.toBeNull();
     });
 
-    const dateInput = screen.getByLabelText("تاريخ التحصيل") as HTMLInputElement;
-    // Set ISO date
-    fireEvent.change(dateInput, { target: { value: "2026-07-21" } });
+    // Open acceptance dialog
+    fireEvent.click(screen.getByRole("button", { name: "قبول الاستمارة" }));
 
-    // Native value is preserved as ISO
-    expect(dateInput.value).toBe("2026-07-21");
+    await waitFor(() => {
+      expect(screen.queryByLabelText(/قيمة الاستمارة المقبولة/)).not.toBeNull();
+    });
 
-    // Preview helper displays DD/MM/YYYY inside <bdi dir="ltr">
-    const previewBdi = screen.getByText("21/07/2026");
-    expect(previewBdi.tagName).toBe("BDI");
-    expect(previewBdi.getAttribute("dir")).toBe("ltr");
-    expect(screen.queryByText(/التاريخ المحدد:/)).not.toBeNull();
+    expect(screen.getByText("أدخل المبلغ المستحق لهذه الاستمارة بعد قبولها.")).toBeDefined();
   });
 });

@@ -132,7 +132,8 @@ export function prototypeReducer(
         project,
         state.forms,
         action.now,
-        transitionId
+        transitionId,
+        action.customPrice
       );
       if (!result.ok) {
         return state;

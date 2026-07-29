@@ -76,6 +76,20 @@ export function formsForParticipation(
   );
 }
 
+export function hasExistingForm(
+  forms: readonly ResearchForm[],
+  projectId: string,
+  participantId: string,
+  excludeFormId?: string
+): boolean {
+  return forms.some(
+    (form) =>
+      form.projectId === projectId &&
+      form.participantId === participantId &&
+      form.id !== excludeFormId
+  );
+}
+
 export function hasAcceptedForm(
   forms: readonly ResearchForm[],
   projectId: string,
@@ -147,12 +161,8 @@ export function computeQuotaSummary(
 /* Attempt numbering + code generation                                 */
 /* ------------------------------------------------------------------ */
 
-export function nextAttemptNumber(
-  forms: readonly ResearchForm[],
-  projectId: string,
-  participantId: string
-): number {
-  return formsForParticipation(forms, projectId, participantId).length + 1;
+export function nextAttemptNumber(): number {
+  return 1;
 }
 
 function nextSequence(codes: readonly string[], prefix: string): number {
@@ -252,6 +262,53 @@ export function deriveFormFinance(
     outstandingAmount: outstanding,
     collectionState: computeCollectionState(snapshot, allocated),
   };
+}
+
+export function isFormEligibleForPayment(
+  form: ResearchForm,
+  collections: readonly Collection[]
+): boolean {
+  if (form.status !== "accepted") return false;
+  if (form.acceptedPriceSnapshot === null || form.acceptedPriceSnapshot <= 0) return false;
+  const finance = deriveFormFinance(form, collections);
+  return finance.outstandingAmount > 0;
+}
+
+export type EligibleProjectSummary = {
+  project: DemoProject;
+  eligibleForms: ResearchForm[];
+  unpaidCount: number;
+  totalOutstanding: number;
+};
+
+export function getEligibleProjectsForCompany(
+  companyId: string,
+  projects: readonly DemoProject[],
+  forms: readonly ResearchForm[],
+  collections: readonly Collection[]
+): EligibleProjectSummary[] {
+  if (!companyId) return [];
+  const companyProjects = projects.filter((p) => p.companyId === companyId);
+  const result: EligibleProjectSummary[] = [];
+
+  for (const project of companyProjects) {
+    const projectForms = forms.filter((f) => f.projectId === project.id);
+    const eligibleForms = projectForms.filter((f) => isFormEligibleForPayment(f, collections));
+    if (eligibleForms.length > 0) {
+      const totalOutstanding = eligibleForms.reduce((sum, f) => {
+        const fin = deriveFormFinance(f, collections);
+        return sum + fin.outstandingAmount;
+      }, 0);
+      result.push({
+        project,
+        eligibleForms,
+        unpaidCount: eligibleForms.length,
+        totalOutstanding,
+      });
+    }
+  }
+
+  return result;
 }
 
 export function computeCollectionTotals(
@@ -432,38 +489,40 @@ export function validateNewForm(
   }
 
   if (
-    hasAcceptedForm(context.forms, input.projectId, input.participantId)
+    hasExistingForm(context.forms, input.projectId, input.participantId)
   ) {
-    return { ok: false, code: "form_duplicate_accepted" };
+    return { ok: false, code: "form_duplicate_participation" };
   }
 
   return {
     ok: true,
     value: {
       input,
-      attemptNumber: nextAttemptNumber(
-        context.forms,
-        input.projectId,
-        input.participantId
-      ),
+      attemptNumber: 1,
     },
   };
 }
 
-/** Applies an acceptance decision, snapshotting the current project price. */
+/** Applies an acceptance decision, snapshotting the form accepted price. */
 export function applyAccept(
   form: ResearchForm,
   project: DemoProject,
   forms: readonly ResearchForm[],
   now: string,
-  transitionId: string
+  transitionId: string,
+  customPrice?: number
 ): DomainResult<ResearchForm> {
   if (form.status !== "pending_review") {
     return { ok: false, code: "form_not_pending" };
   }
-  if (hasAcceptedForm(forms, form.projectId, form.participantId, form.id)) {
-    return { ok: false, code: "form_duplicate_accepted" };
+  if (hasExistingForm(forms, form.projectId, form.participantId, form.id)) {
+    return { ok: false, code: "form_duplicate_participation" };
   }
+
+  const price =
+    customPrice !== undefined && customPrice > 0
+      ? customPrice
+      : project.defaultAcceptedFormPrice;
 
   return {
     ok: true,
@@ -471,7 +530,7 @@ export function applyAccept(
       ...form,
       status: "accepted",
       reviewedDate: now.slice(0, 10),
-      acceptedPriceSnapshot: project.defaultAcceptedFormPrice,
+      acceptedPriceSnapshot: price,
       history: [
         ...form.history,
         makeTransition(transitionId, form.status, "accepted", now),

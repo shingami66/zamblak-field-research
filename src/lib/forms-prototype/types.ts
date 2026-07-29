@@ -104,6 +104,7 @@ export type Collection = {
   id: string;
   code: string;
   companyId: string;
+  projectId?: string;
   date: string;
   totalAmount: number;
   method: CollectionMethod;
@@ -134,6 +135,7 @@ export type NewFormInput = {
 /** Payload for creating a new collection with explicit allocations. */
 export type NewCollectionInput = {
   companyId: string;
+  projectId?: string;
   date: string;
   totalAmount: number;
   method: CollectionMethod;
@@ -142,12 +144,20 @@ export type NewCollectionInput = {
   allocations: Array<{ formId: string; amount: number }>;
 };
 
+/** Payload for creating a cash payment for selected forms of one project. */
+export type NewCashPaymentInput = {
+  companyId: string;
+  projectId: string;
+  date: string;
+  formIds: string[];
+};
+
 /** All supported prototype store actions (pure, reducer-driven). */
 export type PrototypeStoreAction =
   | { type: "hydrate"; state: PrototypeStoreState }
   | { type: "reset" }
   | { type: "create_form"; input: NewFormInput; now: string }
-  | { type: "accept_form"; formId: string; now: string }
+  | { type: "accept_form"; formId: string; customPrice?: number; now: string }
   | { type: "reject_form"; formId: string; reason: string; now: string }
   | { type: "cancel_form"; formId: string; now: string }
   | { type: "create_collection"; input: NewCollectionInput; now: string };

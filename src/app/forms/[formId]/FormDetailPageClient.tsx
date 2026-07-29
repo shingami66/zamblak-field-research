@@ -73,8 +73,53 @@ export default function FormDetailPageClient({ formId }: Props) {
   const [isCancelOpen, setIsCancelOpen] = useState(false);
 
   // Input states
+  const [acceptedAmountStr, setAcceptedAmountStr] = useState("");
+  const [acceptError, setAcceptError] = useState<string | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
   const [rejectionError, setRejectionError] = useState<string | null>(null);
+
+  const openAcceptDialog = () => {
+    setAcceptedAmountStr(project ? String(project.defaultAcceptedFormPrice) : "");
+    setAcceptError(null);
+    setIsAcceptOpen(true);
+  };
+
+  const handleAccept = (e: React.FormEvent) => {
+    e.preventDefault();
+    setAcceptError(null);
+
+    const val = Number(acceptedAmountStr);
+    if (isNaN(val) || val <= 0) {
+      setAcceptError("أدخل مبلغاً صحيحاً أكبر من صفر (ر.س).");
+      return;
+    }
+
+    if (!form) return;
+    acceptForm(form.id, val);
+    setIsAcceptOpen(false);
+  };
+
+  const handleReject = (e: React.FormEvent) => {
+    e.preventDefault();
+    setRejectionError(null);
+    if (!form) return;
+
+    const trimmed = rejectionReason.trim();
+    if (trimmed.length < 3) {
+      setRejectionError("الرجاء إدخال سبب واضح للرفض (لا يقل عن 3 أحرف).");
+      return;
+    }
+
+    rejectForm(form.id, trimmed);
+    setIsRejectOpen(false);
+    setRejectionReason("");
+  };
+
+  const handleCancel = () => {
+    if (!form) return;
+    cancelForm(form.id);
+    setIsCancelOpen(false);
+  };
 
   if (!isHydrated) {
     return (
@@ -101,31 +146,6 @@ export default function FormDetailPageClient({ formId }: Props) {
       </div>
     );
   }
-
-  const handleAccept = () => {
-    acceptForm(form.id);
-    setIsAcceptOpen(false);
-  };
-
-  const handleReject = (e: React.FormEvent) => {
-    e.preventDefault();
-    setRejectionError(null);
-
-    const trimmed = rejectionReason.trim();
-    if (trimmed.length < 3) {
-      setRejectionError("الرجاء إدخال سبب واضح للرفض (لا يقل عن 3 أحرف).");
-      return;
-    }
-
-    rejectForm(form.id, trimmed);
-    setIsRejectOpen(false);
-    setRejectionReason("");
-  };
-
-  const handleCancel = () => {
-    cancelForm(form.id);
-    setIsCancelOpen(false);
-  };
 
   const isPending = form.status === "pending_review";
 
@@ -229,7 +249,7 @@ export default function FormDetailPageClient({ formId }: Props) {
               <div className={styles.actionPanel}>
                 <h3 className={styles.detailTitle} style={{ fontSize: "1.0625rem", margin: "0 0 1rem 0" }}>مراجعة الاستمارة</h3>
                 <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
-                  <button type="button" className={`${styles.primaryAction} ${styles.btnAccept}`} style={{ flex: 1, minHeight: "48px" }} onClick={() => setIsAcceptOpen(true)}>
+                  <button type="button" className={`${styles.primaryAction} ${styles.btnAccept}`} style={{ flex: 1, minHeight: "48px" }} onClick={openAcceptDialog}>
                     قبول الاستمارة
                   </button>
                   <button type="button" className={`${styles.primaryAction} ${styles.btnReject}`} style={{ flex: 1, minHeight: "48px" }} onClick={() => setIsRejectOpen(true)}>
@@ -332,11 +352,34 @@ export default function FormDetailPageClient({ formId }: Props) {
 
       {/* Acceptance Dialog */}
       <AccessibleDialog isOpen={isAcceptOpen} onClose={() => setIsAcceptOpen(false)} title="تأكيد قبول الاستمارة">
-        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+        <form onSubmit={handleAccept} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
           <p>
-            هل أنت متأكد من قبول الاستمارة؟ سيتم تثبيت السعر الحالي للمشروع
-            (<strong>{project ? formatCurrency(project.defaultAcceptedFormPrice) : ""}</strong>) على هذه الاستمارة.
+            يرجى تحديد قيمة الاستمارة المقبولة لتثبيتها كحق مالي لهذه الاستمارة.
           </p>
+          <div className={styles.formField}>
+            <label className={styles.formLabel} htmlFor="accepted-amount-input">
+              قيمة الاستمارة المقبولة <span className={styles.required}>*</span>
+            </label>
+            <input
+              id="accepted-amount-input"
+              type="number"
+              step="any"
+              min="0.01"
+              className={styles.rejectTextarea}
+              style={{ height: "3.25rem", paddingInline: "0.875rem" }}
+              placeholder="مثال: 120"
+              value={acceptedAmountStr}
+              onChange={(e) => {
+                setAcceptedAmountStr(e.target.value);
+                setAcceptError(null);
+              }}
+              required
+            />
+            <span className={styles.fieldHelper} style={{ fontSize: "0.875rem", color: "var(--color-muted)" }}>
+              أدخل المبلغ المستحق لهذه الاستمارة بعد قبولها.
+            </span>
+            {acceptError && <div className={styles.validationError} role="alert">{acceptError}</div>}
+          </div>
           {projectQuota && (
             <div className={styles.infoBox} style={{ margin: 0 }}>
               <div className={styles.infoRow}>
@@ -353,11 +396,11 @@ export default function FormDetailPageClient({ formId }: Props) {
             <button type="button" className={styles.secondaryAction} onClick={() => setIsAcceptOpen(false)}>
               {CANCEL_LABEL}
             </button>
-            <button type="button" className={`${styles.primaryAction} ${styles.btnAccept}`} onClick={handleAccept}>
+            <button type="submit" className={`${styles.primaryAction} ${styles.btnAccept}`}>
               تأكيد القبول وتثبيت السعر
             </button>
           </div>
-        </div>
+        </form>
       </AccessibleDialog>
 
       {/* Rejection Dialog */}

@@ -38,7 +38,7 @@ export type PrototypeErrorCode =
   | "form_project_required"
   | "form_participant_required"
   | "form_participation_missing"
-  | "form_duplicate_accepted"
+  | "form_duplicate_participation"
   | "form_reject_reason_required"
   | "form_not_pending"
   | "collection_company_required"
@@ -50,15 +50,20 @@ export type PrototypeErrorCode =
   | "allocation_cross_company"
   | "allocation_exceeds_form_outstanding"
   | "allocation_exceeds_collection_total"
-  | "allocation_duplicate_form";
+  | "allocation_duplicate_form"
+  | "payment_company_required"
+  | "payment_project_required"
+  | "payment_forms_required"
+  | "payment_stale_paid"
+  | "payment_missing_amount";
 
 export const PROTOTYPE_ERROR_MESSAGES: Record<PrototypeErrorCode, string> = {
   form_project_required: "اختر المشروع أولاً.",
   form_participant_required: "اختر المشارك أولاً.",
   form_participation_missing:
     "هذا المشارك غير مضاف إلى قائمة مشاركي هذا المشروع في البيانات التجريبية.",
-  form_duplicate_accepted:
-    "يوجد استمارة مقبولة لهذا المشارك في هذا المشروع مسبقاً؛ لا يمكن قبول استمارة أخرى.",
+  form_duplicate_participation:
+    "توجد استمارة مسبقة لهذا المشارك في هذا المشروع؛ لا يمكن تسجيل أكثر من استمارة واحدة للمشاركة الواحدة.",
   form_reject_reason_required: "الرجاء إدخال سبب واضح للرفض.",
   form_not_pending: "لا يمكن تغيير حالة استمارة اكتملت مراجعتها.",
   collection_company_required: "اختر الشركة أولاً.",
@@ -74,6 +79,12 @@ export const PROTOTYPE_ERROR_MESSAGES: Record<PrototypeErrorCode, string> = {
   allocation_exceeds_collection_total:
     "مجموع المبالغ الموزّعة يتجاوز إجمالي التحصيل.",
   allocation_duplicate_form: "تم توزيع مبلغ على هذه الاستمارة أكثر من مرة.",
+  payment_company_required: "اختر الشركة أولاً.",
+  payment_project_required: "اختر المشروع أولاً.",
+  payment_forms_required: "اختر استمارة واحدة على الأقل للدفع.",
+  payment_stale_paid:
+    "تعذر تسجيل الدفعة لأن إحدى الاستمارات تم دفعها بالفعل. حدّث الصفحة وحاول مرة أخرى.",
+  payment_missing_amount: "حدّد قيمة الاستمارة قبل تسجيل دفعها.",
 };
 
 export function prototypeErrorMessage(code: PrototypeErrorCode): string {

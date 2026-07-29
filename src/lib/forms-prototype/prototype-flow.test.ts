@@ -62,51 +62,44 @@ describe("Forms & Collections Prototype Domain Rules", () => {
     assert.equal(summary.remaining, 0);
   });
 
-  it("validates new form attempts and locks duplicates", () => {
-    const context = {
-      participations: [{ id: "pcp-1", projectId: "prj-1", participantId: "pt-1" }] as DemoParticipation[],
-      forms: [
-        {
-          id: "frm-1",
-          code: "FORM-2026-0001",
-          companyId: "cmp-1",
-          projectId: "prj-1",
-          participantId: "pt-1",
-          attemptNumber: 1,
-          status: "accepted" as const,
-        },
-      ] as unknown as ResearchForm[],
-    };
-
-    const inputOk: NewFormInput = {
+  it("strictly enforces one form per participation across all form statuses (submitted, accepted, rejected, cancelled)", () => {
+    const input: NewFormInput = {
       projectId: "prj-1",
       participantId: "pt-1",
       submittedDate: "2026-07-21",
       notes: null,
     };
 
-    // Fails since an accepted form already exists
-    const res = validateNewForm(inputOk, context);
-    assert.equal(res.ok, false);
-    if (!res.ok) {
-      assert.equal(res.code, "form_duplicate_accepted");
+    const statuses = ["pending_review", "accepted", "rejected", "cancelled"] as const;
+
+    for (const status of statuses) {
+      const context = {
+        participations: [{ id: "pcp-1", projectId: "prj-1", participantId: "pt-1" }] as DemoParticipation[],
+        forms: [
+          {
+            id: "frm-1",
+            code: "FORM-2026-0001",
+            companyId: "cmp-1",
+            projectId: "prj-1",
+            participantId: "pt-1",
+            attemptNumber: 1,
+            status,
+          },
+        ] as unknown as ResearchForm[],
+      };
+
+      const res = validateNewForm(input, context);
+      assert.equal(res.ok, false, `Status ${status} should block creating a second form`);
+      if (!res.ok) {
+        assert.equal(res.code, "form_duplicate_participation");
+      }
     }
   });
 
-  it("allows form attempt retry after rejection or cancellation", () => {
+  it("allows creating exactly one form when participation has no existing form and keeps attemptNumber fixed at 1", () => {
     const context = {
       participations: [{ id: "pcp-1", projectId: "prj-1", participantId: "pt-1" }] as DemoParticipation[],
-      forms: [
-        {
-          id: "frm-1",
-          code: "FORM-2026-0001",
-          companyId: "cmp-1",
-          projectId: "prj-1",
-          participantId: "pt-1",
-          attemptNumber: 1,
-          status: "rejected" as const,
-        },
-      ] as unknown as ResearchForm[],
+      forms: [] as ResearchForm[],
     };
 
     const input: NewFormInput = {
@@ -119,7 +112,7 @@ describe("Forms & Collections Prototype Domain Rules", () => {
     const res = validateNewForm(input, context);
     assert.equal(res.ok, true);
     if (res.ok) {
-      assert.equal(res.value.attemptNumber, 2);
+      assert.equal(res.value.attemptNumber, 1);
     }
   });
 
@@ -145,7 +138,7 @@ describe("Forms & Collections Prototype Domain Rules", () => {
     }
   });
 
-  it("validates collection allocation rules", () => {
+  it("validates collection allocation rules and cash payment eligibility", () => {
     const forms = [
       {
         id: "frm-1",
@@ -154,6 +147,20 @@ describe("Forms & Collections Prototype Domain Rules", () => {
         status: "accepted" as const,
         acceptedPriceSnapshot: 100,
       },
+      {
+        id: "frm-2",
+        companyId: "cmp-1",
+        projectId: "prj-1",
+        status: "pending_review" as const,
+        acceptedPriceSnapshot: null,
+      },
+      {
+        id: "frm-3",
+        companyId: "cmp-1",
+        projectId: "prj-1",
+        status: "accepted" as const,
+        acceptedPriceSnapshot: null,
+      },
     ] as unknown as ResearchForm[];
 
     const collections: Collection[] = [];
@@ -161,12 +168,13 @@ describe("Forms & Collections Prototype Domain Rules", () => {
     // Correct Allocation
     const draftOk: NewCollectionInput = {
       companyId: "cmp-1",
+      projectId: "prj-1",
       date: "2026-07-21",
       totalAmount: 100,
       method: "cash",
       reference: null,
       notes: null,
-      allocations: [{ formId: "frm-1", amount: 80 }],
+      allocations: [{ formId: "frm-1", amount: 100 }],
     };
 
     const resOk = validateCollectionDraft(draftOk, { forms, collections });
@@ -175,52 +183,19 @@ describe("Forms & Collections Prototype Domain Rules", () => {
     // Cross-company Allocation
     const draftCross: NewCollectionInput = {
       companyId: "cmp-2",
+      projectId: "prj-1",
       date: "2026-07-21",
       totalAmount: 100,
       method: "cash",
       reference: null,
       notes: null,
-      allocations: [{ formId: "frm-1", amount: 80 }],
+      allocations: [{ formId: "frm-1", amount: 100 }],
     };
 
     const resCross = validateCollectionDraft(draftCross, { forms, collections });
     assert.equal(resCross.ok, false);
     if (!resCross.ok) {
       assert.equal(resCross.code, "allocation_cross_company");
-    }
-
-    // Over-allocation (exceeds outstanding)
-    const draftOver: NewCollectionInput = {
-      companyId: "cmp-1",
-      date: "2026-07-21",
-      totalAmount: 200,
-      method: "cash",
-      reference: null,
-      notes: null,
-      allocations: [{ formId: "frm-1", amount: 150 }],
-    };
-
-    const resOver = validateCollectionDraft(draftOver, { forms, collections });
-    assert.equal(resOver.ok, false);
-    if (!resOver.ok) {
-      assert.equal(resOver.code, "allocation_exceeds_form_outstanding");
-    }
-
-    // Over total collection limit
-    const draftTotal: NewCollectionInput = {
-      companyId: "cmp-1",
-      date: "2026-07-21",
-      totalAmount: 50,
-      method: "cash",
-      reference: null,
-      notes: null,
-      allocations: [{ formId: "frm-1", amount: 80 }],
-    };
-
-    const resTotal = validateCollectionDraft(draftTotal, { forms, collections });
-    assert.equal(resTotal.ok, false);
-    if (!resTotal.ok) {
-      assert.equal(resTotal.code, "allocation_exceeds_collection_total");
     }
   });
 

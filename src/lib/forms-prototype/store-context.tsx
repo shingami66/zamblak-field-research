@@ -11,7 +11,7 @@ type PrototypeContextType = {
   dispatch: React.Dispatch<PrototypeStoreAction>;
   isHydrated: boolean;
   createForm: (input: NewFormInput) => void;
-  acceptForm: (formId: string) => void;
+  acceptForm: (formId: string, customPrice?: number) => void;
   rejectForm: (formId: string, reason: string) => void;
   cancelForm: (formId: string) => void;
   createCollection: (input: NewCollectionInput) => void;
@@ -27,9 +27,8 @@ export function PrototypeStoreProvider({ children }: { children: React.ReactNode
   useEffect(() => {
     const persisted = loadPrototypeState();
     dispatch({ type: "hydrate", state: persisted });
-    Promise.resolve().then(() => {
-      setIsHydrated(true);
-    });
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsHydrated(true);
   }, []);
 
   // Persist state to sessionStorage only after successful hydration
@@ -43,8 +42,8 @@ export function PrototypeStoreProvider({ children }: { children: React.ReactNode
     dispatch({ type: "create_form", input, now: new Date().toISOString() });
   };
 
-  const acceptForm = (formId: string) => {
-    dispatch({ type: "accept_form", formId, now: new Date().toISOString() });
+  const acceptForm = (formId: string, customPrice?: number) => {
+    dispatch({ type: "accept_form", formId, customPrice, now: new Date().toISOString() });
   };
 
   const rejectForm = (formId: string, reason: string) => {
