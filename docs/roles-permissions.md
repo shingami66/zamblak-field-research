@@ -1,45 +1,32 @@
 # Roles and Permissions
 
-## MVP roles and authority
+## Product & Role Status Boundaries
 
-The only approved application roles are:
+### 1. Current Implemented Truth
+- **Implemented Roles:** Current application and database implementations recognize both `owner` and `support_helper` roles.
+- **Owner Authority:** Owner can manage operational data, mark research forms accepted/rejected, view financial summaries, record payments, and export financial reports.
+- **Support Helper Authority:** `support_helper` can perform finance-blind operational actions (e.g., Company create/edit, non-financial project directory views, respondent management).
+- **Server Resolution:** Application authority is resolved on the server from the authenticated user's active, non-deleted database profile and account membership. Browser state, form inputs, URL parameters, and role labels are never trusted as authority.
+- **Client Posture:** Normal application requests use the authenticated user-session Supabase client under RLS; no service-role client is used in normal application flows.
 
-1. `owner`
-2. `support_helper`
+### 2. Approved Future Product Direction
+- **Owner-First V1 Focus:** Approved product direction for the next V1 design phase is Owner-first.
+- **Multi-Researcher SaaS:** Zamblak will evolve from an Owner-first tool into a professional multi-researcher SaaS platform.
+- **Finance Blindness:** Non-financial operations (interviews, field data collection, respondent registration) will maintain strict finance blindness.
+- **Zero Browser Financial Authority:** Browser-supplied pricing or financial authority is forbidden. Price calculations and financial snapshots are computed authoritatively on the server.
 
-Application authority is resolved on the server from the authenticated user's active, non-deleted database profile and account membership. Browser state, form input, URL parameters, and role labels are never authority. The former `mockRole` UI source has been removed. Normal application requests use the authenticated user-session client under RLS; no service-role client is used.
+### 3. Legacy Compatibility
+- **`support_helper` Role Status:** `support_helper` is an implemented legacy compatibility role in the current application and database RLS.
+- **Preservation Rule:** Existing `support_helper` code checks, RPC boundaries, and permissions must **NOT** be deleted or broken in current work to prevent runtime regressions.
+- **Design Rule:** `support_helper` must **NOT** define new product features or new domain model architectures.
 
-## Owner
+### 4. Unresolved Decisions
+- **Future Multi-Researcher Roles:** Exact future role structures, role names, and permission matrices for the multi-researcher SaaS platform remain explicitly **UNRESOLVED** until operational workflows are approved. No invented role names or speculative matrices are adopted prematurely.
+- **Role Onboarding Workflows:** Multi-researcher invitation and onboarding workflows will be designed in a future role-model milestone.
 
-Can:
+## Current Authenticated Route Access (`ZAM-AUTH-001D` — Implemented)
 
-- Manage all operational data.
-- Mark accepted/rejected.
-- Set project price.
-- View financial summaries and future financial data.
-- Record payments.
-- Export financial reports.
-
-## Support Helper
-
-Can:
-
-- Add/edit companies (Companies MVP create/edit **runtime-verified** on designated DEV/DEMO for same-account Support Helper).
-- Add/edit **non-financial** project details and list/view projects under the frozen Projects MVP design (`docs/projects-schema-rpc-design.md`) — **database RPCs applied on DEV/DEMO**; **not implemented in app yet**; Support Helper **must not** transition project lifecycle and remains **finance-blind**.
-- Add/edit respondents and add a respondent to a project.
-- Import Excel and export operational reports.
-- Open a WhatsApp link and confirm a manual WhatsApp send.
-- Update contact status and mark a form completed/transferred.
-
-Cannot:
-
-- View financial wording, data, summaries, prices, payments, due amounts, or financial placeholders (**finance-blind**).
-- Change prices, mark accepted/rejected, record payments, or export financial reports.
-- Select or escalate their role.
-
-## Current authenticated route access (`ZAM-AUTH-001D` — implemented)
-
-| Capability | `owner` | `support_helper` | Current boundary |
+| Capability | `owner` | `support_helper` (Legacy) | Current Boundary |
 | :--- | :---: | :---: | :--- |
 | Protected dashboard `/` | Yes | Yes | Responsive authenticated shell; no fake metrics. |
 | `/companies` list | Yes | Yes | **Implemented** MVP list + search + pagination. |
@@ -51,13 +38,11 @@ Cannot:
 | Logout | Yes | Yes | Current browser session only (`scope: "local"`) → `/login`. |
 | Controlled `/financials` | Yes | No | Owner-only placeholder; Support Helper redirects to `/`; no financial wording or data. |
 
-`/projects` and `/financials` placeholders prevent dead navigation; they do not represent completed domain modules. Companies MVP is implemented and Mozfer-smoked on designated DEV/DEMO only.
+`/projects` and `/financials` placeholders prevent dead navigation; they do not represent completed domain modules. Companies MVP is implemented and smoked on designated DEV/DEMO.
 
-## Companies permissions (MVP — implemented + DEV/DEMO smoke)
+## Companies Permissions (MVP — Implemented)
 
-Mozfer-approved Companies MVP contract. **Database RPCs applied** on designated DEV/DEMO (`20260716120000_companies_mvp_schema_rpc.sql`). **Application list/create/detail/edit wired**. **Owner and same-account Support Helper Mozfer smoke PASS**. **Finance-blind Support Helper UI PASS**. **Cross-account runtime isolation NOT TESTED** (deferred, non-blocking). Production readiness **not** claimed.
-
-### Owner (implemented)
+### Owner (Implemented)
 
 | Action | Allowed | Enforcement |
 | :--- | :---: | :--- |
@@ -69,7 +54,7 @@ Mozfer-approved Companies MVP contract. **Database RPCs applied** on designated 
 | Companies financial ledger | **No** | Finance stays off Companies UI |
 | View operational project summaries | Yes | Non-financial project aggregates only |
 
-### Support Helper (implemented; same-account smoke PASS)
+### Support Helper (Legacy Compatibility — Implemented)
 
 | Action | Allowed | Enforcement |
 | :--- | :---: | :--- |
@@ -80,32 +65,18 @@ Mozfer-approved Companies MVP contract. **Database RPCs applied** on designated 
 | Soft-delete / restore | **No** | — |
 | Broad Companies base-table SELECT | **No** | Owner-only base SELECT posture remains |
 | Direct base-table mutation / UPDATE | **No** | Denied by design |
-| Finance (prices, payments, due amounts, summaries) | **No** | **Finance-blind** (Mozfer UI smoke PASS) |
-| Operational notes view/edit | Yes | Explicit Mozfer approval recorded for MVP |
+| Finance (prices, payments, due amounts, summaries) | **No** | **Finance-blind** |
+| Operational notes view/edit | Yes | Explicit approval recorded for MVP |
 
-### Companies mutation and authority invariants
-
+### Companies Mutation and Authority Invariants
 - All create/edit mutations: **Server Action → authenticated RPC**.
-- List/detail MVP path: unified RPCs for Owner and Support Helper (see `docs/companies-schema-rpc-design.md`). Owner-only base-table SELECT (`sel_companies`) remains; Support Helper must not gain broad Companies SELECT.
+- Unified RPCs for Owner and Support Helper (see [`docs/companies-schema-rpc-design.md`](file:///D:/Zamblak/Zamblak-field-research/docs/companies-schema-rpc-design.md)). Owner-only base-table SELECT (`sel_companies`) remains; Support Helper must not gain broad Companies SELECT.
 - No direct client or direct base-table UPDATE path; authenticated relation privileges remain SELECT-only.
 - No browser-supplied trusted `account_id`, role, profile, ownership, or finance authority.
-- Account isolation fails closed at RPC design; **cross-account runtime smoke with a second account remains NOT TESTED**.
-- Stable errors include `duplicate_company_name`, `invalid_company_phone`, `company_not_found`, `company_access_denied`, `invalid_company_name`, `invalid_pagination`, `stale_company_version`, plus contact/notes field codes.
-- No lifecycle RPC in MVP.
 
-### Distinguishing planned vs current
+## Verified Database Read Surface (DEV/DEMO, `ZAM-WF-001F`)
 
-| Surface | Current (implemented + DEV/DEMO smoke) | Still deferred / not claimed |
-| :--- | :--- | :--- |
-| Companies DB RPCs / indexes | Applied on DEV/DEMO; used by app | Production readiness |
-| `/companies` page | List with search, pagination, operational counts | Lifecycle filters, finance KPIs |
-| `/companies/new`, `/companies/[id]`, `/companies/[id]/edit` | Dedicated senior-friendly pages | Delete/restore UI |
-| Support Helper company reads/writes | Same-account smoke PASS | Cross-account second-account smoke |
-
-## Verified database read surface (DEV/DEMO, `ZAM-WF-001F`)
-
-Database evidence from the manually applied `202607130002_role_safe_read_surfaces.sql` on the designated DEV/DEMO database:
-
+Database evidence from the applied `202607130002_role_safe_read_surfaces.sql`:
 - Owner base-table SELECT remains Owner-only for permitted rows; operational and financial summary views remain Owner-scoped.
 - Support Helper access is limited to four approved support-safe `SECURITY DEFINER` RPCs:
   - `support_participation_operational_rows(uuid, integer, integer)`
@@ -113,14 +84,9 @@ Database evidence from the manually applied `202607130002_role_safe_read_surface
   - `support_project_participation_summary(uuid, integer, integer)`
   - `support_project_directory(integer, integer)`
 - Support Helper must not receive broad base-table reads, pricing, payments, financial summaries, or review-only/sensitive respondent fields beyond that safe RPC surface.
-- The verified managed inventory remains 11 functions, 2 views, and 23 policies; managed manifest MD5 `f950c7ec5024dcf907d36f02df8c78b4` (8238 octets).
-- Boundaries: DEV/DEMO database evidence only for read-surface apply. Companies domain RPCs were **later applied** on DEV/DEMO under `20260716120000_companies_mvp_schema_rpc.sql` (object-verified). Application wiring and runtime smoke remain separate.
 
-## MVP access and onboarding authority
+## Access and Onboarding Authority
 
 Binding policy: `INVITATION_OR_ADMIN_SEED_ONLY`.
-
-- The one-time first-Owner bootstrap created exactly one initial account and one active, non-deleted Owner through a privileged SQL-owner-only path. It is consumed on designated DEV/DEMO and is not a recovery or normal application route.
-- Support Helpers are onboarded only by an authorized Owner or controlled administration. Self-registration and role escalation are prohibited.
+- The one-time first-Owner bootstrap created exactly one initial account and one active, non-deleted Owner through a privileged SQL-owner-only path.
 - Existing-account access is invitation or controlled administrative seed only. Public self-service signup and arbitrary account creation are disabled for MVP.
-- Additional tenants and sole-Owner recovery require separately approved future designs.
