@@ -9,6 +9,9 @@ describe("success notices", () => {
 
   it("renders only whitelisted notice codes", () => {
     assert.equal(getSuccessNotice("participant_assigned"), "تمت إضافة المشارك إلى المشروع بنجاح.");
+    assert.equal(getSuccessNotice("form_accepted"), "تم قبول استمارة البحث وتثبيت القيمة المقبولة المستحقة.");
+    assert.equal(getSuccessNotice("form_rejected"), "تم رفض استمارة البحث وتسجيل سبب الرفض.");
+    assert.equal(getSuccessNotice("form_cancelled"), "تم إلغاء استمارة البحث.");
     assert.equal(getSuccessNotice("<script>alert(1)</script>"), null);
     assert.equal(getSuccessNotice(["project_created"]), null);
   });

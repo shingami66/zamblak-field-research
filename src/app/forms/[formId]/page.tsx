@@ -11,6 +11,7 @@ import { getSuccessNotice } from "@/lib/ui/success-notice";
 import { BackLink } from "@/components/shared/BackLink";
 import { SuccessNotice } from "@/components/shared/SuccessNotice";
 import { StatusBadge } from "@/components/shared/StatusBadge";
+import { FormReviewActions } from "./FormReviewActions";
 import styles from "../forms.module.css";
 
 type Props = {
@@ -30,6 +31,47 @@ const SETTLEMENT_LABELS: Record<SettlementState, string> = {
   partially_collected: "محصل جزئياً",
   collected: "محصل بالكامل",
 };
+
+const ARABIC_MONTHS = [
+  "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
+  "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"
+];
+
+function formatArabicDate(iso: string | null | undefined): string {
+  if (!iso) return "-";
+  const datePart = iso.slice(0, 10);
+  const parts = datePart.split("-");
+  if (parts.length !== 3) return iso;
+  const year = parts[0];
+  const monthIdx = parseInt(parts[1], 10) - 1;
+  const day = parseInt(parts[2], 10);
+  if (isNaN(monthIdx) || monthIdx < 0 || monthIdx > 11 || isNaN(day)) return iso;
+  return `${day} ${ARABIC_MONTHS[monthIdx]} ${year}`;
+}
+
+function formatArabicDateTime(iso: string | null | undefined): string {
+  if (!iso) return "-";
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return iso;
+
+  const year = d.getUTCFullYear();
+  const monthIdx = d.getUTCMonth();
+  const day = d.getUTCDate();
+  let hours = d.getUTCHours();
+  const minutes = String(d.getUTCMinutes()).padStart(2, "0");
+  const period = hours >= 12 ? "م" : "ص";
+  hours = hours % 12;
+  if (hours === 0) hours = 12;
+
+  const monthName = ARABIC_MONTHS[monthIdx];
+  return `${day} ${monthName} ${year}، ${hours}:${minutes} ${period}`;
+}
+
+function getShortFormCode(code: string): string {
+  const parts = code.split("-");
+  const lastPart = parts[parts.length - 1];
+  return lastPart || code;
+}
 
 export default function FormDetailPage(props: Props) {
   return renderFormDetailPage(props);
@@ -56,10 +98,10 @@ async function renderFormDetailPage(props: Props) {
     return (
       <div className={styles.page}>
         <BackLink href="/forms">العودة إلى الاستمارات</BackLink>
-        <div className={styles.detailCard} style={{ borderColor: "var(--color-danger)", padding: "1.5rem", marginTop: "1rem" }} role="alert">
-          <h2 style={{ color: "var(--color-danger)", marginBottom: "0.5rem" }}>خطأ في التحميل</h2>
-          <p style={{ marginBottom: "1rem", color: "var(--color-muted)" }}>
-            حدث خطأ أثناء تحميل بيانات نموذج البحث. يرجى المحاولة لاحقاً.
+        <div className={styles.errorCard} role="alert">
+          <h2 className={styles.errorTitle}>خطأ في التحميل</h2>
+          <p className={styles.descriptionValueText} style={{ marginBottom: "1rem" }}>
+            حدث خطأ أثناء تحميل بيانات الاستمارة. يرجى المحاولة لاحقاً.
           </p>
           <Link href="/forms" className={styles.secondaryAction}>
             العودة إلى القائمة
@@ -70,6 +112,7 @@ async function renderFormDetailPage(props: Props) {
   }
 
   const form = formRes.data;
+  const displayCode = getShortFormCode(form.code);
 
   // Load financial summary ONLY if status is accepted
   let financialSummary = null;
@@ -98,84 +141,49 @@ async function renderFormDetailPage(props: Props) {
       <BackLink href="/forms">العودة إلى الاستمارات</BackLink>
       <SuccessNotice message={successNotice} />
 
-      <header className={styles.pageIntro} style={{ marginTop: "1rem" }}>
+      <header className={styles.pageIntro}>
         <div style={{ display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap" }}>
           <h1 className={styles.pageTitle}>
-            نموذج البحث: <bdi dir="ltr" className={styles.ltrToken}>{form.code}</bdi>
+            الاستمارة رقم <bdi dir="ltr" className={styles.ltrToken}>{displayCode}</bdi>
           </h1>
           <StatusBadge variant={statusVariant}>
             {STATUS_LABELS[form.review_status]}
           </StatusBadge>
         </div>
         <p className={styles.pageDescription}>
-          تفاصيل الحالة والمالية والمراجعة لنموذج البحث الميداني.
+          تفاصيل الحالة والمالية والمراجعة للاستمارة الميدانية.
         </p>
       </header>
 
-      <div className={styles.detailRows} style={{ gap: "1.5rem" }}>
+      <div className={styles.detailRows}>
         {/* CORE IDENTITY & METADATA CARD */}
         <section className={styles.detailCard}>
           <h2 className={styles.detailTitle}>البيانات الأساسية</h2>
-          <dl className={styles.metaGrid}>
+          <dl className={styles.summaryGrid3}>
             <div className={styles.descriptionRow}>
-              <dt className={styles.descriptionLabel}>رمز النموذج</dt>
+              <dt className={styles.descriptionLabel}>رقم الاستمارة</dt>
               <dd className={styles.descriptionValue}>
-                <bdi dir="ltr" className={styles.ltrToken}>{form.code}</bdi>
+                <bdi dir="ltr" className={styles.ltrToken}>{displayCode}</bdi>
               </dd>
             </div>
 
             <div className={styles.descriptionRow}>
               <dt className={styles.descriptionLabel}>تاريخ التقديم</dt>
-              <dd className={styles.descriptionValue}>{form.submitted_date}</dd>
+              <dd className={styles.descriptionValue}>{formatArabicDate(form.submitted_date)}</dd>
             </div>
 
             <div className={styles.descriptionRow}>
-              <dt className={styles.descriptionLabel}>رقم المحاولة</dt>
-              <dd className={styles.descriptionValue}>{form.attempt_number}</dd>
-            </div>
-
-            <div className={styles.descriptionRow}>
-              <dt className={styles.descriptionLabel}>السعر المقبول المستحق</dt>
+              <dt className={styles.descriptionLabel}>قيمة الاستمارة</dt>
               <dd className={styles.descriptionValue}>
                 {form.accepted_price_snapshot !== null
                   ? `${form.accepted_price_snapshot.toFixed(2)} ر.س`
-                  : "غير محدد"}
-              </dd>
-            </div>
-          </dl>
-
-          <hr style={{ margin: "1.25rem 0", border: 0, borderTop: "1px solid var(--color-border)" }} />
-
-          <h3 className={styles.detailTitle} style={{ fontSize: "1rem", marginBottom: "0.75rem" }}>
-            المعرفات المرتبطة
-          </h3>
-          <dl className={styles.metaGrid}>
-            <div className={styles.descriptionRow}>
-              <dt className={styles.descriptionLabel}>معرف المشروع</dt>
-              <dd className={styles.descriptionValue} style={{ fontFamily: "monospace", fontSize: "0.9rem" }}>
-                <bdi dir="ltr" className={styles.ltrToken}>{form.project_id}</bdi>
-              </dd>
-            </div>
-            <div className={styles.descriptionRow}>
-              <dt className={styles.descriptionLabel}>معرف الشركة</dt>
-              <dd className={styles.descriptionValue} style={{ fontFamily: "monospace", fontSize: "0.9rem" }}>
-                <bdi dir="ltr" className={styles.ltrToken}>{form.company_id}</bdi>
-              </dd>
-            </div>
-            <div className={styles.descriptionRow}>
-              <dt className={styles.descriptionLabel}>معرف المشارك (الرئيسي)</dt>
-              <dd className={styles.descriptionValue} style={{ fontFamily: "monospace", fontSize: "0.9rem" }}>
-                <bdi dir="ltr" className={styles.ltrToken}>{form.respondent_id}</bdi>
-              </dd>
-            </div>
-            <div className={styles.descriptionRow}>
-              <dt className={styles.descriptionLabel}>معرف المشاركة</dt>
-              <dd className={styles.descriptionValue} style={{ fontFamily: "monospace", fontSize: "0.9rem" }}>
-                <bdi dir="ltr" className={styles.ltrToken}>{form.participation_id}</bdi>
+                  : "لم تُحدد بعد"}
               </dd>
             </div>
           </dl>
         </section>
+
+
 
         {/* ACCEPTED FINANCIAL SNAPSHOT SECTION */}
         {form.review_status === "accepted" && (
@@ -183,15 +191,15 @@ async function renderFormDetailPage(props: Props) {
             <h2 className={styles.detailTitle}>الملخص المالي والتحصيل</h2>
 
             {financialWarning && (
-              <div style={{ padding: "0.75rem", backgroundColor: "#fffbeb", borderColor: "#fcd34d", border: "1px solid", borderRadius: "0.375rem", color: "#92400e", marginBottom: "1rem" }}>
-                تنبيه: ملخص التحصيل المالي لهذا النموذج المقبول قيد التحديث أو غير مكتمل حالياً.
+              <div className={styles.warningBox}>
+                تنبيه: ملخص التحصيل المالي لهذه الاستمارة المقبولة قيد التحديث أو غير مكتمل حالياً.
               </div>
             )}
 
             {financialSummary ? (
               <dl className={styles.metaGrid}>
                 <div className={styles.descriptionRow}>
-                  <dt className={styles.descriptionLabel}>السعر المقبول</dt>
+                  <dt className={styles.descriptionLabel}>قيمة الاستمارة</dt>
                   <dd className={styles.descriptionValue}>
                     {financialSummary.accepted_price_snapshot.toFixed(2)} ر.س
                   </dd>
@@ -216,15 +224,24 @@ async function renderFormDetailPage(props: Props) {
                 </div>
                 <div className={styles.descriptionRow}>
                   <dt className={styles.descriptionLabel}>تاريخ الاستحقاق</dt>
-                  <dd className={styles.descriptionValue}>{financialSummary.due_date}</dd>
+                  <dd className={styles.descriptionValue}>{formatArabicDate(financialSummary.due_date)}</dd>
                 </div>
               </dl>
             ) : (
               <p className={styles.descriptionValueText}>
-                سعر النموذج المقبول: {form.accepted_price_snapshot !== null ? `${form.accepted_price_snapshot.toFixed(2)} ر.س` : "غير محدد"}
+                قيمة الاستمارة المقبولة: {form.accepted_price_snapshot !== null ? `${form.accepted_price_snapshot.toFixed(2)} ر.س` : "لم تُحدد بعد"}
               </p>
             )}
           </section>
+        )}
+
+        {/* OWNER REVIEW ACTIONS CARD (submitted forms only) */}
+        {form.review_status === "submitted" && (
+          <FormReviewActions
+            formId={form.id}
+            formCode={form.code}
+            reviewStatus={form.review_status}
+          />
         )}
 
         {/* LIFECYCLE & REVISION EVIDENCE CARD */}
@@ -233,30 +250,30 @@ async function renderFormDetailPage(props: Props) {
           <dl className={styles.metaGrid}>
             <div className={styles.descriptionRow}>
               <dt className={styles.descriptionLabel}>وقت التقديم</dt>
-              <dd className={styles.descriptionValue}>{new Date(form.submitted_at).toLocaleString("ar-SA")}</dd>
+              <dd className={styles.descriptionValue}>{formatArabicDateTime(form.submitted_at)}</dd>
             </div>
             {form.reviewed_at && (
               <div className={styles.descriptionRow}>
                 <dt className={styles.descriptionLabel}>وقت المراجعة</dt>
-                <dd className={styles.descriptionValue}>{new Date(form.reviewed_at).toLocaleString("ar-SA")}</dd>
+                <dd className={styles.descriptionValue}>{formatArabicDateTime(form.reviewed_at)}</dd>
               </div>
             )}
             {form.accepted_at && (
               <div className={styles.descriptionRow}>
                 <dt className={styles.descriptionLabel}>وقت القبول</dt>
-                <dd className={styles.descriptionValue}>{new Date(form.accepted_at).toLocaleString("ar-SA")}</dd>
+                <dd className={styles.descriptionValue}>{formatArabicDateTime(form.accepted_at)}</dd>
               </div>
             )}
             {form.rejected_at && (
               <div className={styles.descriptionRow}>
                 <dt className={styles.descriptionLabel}>وقت الرفض</dt>
-                <dd className={styles.descriptionValue}>{new Date(form.rejected_at).toLocaleString("ar-SA")}</dd>
+                <dd className={styles.descriptionValue}>{formatArabicDateTime(form.rejected_at)}</dd>
               </div>
             )}
             {form.cancelled_at && (
               <div className={styles.descriptionRow}>
                 <dt className={styles.descriptionLabel}>وقت الإلغاء</dt>
-                <dd className={styles.descriptionValue}>{new Date(form.cancelled_at).toLocaleString("ar-SA")}</dd>
+                <dd className={styles.descriptionValue}>{formatArabicDateTime(form.cancelled_at)}</dd>
               </div>
             )}
           </dl>
@@ -264,7 +281,7 @@ async function renderFormDetailPage(props: Props) {
           {form.rejection_reason && (
             <div style={{ marginTop: "1rem" }}>
               <div className={styles.descriptionLabel} style={{ color: "var(--color-danger)", fontWeight: 700 }}>سبب الرفض:</div>
-              <div style={{ backgroundColor: "#fef2f2", padding: "0.75rem", borderRadius: "0.5rem", marginTop: "0.25rem", color: "var(--color-danger)" }}>
+              <div className={styles.evidenceBoxDanger}>
                 {form.rejection_reason}
               </div>
             </div>
@@ -273,7 +290,7 @@ async function renderFormDetailPage(props: Props) {
           {form.review_correction_reason && (
             <div style={{ marginTop: "1rem" }}>
               <div className={styles.descriptionLabel} style={{ color: "#b45309", fontWeight: 700 }}>سبب تصحيح المراجعة:</div>
-              <div style={{ backgroundColor: "#fffbeb", padding: "0.75rem", borderRadius: "0.5rem", marginTop: "0.25rem", color: "#92400e" }}>
+              <div className={styles.evidenceBoxWarning}>
                 {form.review_correction_reason}
               </div>
             </div>
@@ -282,10 +299,10 @@ async function renderFormDetailPage(props: Props) {
           {form.quota_override_reason && (
             <div style={{ marginTop: "1rem" }}>
               <div className={styles.descriptionLabel} style={{ color: "#6b21a8", fontWeight: 700 }}>دليل تجاوز الحد الأقصى (الكوتا):</div>
-              <div style={{ backgroundColor: "#faf5ff", padding: "0.75rem", borderRadius: "0.5rem", marginTop: "0.25rem", color: "#581c87" }}>
+              <div className={styles.evidenceBoxPurple}>
                 <p style={{ margin: 0, marginBottom: "0.5rem" }}>{form.quota_override_reason}</p>
                 <div style={{ fontSize: "0.8rem", color: "var(--color-muted)" }}>
-                  الحد: {form.quota_limit_snapshot} | المقبولة سابقاً: {form.accepted_count_before} | وقت التجاوز: {form.quota_overridden_at ? new Date(form.quota_overridden_at).toLocaleString("ar-SA") : "-"}
+                  الحد: {form.quota_limit_snapshot} | المقبولة سابقاً: {form.accepted_count_before} | وقت التجاوز: {form.quota_overridden_at ? formatArabicDateTime(form.quota_overridden_at) : "-"}
                 </div>
               </div>
             </div>
@@ -293,12 +310,14 @@ async function renderFormDetailPage(props: Props) {
         </section>
 
         {/* NOTES CARD */}
-        {form.notes && (
-          <section className={styles.detailCard}>
-            <h2 className={styles.detailTitle}>الملاحظات</h2>
+        <section className={styles.detailCard}>
+          <h2 className={styles.detailTitle}>الملاحظات</h2>
+          {form.notes ? (
             <p className={styles.descriptionValueText}>{form.notes}</p>
-          </section>
-        )}
+          ) : (
+            <p className={styles.notesEmpty}>لا توجد ملاحظات مسجلة.</p>
+          )}
+        </section>
       </div>
     </div>
   );
