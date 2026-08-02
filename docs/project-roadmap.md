@@ -1,69 +1,109 @@
-# Project Roadmap
+# Project Roadmap & Canonical Direction
 
-- Phase 0: Bootstrap
-- Phase 1: Core Schema
-  - Participation project-state enforcement: completed in source, manually applied to designated DEV/DEMO, and post-apply verified.
-  - Role-safe Owner / Support Helper read surfaces: migration prepared, manually applied to designated DEV/DEMO, and post-apply verified.
-  - Core database ACL and default-privilege hardening (`ZAM-SEC-ACL-001`): **CLOSED** for designated DEV/DEMO. Migration `20260715120000_harden_core_acl_defaults.sql` committed/pushed as `846894e`, manually applied, catalog-verified, Owner-smoked. Residual non-SELECT client privileges on core tables/views and open `postgres` defaults are no longer pending for those surfaces.
-- Phase 2: Auth + Shell
-  - Role-aware empty Dashboard Shell slice: completed.
-  - Supabase runtime client foundation (`ZAM-AUTH-001A`): closed and pushed.
-  - MVP access policy (`ZAM-AUTH-001B`): recorded as `INVITATION_OR_ADMIN_SEED_ONLY`.
-  - First-Owner bootstrap (`ZAM-AUTH-001C`): repository complete and verified on designated DEV/DEMO; bootstrap path consumed there. Production readiness is not claimed.
-  - Live login, session, and authenticated shell milestone (`ZAM-AUTH-001D`): **CLOSED**. Application committed and pushed as `74ceca7 feat(auth): add protected sessions and role-aware shell`. Documentation committed and pushed as `9a140d8` and `ee44d66`. `/projects` and Owner-only `/financials` remain navigation-safety placeholders only (no domain data). **Companies** is no longer a placeholder — see Phase 3.
-- Phase 3: Companies (**MVP CRUD CLOSED on DEV/DEMO**)
-  - **Status:** Mozfer-approved lean Companies MVP contract and deferred-work register (`DWR-COMP-001`–`DWR-COMP-028`). Live catalog (`DWR-COMP-026`) **PASS**. Schema/RPC design complete. Migration source complete. **DEV/DEMO database apply complete**. **Application contracts complete**. **List / create / detail / edit pages complete**. **Visual foundation polish complete** (`aa2f6b4`). **Owner manual smoke PASS**. **Support Helper same-account runtime smoke PASS**. **Finance-blind Support Helper UI PASS**. **Safe duplicate-name handling PASS**. **Companies MVP CRUD phase closed** for designated DEV/DEMO evidence only.
-  - **Not claimed:** production readiness; cross-account runtime isolation PASS; delete/restore/lifecycle; project CRUD.
-  - **Approved MVP boundaries (summary):** operational fields only (`name`, `contact_person`, `phone`, `notes`); active-only list (no delete/restore UI); Support Helper finance-blind; create/edit via Server Action → authenticated RPC; offset pagination; operational project counts; routes `/companies`, `/companies/new`, `/companies/[id]`, `/companies/[id]/edit`.
-  - **Completed sequence:**
-    1. Mozfer contract + deferred-register approval (done)
-    2. Companies contract + deferred-work documentation sync (done)
-    3. Graphify refresh + freshness review as part of authorized closeouts (done)
-    4. Core ACL hardening (`ZAM-SEC-ACL-001`) (done)
-    5. Live DEV/DEMO catalog verification (`DWR-COMP-026`) — **done (PASS)**
-    6. Schema/RPC design — **done**
-    7. Migration draft + param-order fix (`f503c7ef`, `6acc2e34`) — **done**
-    8. DEV/DEMO apply + object verification — **done (PASS)**
-    9. Application contracts / Server Actions / UI (list, create, detail, edit) — **done**
-    10. Visual foundation polish (`aa2f6b4`) — **done**
-    11. Owner + Support Helper runtime smoke + docs closeout (`ZAM-COMPANIES-MANUAL-SMOKE-CLOSE-1`) — **done (PASS / closed)**
-  - Deferred Companies items and permanent non-goals: see `docs/deferred-decisions.md` (Companies register). Cross-account runtime security smoke remains deferred and non-blocking.
-- Phase 4: Projects (**MVP runtime acceptance CLOSED — PASS**)
-  - Design: `docs/projects-schema-rpc-design.md`.
-  - Source: `20260716160000_projects_mvp_schema_rpc.sql` (`1cb9a75`) + corrections `20260716170000_projects_mvp_rpc_corrections.sql` (`dc03784`).
-  - DEV/DEMO apply (Mozfer, `gdegnwglakyblnmxgiwx`, PG 17.6): initial apply success → verification **HOLD** → correction apply success → final verify **PASS**.
-  - Application: contracts + list (`86f898f`) + create (`65db22f`) + detail (`50f4272`/`d6677fe`) + edit (`9a00108`) + Stitch polish (`fc13d92`) + create-form error-state preservation (`7cb47d90`).
-  - Soft-deleted Company gap, transition Company lock, and search token defect **closed live**.
-  - Manual smoke plan: `docs/projects-manual-smoke-plan.md`.
-  - Mozfer overall manual smoke result: **PASS** — `docs/projects-manual-smoke-result.md`.
-  - Closed follow-ups: RTL date polish; lifecycle semantic colors; create-form value preservation (Company/domain and all fields survive validation errors).
-  - Production readiness not claimed.
-- Brand / loading mark (cross-cutting) — **CLOSED (PASS WITH WARN)**
-  - Design: `docs/brand-loading-mark-design.md` (`ZAM-BRAND-LOADING-MARK-DESIGN-1`) — closed.
-  - Implementation: `ZAM-BRAND-LOADING-MARK-IMPLEMENT-1` — closed at `96505757f444c20ad0b8331b681a221bf2ea4935`.
-  - Mozfer manual smoke: **PASS WITH WARN** (`ZAM-BRAND-LOADING-MARK-SMOKE-CLOSE-1`) — conditional route appearance expected; no artificial delay; browser-extension hydration noise external; no application HOLD.
-  - Production readiness not claimed.
-- Phase 5: Respondent Registry (**DEV/DEMO runtime CLOSED — PASS WITH WARN**)
-  - Scope review + live catalog + schema/RPC design: closed (see `docs/project-status.md`, `docs/respondents-schema-rpc-design.md`, `docs/respondents-live-catalog-verification.md`).
-  - Migration: `20260717120000_respondents_mvp_schema_rpc.sql` applied on DEV/DEMO (`gdegnwglakyblnmxgiwx`, PG **17.6**) — apply packet `docs/respondents-schema-rpc-dev-apply.md`.
-  - Application: list/create/detail/edit routes implemented; stale-edit recovery hardened at `22cfa8fab680943e8250926e962f9c458e7e9f50`.
-  - Create blocker: live `audit_trigger_func` repair applied and catalog-verified (`ZAM-RESPONDENTS-CREATE-TRIGGER-AUDIT-FUNCTION-APPLY-1` **PASSED**) — reason extraction uses `(v_new ->> 'review_correction_reason')`.
-  - Runtime smoke (agent browser, Support Helper, DEV/DEMO): create **PASS**; full CRUD + two-tab stale recovery **PASS WITH WARN** (pending-state capture P2 only) — `ZAM-RESPONDENTS-CREATE-TRIGGER-POST-APPLY-UI-SMOKE-RETRY-1`, `ZAM-RESPONDENTS-AGENT-BROWSER-SMOKE-RESUME-1`.
-  - Deferred P2 (nonblocking): list ErrorPanel copy (`R-LIST-ERROR-COPY-1`); Server Action mock-execution gap (`R-TEST-ACTION-GAP-1`); pending UI timing evidence.
-  - **Not claimed:** production readiness; migration-history registration; cross-account isolation PASS.
-  - **Participation / three-month eligibility UI:** remain **after** registry core — **not started**.
-- Phase 6: Forms & Collections Backend Database Schema (**Backend Foundation Complete & History-Registered (Pushed)**)
-  - Backend schema Slices 1, 2, 3 and view fix (`20260723120000` through `20260723150000`) implemented, catalog-verified, registered in remote migration history (`gdegnwglakyblnmxgiwx`), and pushed to `main` at commit [`5c390947c9869928917ebd235356ca91f1a02ccd`](file:///D:/Zamblak/Zamblak-field-research/supabase/migrations/20260723140000_forms_collections_rpcs.sql).
-  - Installs 5 FORCE RLS tables, 2 security-invoker views (`form_financial_summary`, `collection_summary`), 7 Owner-gated mutation RPCs, and 3 internal helpers. All 16 local migrations match remote history 1-to-1 (`db push --dry-run` reports up to date).
-  - Application UI integration and representative DEV/DEMO runtime smoke with safe fixtures are pending. Production readiness unclaimed.
-- Phase 7: Review & Financials Application Integration
-- Later: WhatsApp workflow, Excel import/export, and further UI polish.
+## 1. Purpose & Status Vocabulary
 
-Required product sequence: **Company → Project → Respondent → Participation → Review → Financials**.
+This document establishes the canonical product roadmap for Zamblak Field Research. It separates the **Current Delivered Baseline** from the **Approved Forward Roadmap** and links to historical evidence files rather than duplicating commit logs.
 
-Completed database enforcement milestones:
+### Status Vocabulary
+- **COMPLETE:** Fully implemented in source, verified end-to-end, and closed.
+- **IN PROGRESS:** Currently active work phase.
+- **PARTIALLY DELIVERED:** Functional database, RPC, or application slices delivered, but full workflow is incomplete.
+- **NOT STARTED:** Planned future phase with no active execution slice.
+- **BLOCKED:** Execution halted pending resolution of a dependency or decision.
+- **DEFERRED:** Explicitly postponed to a future milestone by Mozfer decision.
 
-- `ZAM-WF-001E-PARTICIPATION-PROJECT-STATE-ENFORCEMENT`: active, non-deleted project guard applied and verified in designated DEV/DEMO. Migration-history registration, live concurrency testing, and production readiness remain unclaimed.
-- `ZAM-WF-001F-RLS-READ-SURFACE`: role-safe read surfaces manually applied and post-apply verified in designated DEV/DEMO (11 managed functions, 2 managed views, 23 managed policies; manifest MD5 `f950c7ec5024dcf907d36f02df8c78b4`). Customer production readiness and migration-history registration remain unclaimed.
-- `ZAM-SEC-ACL-001-HARDENING`: core table/view least-privilege ACLs, named trigger-function EXECUTE revoke, and `postgres` GLOBAL + public default-privilege hardening applied and verified in designated DEV/DEMO (`20260715120000_harden_core_acl_defaults.sql`, commit `846894e`). Authenticated SELECT remains intentional; support access remains via bounded RPCs where designed; `service_role` has no direct core relation privileges; `supabase_admin` defaults intentionally out of scope. Migration-history registration and production readiness remain unclaimed.
-- `ZAM-COMPANIES-001` schema/RPC apply: `20260716120000_companies_mvp_schema_rpc.sql` applied and object-verified on designated DEV/DEMO; application MVP CRUD wired and Mozfer-smoked (DEV/DEMO only). Production readiness unclaimed.
+*(Note: DEV/DEMO verification must **NEVER** be described as customer production readiness).*
+
+---
+
+## 2. Current Delivered Baseline
+
+The current DEV/DEMO baseline (verified against source code, migrations, and application routes) includes:
+
+- **Authentication & Shell:** Authenticated application shell with Supabase Auth login at `/login`. Active application profile and account authority are resolved server-side through `public.resolve_current_profile()` via the `resolveCurrentProfile()` application helper.
+- **Companies Module:** Full MVP list, create, detail, and edit flows (`/companies`, `/companies/new`, `/companies/[id]`, `/companies/[id]/edit`) backed by database RPCs (`sel_companies`, `ins_companies`, `upd_companies`).
+- **Projects Module:** Full MVP list, create, detail, and edit flows (`/projects`, `/projects/new`, `/projects/[id]`, `/projects/[id]/edit`). Owner-only project lifecycle status transitions (`transition_project_status`).
+- **Respondent Registry:** Full MVP list, create, detail, and edit flows (`/respondents`, `/respondents/new`, `/respondents/[id]`, `/respondents/[id]/edit`) with unique normalized mobile enforcement (`9665xxxxxxxx`).
+- **Participation Assignment:** Participation assignment and 3-month eligibility warning foundations (`create_participation`, `check_respondent_three_month_warning`, `list_project_participations`).
+- **One Form Per Participation:** Enforced database 1:1 invariant (`enforce_one_research_form_per_participation`).
+- **Research Forms Integration:** Live Research Form submission (`submit_research_form`), detail querying (`getResearchForm`), and Owner review (`review_research_form`) backend foundations and application route (`/forms/[formId]`).
+- **Financial & Collections Backend:** Database schema (`research_forms`, `collections`, `collection_allocations`, etc.), read views (`form_financial_summary`, `collection_summary`), and Owner-gated RPCs.
+
+---
+
+## 3. Known Current Limitations
+
+- **Current Live Hierarchy:** Operating under `Account → Company → Project → Participation → Research Form`. Project Sample is **not** physically implemented yet.
+- **Collections UI Status:** The current Collections application UI remains an in-memory/`sessionStorage` prototype (`zamblak.forms-prototype.v1`).
+- **Financials Display Surface:** `/financials` is an Owner-only mock/demo display surface rendering sample cards.
+- **Pricing Setup Prerequisite:** Form review acceptance fails closed with `accepted_price_unavailable` if pricing is unconfigured in `participation_pricing` or `project_financial_settings`. Full manual form acceptance runtime is unclaimed without valid pricing setup.
+- **Role Boundary:** The codebase recognizes `owner` and `support_helper`. `support_helper` is legacy compatibility and must **not** define future product design. The next V1 product phase is Owner-first. Multi-researcher SaaS role names and permission matrices remain unresolved.
+- **Production Readiness:** All evidence reflects DEV/DEMO environments; production readiness is unclaimed.
+
+---
+
+## 4. Approved Forward Roadmap
+
+### Phase 0: Baseline Reconciliation and Closure
+- **Purpose:** Complete canonical documentation reconciliation (`docs/product-requirements.md`, `docs/roles-permissions.md`, `docs/database-schema.md`, `docs/database-migrations.md`, `docs/project-roadmap.md`). Remove contradictions between product, schema, migrations, and roles. Establish a clean documented baseline before new product feature development.
+- **Status:** IN PROGRESS
+
+### Phase 1: Product and Workflow Canonicalization
+- **Purpose:** Document Owner Researcher operational workflows. Define screen contracts and data contracts for forms, review, financials, and collections. Identify unresolved product decisions without inventing RBAC.
+- **Required Delivery Method:** Screen Contract → Data Contract → Wireframe → Visual Specification → One Implementation Slice → Consolidated Review → One Correction → Closure.
+- **Status:** NOT STARTED
+
+### Phase 2: Sample Domain Foundation
+- **Purpose:** Design the logical and physical `Project Sample` domain. Resolve Sample lifecycle, targets/quotas, assignment, backfill, human reference format, and pricing interactions before writing SQL.
+- **Approved Future Hierarchy:** `Account → Company → Project → Sample → Participation → Research Form`
+- **Approved Future Form Reference Direction:** `P###-S##-F###` (e.g. `P012-S01-F004`).
+- **Implementation Status:** *Neither the physical Sample domain nor the `P###-S##-F###` reference format is currently implemented.*
+- **Status:** NOT STARTED
+
+### Phase 3: Design System Consolidation
+- **Purpose:** Establish reusable visual tokens, layout rules, interactive states, tables, forms, dialogs, responsive behavior, and accessibility expectations to avoid page-by-page visual improvisation.
+- **Status:** NOT STARTED
+
+### Phase 4: Minimal Read Model for Sample Context
+- **Purpose:** Introduce the smallest safe read contracts needed to expose Project, Sample, Participation, Respondent, and Research Form context. No broad feature build before the read model is approved.
+- **Status:** NOT STARTED
+
+### Phase 5: Core Operational Workflow
+- **Purpose:** Complete the full end-to-end Owner-first operational path: `Company → Project → Sample → Respondent → Participation → Research Form → Review`. Incorporate Excel import/export and WhatsApp communication only after their specific workflow contracts are approved.
+- **Status:** PARTIALLY DELIVERED
+
+### Phase 6: Financial and Collections Workflow
+- **Purpose:** Replace mock/prototype financial UI surfaces with live, server-authoritative workflows connecting accepted forms, receivables, collections, allocations, corrections, and reporting. Preserve Owner-only financial authority with zero browser-supplied pricing.
+- **Status:** PARTIALLY DELIVERED
+
+### Phase 7: Multi-Researcher SaaS Design
+- **Purpose:** Derive personas, roles, invitations, permissions, and finance blindness from approved operational workflows. Design tenant-safe collaboration and multi-user administration. Role names and final RBAC matrices remain explicitly unresolved until operational workflows are closed.
+- **Status:** NOT STARTED
+
+### Phase 8: Quality and Release Preparation
+- **Purpose:** Execute automated coverage, manual regression acceptance, cross-account security verification, accessibility, performance testing, operational recovery, migration rollout planning, and final production-readiness review.
+- **Status:** NOT STARTED
+
+---
+
+## 5. Deferred and Unresolved Boundaries
+
+- Physical `ProjectSample` table schema, columns, foreign keys, and migration strategy.
+- Scoped reference sequence counter mechanism (`P###-S##-F###`).
+- Multi-researcher role vocabulary, permission matrix, and delegation policies.
+- Live server-backed Collections UI and financial export reports.
+- Automated cross-account tenant isolation security test suite.
+- Customer production deployment and rollout schedule.
+
+---
+
+## 6. Evidence & Historical Reference Documents
+
+For detailed commit-by-commit history, SQL migration logs, and manual smoke test reports, refer to the following canonical evidence documents:
+
+- **Migration Ledger & Verification:** [`docs/database-migrations.md`](file:///D:/Zamblak/Zamblak-field-research/docs/database-migrations.md)
+- **Database Schema & Invariants:** [`docs/database-schema.md`](file:///D:/Zamblak/Zamblak-field-research/docs/database-schema.md)
+- **Product Requirements:** [`docs/product-requirements.md`](file:///D:/Zamblak/Zamblak-field-research/docs/product-requirements.md)
+- **Roles & Permissions Boundaries:** [`docs/roles-permissions.md`](file:///D:/Zamblak/Zamblak-field-research/docs/roles-permissions.md)
+- **Historical Milestones & Smoke Logs:** [`docs/project-status.md`](file:///D:/Zamblak/Zamblak-field-research/docs/project-status.md)
+- **Deferred Decisions Register:** [`docs/deferred-decisions.md`](file:///D:/Zamblak/Zamblak-field-research/docs/deferred-decisions.md)
