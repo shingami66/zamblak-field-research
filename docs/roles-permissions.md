@@ -4,7 +4,7 @@
 
 ### 1. Current Implemented Truth
 - **Implemented Roles:** Current application and database implementations recognize both `owner` and `support_helper` roles.
-- **Owner Authority:** Owner can manage operational data, mark research forms accepted/rejected, view financial summaries, record payments, and export financial reports.
+- **Owner Authority & Financial Scope:** Owner holds exclusive financial authority boundaries. Live Research Form review foundations are implemented in code and database. Form financial-summary and Collections database/RPC foundations exist. The current `/financials` page renders mock/demo display data, while the Collections application UI remains an in-memory/`sessionStorage` prototype. Live payment-recording UI and financial-report export are authorized Owner capabilities but must not be claimed as fully implemented or runtime-accepted application workflows.
 - **Support Helper Authority:** `support_helper` can perform finance-blind operational actions (e.g., Company create/edit, non-financial project directory views, respondent management).
 - **Server Resolution:** Application authority is resolved on the server from the authenticated user's active, non-deleted database profile and account membership. Browser state, form inputs, URL parameters, and role labels are never trusted as authority.
 - **Client Posture:** Normal application requests use the authenticated user-session Supabase client under RLS; no service-role client is used in normal application flows.
@@ -33,12 +33,12 @@
 | `/companies/new` | Yes | Yes | **Implemented** create (Server Action → RPC). |
 | `/companies/[id]` | Yes | Yes | **Implemented** detail (operational fields + counts). |
 | `/companies/[id]/edit` | Yes | Yes | **Implemented** edit + optimistic concurrency. |
-| Controlled `/projects` | Yes | Yes | Navigation-safety placeholder only. |
+| `/projects` module | Yes | Yes | **Implemented** project list, create, detail, and edit flows. Lifecycle transitions remain Owner-only; Support Helper access remains finance-blind and bounded. |
 | Account menu | Yes | Yes | Server-resolved profile context. |
 | Logout | Yes | Yes | Current browser session only (`scope: "local"`) → `/login`. |
-| Controlled `/financials` | Yes | No | Owner-only placeholder; Support Helper redirects to `/`; no financial wording or data. |
+| Controlled `/financials` | Yes | No | Owner-only route (Non-Owner access redirects to `/forbidden`). Renders mock/demo financial display data; Collections links lead to prototype flows. Not a live financial ledger or completed payment workflow. |
 
-`/projects` and `/financials` placeholders prevent dead navigation; they do not represent completed domain modules. Companies MVP is implemented and smoked on designated DEV/DEMO.
+Companies and Projects modules are implemented in the application. `/financials` is an Owner-only route rendering mock/demo data; full payment-recording UI and financial ledger workflows are not claimed.
 
 ## Companies Permissions (MVP — Implemented)
 
