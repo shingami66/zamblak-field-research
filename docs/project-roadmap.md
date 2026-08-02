@@ -21,11 +21,11 @@ This document establishes the canonical product roadmap for Zamblak Field Resear
 The current DEV/DEMO baseline (verified against source code, migrations, and application routes) includes:
 
 - **Authentication & Shell:** Authenticated application shell with Supabase Auth login at `/login`. Active application profile and account authority are resolved server-side through `public.resolve_current_profile()` via the `resolveCurrentProfile()` application helper.
-- **Companies Module:** Full MVP list, create, detail, and edit flows (`/companies`, `/companies/new`, `/companies/[id]`, `/companies/[id]/edit`) backed by database RPCs (`sel_companies`, `ins_companies`, `upd_companies`).
+- **Companies Module:** Full MVP list, create, detail, and edit flows (`/companies`, `/companies/new`, `/companies/[id]`, `/companies/[id]/edit`) backed by database RPCs (`list_companies`, `get_company`, `create_company`, `update_company`).
 - **Projects Module:** Full MVP list, create, detail, and edit flows (`/projects`, `/projects/new`, `/projects/[id]`, `/projects/[id]/edit`). Owner-only project lifecycle status transitions (`transition_project_status`).
 - **Respondent Registry:** Full MVP list, create, detail, and edit flows (`/respondents`, `/respondents/new`, `/respondents/[id]`, `/respondents/[id]/edit`) with unique normalized mobile enforcement (`9665xxxxxxxx`).
 - **Participation Assignment:** Participation assignment and 3-month eligibility warning foundations (`create_participation`, `check_respondent_three_month_warning`, `list_project_participations`).
-- **One Form Per Participation:** Enforced database 1:1 invariant (`enforce_one_research_form_per_participation`).
+- **One Form Per Participation:** Database invariant introduced by migration `20260723170000_enforce_one_research_form_per_participation.sql`. Unique index `idx_rf_unique_participation` enforces exactly one `research_forms` row per `participation_id` across all statuses; `submit_research_form` uses `attempt_number = 1` and maps duplicate insertions to `duplicate_participation`.
 - **Research Forms Integration:** Live Research Form submission (`submit_research_form`), detail querying (`getResearchForm`), and Owner review (`review_research_form`) backend foundations and application route (`/forms/[formId]`).
 - **Financial & Collections Backend:** Database schema (`research_forms`, `collections`, `collection_allocations`, etc.), read views (`form_financial_summary`, `collection_summary`), and Owner-gated RPCs.
 
@@ -101,9 +101,9 @@ The current DEV/DEMO baseline (verified against source code, migrations, and app
 
 For detailed commit-by-commit history, SQL migration logs, and manual smoke test reports, refer to the following canonical evidence documents:
 
-- **Migration Ledger & Verification:** [`docs/database-migrations.md`](file:///D:/Zamblak/Zamblak-field-research/docs/database-migrations.md)
-- **Database Schema & Invariants:** [`docs/database-schema.md`](file:///D:/Zamblak/Zamblak-field-research/docs/database-schema.md)
-- **Product Requirements:** [`docs/product-requirements.md`](file:///D:/Zamblak/Zamblak-field-research/docs/product-requirements.md)
-- **Roles & Permissions Boundaries:** [`docs/roles-permissions.md`](file:///D:/Zamblak/Zamblak-field-research/docs/roles-permissions.md)
-- **Historical Milestones & Smoke Logs:** [`docs/project-status.md`](file:///D:/Zamblak/Zamblak-field-research/docs/project-status.md)
-- **Deferred Decisions Register:** [`docs/deferred-decisions.md`](file:///D:/Zamblak/Zamblak-field-research/docs/deferred-decisions.md)
+- **Migration Ledger & Verification:** [`database-migrations.md`](./database-migrations.md)
+- **Database Schema & Invariants:** [`database-schema.md`](./database-schema.md)
+- **Product Requirements:** [`product-requirements.md`](./product-requirements.md)
+- **Roles & Permissions Boundaries:** [`roles-permissions.md`](./roles-permissions.md)
+- **Historical Milestones & Smoke Logs:** [`project-status.md`](./project-status.md)
+- **Deferred Decisions Register:** [`deferred-decisions.md`](./deferred-decisions.md)
