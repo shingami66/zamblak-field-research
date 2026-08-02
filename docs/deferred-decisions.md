@@ -1,5 +1,33 @@
 # Deferred Decisions
 
+## Status boundary
+
+This document records **deferred**, **unresolved**, **closed**, and **historical**
+decisions. It is a decision and deferral register, not the authority for what
+is currently implemented.
+
+Current implemented product truth is governed by the canonical baseline:
+
+- [product-requirements.md](./product-requirements.md)
+- [roles-permissions.md](./roles-permissions.md)
+- [database-schema.md](./database-schema.md)
+- [database-migrations.md](./database-migrations.md)
+- [project-roadmap.md](./project-roadmap.md)
+
+Historical "Current MVP behavior", dependency, and next-task text in older
+register entries must be **revalidated against the canonical baseline** before
+any implementation task is authorized.
+
+A revisit trigger becoming true does **not** automatically:
+
+- approve implementation;
+- approve schema changes;
+- approve role changes;
+- change priority;
+- authorize stage/commit/apply.
+
+**Mozfer remains the final product and implementation authority.**
+
 ## Product and platform
 
 - PDF reports.
@@ -27,13 +55,42 @@ Deleting and recreating Auth users is **not** an approved recovery or relinking 
 
 ## Domain modules after controlled placeholders
 
-- **Companies MVP CRUD:** implemented and Mozfer-smoked on designated DEV/DEMO (list/create/detail/edit). Lifecycle/delete/restore and advanced metrics remain deferred in the register below. Cross-account runtime isolation smoke remains deferred and non-blocking.
-- **Projects:** schema/RPC applied and verified on DEV/DEMO; application contracts complete; **list page implemented** at `/projects`. Create/detail/edit UI remaining. Soft-deleted Company gap and transition Company lock closed live. Next product task: `ZAM-PROJECTS-CREATE-PAGE-1`.
-- **Branded loading mark:** design approved in `docs/brand-loading-mark-design.md`. Implementation deferred to `ZAM-BRAND-LOADING-MARK-IMPLEMENT-1` (no component/SVG/CSS animation yet). Does not block Projects create.
-- Replace Owner-only `/financials` with the real Financials module and server-authorized data integration.
-- Implement the remaining sequence: Project → Respondent → Participation → Review → Financials.
+### Current delivered state (DEV/DEMO evidence; production readiness is **not** claimed)
 
-`/projects` is the Projects **list** surface (not a full CRUD module). Create/detail/edit remain future work. `/financials` remains a navigation-safety placeholder. Companies is no longer a placeholder for MVP operational CRUD.
+- **Companies:** list/create/detail/edit are implemented (Server Action → RPC) and Mozfer-smoked on designated DEV/DEMO. Lifecycle/delete/restore and advanced metrics remain deferred in the register below. Cross-account runtime isolation smoke remains deferred and non-blocking.
+- **Projects:** list/create/detail/edit are implemented (`/projects`, `/projects/new`, `/projects/[projectId]`, `/projects/[projectId]/edit`). Project lifecycle transitions (`transition_project_status`) remain **Owner-only**.
+- **Respondent Registry:** list/create/detail/edit are implemented under `/respondents*` with unique normalized mobile enforcement.
+- **Participation:** assignment and three-month/eligibility warning foundations exist (`create_participation`, `check_respondent_three_month_warning`).
+- **Research Forms:** exactly one persisted Research Form per Participation is enforced. Submission, detail, and Owner review foundations are live (`submit_research_form`, `getResearchForm`, `review_research_form`, `/forms/[formId]`).
+- **Financials & Collections backend:** form financial-summary and Collections database/RPC foundations exist.
+- **Collections UI:** prototype-only; in-memory/`sessionStorage` under namespace `zamblak.forms-prototype.v1`.
+- **`/financials`:** Owner-only route currently rendering mock/demo data. It is **not** a dead-navigation placeholder. Live payment-recording UI and financial-report export are **not** fully implemented or runtime-accepted.
+- **Project Sample:** not implemented.
+- **Branded loading mark:** design and implementation are **closed**; manual smoke was **PASS WITH WARN** (Mozfer; see [project-status.md](./project-status.md)). It is historical delivered evidence, **not** a deferred feature. Production readiness remains unclaimed.
+- **Production readiness:** not claimed.
+
+Remaining product direction: replace the Owner-only mock/demo Financials surface and the sessionStorage Collections prototype with live, server-authoritative workflows under the canonical roadmap. That remains deferred product direction, not a current implementation commitment.
+
+### Roles boundary
+
+- Current code recognizes `owner` and `support_helper`.
+- `support_helper` is **legacy compatibility** and must **not** define future product design.
+- The next V1 product-design direction is **Owner-first**.
+- Future multi-researcher role names and permission matrices remain unresolved; no future roles are invented here.
+
+### Future product direction (Sample)
+
+Current live hierarchy:
+
+`Account → Company → Project → Participation → Research Form`
+
+Approved future logical hierarchy:
+
+`Account → Company → Project → Sample → Participation → Research Form`
+
+- **Project Sample is not implemented** in schema or code.
+- `P###-S##-F###` remains a future human-reference direction only.
+- Physical Sample schema and rollout remain unresolved; no Sample tables, columns, pricing tables, or migration SQL are invented here.
 
 ## Preserved onboarding deferrals
 
@@ -65,7 +122,7 @@ Deleting and recreating Auth users is **not** an approved recovery or relinking 
 | **Packet status** | Executed and reviewed. Evidence recorded in `docs/companies-live-catalog-verification.md`. Raw export reviewed but not a repository migration artifact |
 | **Closed by** | Result-close documentation after Mozfer run + review (`docs(companies): record live catalog verification`) |
 | **Revisit trigger** | None for this gate. Re-run catalog verify only if DEV/DEMO schema diverges materially before/during Companies apply |
-| **Next task ID** | Gate closed. Companies MVP CRUD application + Mozfer smoke closed. Next product phase: `ZAM-PROJECTS-MVP-SCOPE-REVIEW-1` |
+| **Next task ID** | Gate remains **CLOSED (PASS)** and grants **no** current implementation authority. Companies MVP CRUD application + Mozfer smoke remain historical verification evidence. Future work is selected from the canonical [project roadmap](./project-roadmap.md) and current Mozfer approval |
 | **Dependencies** | Satisfied (approved contract; Mozfer DEV/DEMO SQL Editor run completed) |
 | **Product implications** | Catalog gate closed; DB RPCs applied; application MVP CRUD closed on DEV/DEMO |
 | **Security implications** | Metadata-only catalog verify; production readiness not claimed |
@@ -84,7 +141,7 @@ Deleting and recreating Auth users is **not** an approved recovery or relinking 
 | **Classification** | Deferred product feature + security/RBAC decision |
 | **Reason** | Support-safe project RPCs join non-deleted companies; soft-delete can strand SH project visibility |
 | **Current MVP behavior** | Active-only (`deleted_at IS NULL`); no soft-delete UI/action; `deleted_at` is foundation only |
-| **Revisit trigger** | After Projects CRUD ships **and** a safe soft-delete policy is chosen **and** all support project RPCs are re-audited for deleted-company joins |
+| **Revisit trigger** | Projects CRUD dependency now exists; safe soft-delete policy selection and support project RPC deleted-company join re-audit remain. Decision remains deferred and requires fresh product, security, schema, and UX review before authorization |
 | **Future task ID** | `ZAM-COMPANIES-LIFECYCLE-001-SOFT-DELETE-CONTRACT-1` |
 | **Dependencies** | Projects module; support RPC join audit; Mozfer lifecycle approval |
 | **Product implications** | Recoverable company removal |
@@ -192,7 +249,7 @@ Deleting and recreating Auth users is **not** an approved recovery or relinking 
 | **Classification** | Deferred query/aggregate + UI |
 | **Reason** | No company domain; filter needs project-derived multi-value logic |
 | **Current MVP behavior** | No domain filter; name search only |
-| **Revisit trigger** | After Projects list/detail are live **and** product needs filter-by-project-domain on companies |
+| **Revisit trigger** | Projects list/detail dependency now exists; product need for filter-by-project-domain on companies remains open. Decision remains deferred and requires fresh product, security, schema, and UX review before authorization |
 | **Future task ID** | `ZAM-COMPANIES-002-DOMAIN-FILTER-1` |
 | **Dependencies** | Projects CRUD; optional DWR-COMP-008 |
 | **Product implications** | Find companies by project industry |
@@ -300,7 +357,7 @@ Deleting and recreating Auth users is **not** an approved recovery or relinking 
 | **Classification** | Deferred project relationship behavior |
 | **Reason** | Cross-module; account consistency; audit; out of Companies MVP |
 | **Current MVP behavior** | Company fixed at project create; no reassignment UI |
-| **Revisit trigger** | After Projects CRUD exists **and** Owner needs move between companies in the same account |
+| **Revisit trigger** | Projects CRUD dependency now exists; Owner need to move projects between companies in the same account remains unproven. Decision remains deferred and requires fresh product, security, schema, and UX review before authorization |
 | **Future task ID** | `ZAM-PROJECTS-001-REASSIGN-COMPANY-CONTRACT-1` |
 | **Dependencies** | Projects module |
 | **Product implications** | Correct mistaken company links |
@@ -318,7 +375,7 @@ Deleting and recreating Auth users is **not** an approved recovery or relinking 
 | **Classification** | Deferred project relationship behavior + UI |
 | **Reason** | Companies module first; single create path |
 | **Current MVP behavior** | Create company only on Companies routes; Projects later pick existing company |
-| **Revisit trigger** | After Companies create is stable **and** Project create UX shows friction |
+| **Revisit trigger** | Companies create dependency now exists; Project create UX friction evidence remains open. Decision remains deferred and requires fresh product, security, schema, and UX review before authorization |
 | **Future task ID** | `ZAM-PROJECTS-001-INLINE-COMPANY-CREATE-1` |
 | **Dependencies** | Companies create RPC; Projects create design |
 | **Product implications** | Faster project setup |
