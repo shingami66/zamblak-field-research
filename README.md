@@ -78,6 +78,12 @@ This README is an entry point. Canonical documents govern detailed product, role
 - [docs/security-foundation.md](./docs/security-foundation.md) — security foundation
 - [docs/project-status.md](./docs/project-status.md) — **historical evidence** of milestones and smoke logs; not current product authority
 
+## Phase 1 workflow contracts
+
+Workflow contracts are subordinate Phase 1 delivery artifacts. Canonical product, role, schema, security, decision, and roadmap documents remain authoritative; inclusion here does not mean implementation or runtime acceptance.
+
+- [docs/contracts/research-form-submission-screen-contract.md](./docs/contracts/research-form-submission-screen-contract.md) — Research Form submission Screen Contract for the Owner-first `/forms/new` workflow.
+
 ## Contributor and agent governance
 
 Repository tasks (agents and contributors) must follow the execution modes, exact scope, approval gates, and safety requirements defined in [AGENTS.md](./AGENTS.md) and the skills under `.agents/skills/`.

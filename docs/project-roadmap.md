@@ -52,7 +52,8 @@ The current DEV/DEMO baseline (verified against source code, migrations, and app
 ### Phase 1: Product and Workflow Canonicalization
 - **Purpose:** Document Owner Researcher operational workflows. Define screen contracts and data contracts for forms, review, financials, and collections. Identify unresolved product decisions without inventing RBAC.
 - **Required Delivery Method:** Screen Contract → Data Contract → Wireframe → Visual Specification → One Implementation Slice → Consolidated Review → One Correction → Closure.
-- **Status:** NOT STARTED
+- **Status:** IN PROGRESS
+- **Active Slice:** The first bounded Phase 1 slice is the Owner Researcher Research Form submission Screen Contract; the Screen Contract exists as a subordinate design artifact under `docs/contracts/`; the Data Contract, wireframe, visual specification, implementation slice, consolidated review, correction, and Phase 1 closure remain incomplete.
 
 ### Phase 2: Sample Domain Foundation
 - **Purpose:** Design the logical and physical `Project Sample` domain. Resolve Sample lifecycle, targets/quotas, assignment, backfill, human reference format, and pricing interactions before writing SQL.
