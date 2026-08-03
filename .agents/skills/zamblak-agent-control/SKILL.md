@@ -27,9 +27,15 @@ Read `AGENTS.md` and this skill before taking action. If this skill is inaccessi
 10. **Documentation synchronization:** For behavior-changing work, inspect canonical documentation and update only materially stale documentation. Separate static source, runtime, database-enforcement, and Mozfer evidence.
 11. **Precommit review:** Check exact intended inventory, validation, documentation, generated-file drift, secrets, and staging safety. Do not stage during review.
 12. **Commit-only:** Stage only exact reviewed files and create one local commit. Do not push.
-13. **Optional Graphify refresh-only:** Use only under a later approved policy, as a separate task; this skill does not define Graphify commands.
+13. **Graphify refresh (express authorization only):** Perform a Graphify refresh only when the current task expressly authorizes it (for example, an explicit `GRAPHIFY_REFRESH_ONLY` mode or an explicit refresh instruction). This skill does not define Graphify commands. Never automatic; its absence never blocks an otherwise valid commit or push.
 14. **Push-only:** Push only the reviewed local commit and verify local/remote alignment afterward.
 15. **Handoff:** Report completed work, validation, commit/push state, warnings, risks, and exactly one next controlled action.
+
+### Controlled lifecycle patterns
+
+- Default separated pattern: Precommit Review → Commit Only → optional expressly authorized Graphify Refresh → Push Only.
+- Explicit combined pattern: precommit and exact-inventory verification → `COMMIT_AND_PUSH` → post-push alignment verification.
+- The combined pattern is valid only when the task prompt explicitly names `COMMIT_AND_PUSH`. It is never an implicit default and does not weaken the precommit inventory, validation, or safety gates.
 
 ## Task modes
 
@@ -41,17 +47,21 @@ Read `AGENTS.md` and this skill before taking action. If this skill is inaccessi
 | `IMPLEMENTATION` | Allowed implementation files only | No | No | No | No | Changed files, affected-surface validation, verdict |
 | `NARROW_FIX` | Exact blocker surface only | No | No | No | No | Blocker resolution and focused revalidation |
 | `DOCS_ONLY` | Explicit documentation files only | No | No | No | No | Documentation diff and authority validation |
+| `DOCS_SYNC_ONLY_NO_STAGE` | Documentation files explicitly named by the task only | No | No | No | No | Corrected documentation diff; contradiction and status-boundary verification; verdict |
 | `PRECOMMIT_REVIEW` | No | No | No | No | No | Exact inventory and precommit readiness verdict |
 | `COMMIT_ONLY` | No implementation edits; exact reviewed files may be staged | Yes, exact files only | Yes, one local commit | No | No | Commit evidence and clean-state validation |
 | `PUSH_ONLY` | No | No | No | Yes, reviewed commit only | No | Push result and remote-alignment evidence |
-| `GRAPHIFY_REFRESH_ONLY` | No | No | No | No | No | Approved refresh result; no implementation claims |
+| `COMMIT_AND_PUSH` | No implementation or documentation edits | Yes, exact approved paths only | Yes, exactly one normal commit with the exact approved message | Yes, normal push only (no force) | No | Exact staged inventory, commit evidence, push result, and post-push alignment verification |
+| `GRAPHIFY_REFRESH_ONLY` | No | No | No | No | No | Expressly authorized refresh result; no implementation claims |
 | `DEV_DATABASE_APPLY_PLAN` | Only explicitly allowed apply-plan artifact | No | No | No | No, plan only | Apply plan, prerequisites, risks, and HOLD/PASS |
 | `POST_APPLY_VERIFICATION` | No, unless explicitly allowed evidence artifact | No | No | No | Verification reads only | Database/runtime verification evidence and verdict |
 | `SKILLS_GOVERNANCE_FIX_ONLY` | Approved skills/governance files only | No | No | No | No | Governance diff, scope proof, and verdict |
 
 The prompt may narrow any row further. Specialized skills define detailed database, Git, security, documentation, or tool procedures; this skill does not.
 
-Existing repository modes remain valid under the same boundaries: `READONLY_REVIEW_ONLY` maps to `READ_ONLY_REVIEW`; `DOCS_SYNC_ONLY` maps to `DOCS_ONLY`; `IMPLEMENT_NO_STAGE` maps to `IMPLEMENTATION`; `SQL_DRAFT_ONLY` and `SQL_DRAFT_FIX_ONLY` are draft-only modes with no database writes, staging, commit, or push; `SUPABASE_APPLY_PRECHECK_ONLY` is read-only; and `SUPABASE_APPLY_ONLY` permits only explicitly approved database writes with no file edits, staging, commit, or push. Their output is the evidence and verdict required by the prompt.
+`DOCS_SYNC_ONLY_NO_STAGE` maps to the `DOCS_ONLY` / `DOCS_SYNC_ONLY` safety boundary with an explicit forbiddance of staging, commit, and push. `COMMIT_AND_PUSH` is opt-in only: it applies when the user-approved task explicitly names this exact mode and never becomes an implicit default. `COMMIT_ONLY` and `PUSH_ONLY` remain valid modes when the task deliberately separates those gates.
+
+Existing repository modes remain valid under the same boundaries: `READONLY_REVIEW_ONLY` maps to `READ_ONLY_REVIEW`; `DOCS_SYNC_ONLY` maps to `DOCS_ONLY`; `DOCS_SYNC_ONLY_NO_STAGE` maps to the `DOCS_ONLY` / `DOCS_SYNC_ONLY` safety boundary with no staging, commit, or push; `IMPLEMENT_NO_STAGE` maps to `IMPLEMENTATION`; `SQL_DRAFT_ONLY` and `SQL_DRAFT_FIX_ONLY` are draft-only modes with no database writes, staging, commit, or push; `SUPABASE_APPLY_PRECHECK_ONLY` is read-only; and `SUPABASE_APPLY_ONLY` permits only explicitly approved database writes with no file edits, staging, commit, or push. Their output is the evidence and verdict required by the prompt.
 
 ## Recovery and HOLD
 

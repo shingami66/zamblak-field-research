@@ -2,7 +2,13 @@
 
 ## Task Classification & Execution Modes
 All tasks must be classified and assigned an exact execution mode before execution.
-Supported modes include: `READONLY_REVIEW_ONLY`, `SQL_DRAFT_ONLY`, `SQL_DRAFT_FIX_ONLY`, `SKILLS_GOVERNANCE_FIX_ONLY`, `DOCS_SYNC_ONLY`, `IMPLEMENT_NO_STAGE`, `SUPABASE_APPLY_PRECHECK_ONLY`, `SUPABASE_APPLY_ONLY`, `PRECOMMIT_REVIEW_ONLY`, `COMMIT_ONLY`, `PUSH_ONLY`.
+Supported modes include: `READONLY_REVIEW_ONLY`, `SQL_DRAFT_ONLY`, `SQL_DRAFT_FIX_ONLY`, `SKILLS_GOVERNANCE_FIX_ONLY`, `DOCS_SYNC_ONLY_NO_STAGE`, `DOCS_SYNC_ONLY`, `IMPLEMENT_NO_STAGE`, `SUPABASE_APPLY_PRECHECK_ONLY`, `SUPABASE_APPLY_ONLY`, `PRECOMMIT_REVIEW_ONLY`, `COMMIT_ONLY`, `PUSH_ONLY`, `COMMIT_AND_PUSH`.
+
+### Execution mode boundaries
+- **DOCS_SYNC_ONLY_NO_STAGE:** modifies only documentation files explicitly named by the task; no staging, no commit, no push, no database writes. Maps to the `DOCS_SYNC_ONLY`/`DOCS_ONLY` safety boundary.
+- **COMMIT_AND_PUSH:** allowed only when the user-approved task explicitly names this exact mode. No implementation or documentation edits during the task; the precheck must verify the exact reviewed dirty-path inventory; nothing may already be staged unless the prompt explicitly expects it; stage only exact approved paths; run cached diff checks; create exactly one normal commit with the exact approved message; push normally without force; verify HEAD, origin/main, divergence, worktree, and index afterward. HOLD on any unexpected path, staged state, validation failure, baseline mismatch, or remote divergence.
+- **COMMIT_AND_PUSH is never an implicit default.** `COMMIT_ONLY` and `PUSH_ONLY` remain valid modes when the task deliberately separates those gates.
+- Full definitions live in `.agents/skills/zamblak-agent-control/SKILL.md`.
 
 ## Mandatory First-Run Behavior
 Every task must explicitly read this `AGENTS.md` and `.agents/skills/zamblak-agent-control/SKILL.md` before taking action.
@@ -17,18 +23,18 @@ Local skills reside in `.agents/skills/`. The agent must select the **smallest r
 - `zamblak-security-privacy-guard`: Privacy and tenant boundaries.
 - `zamblak-docs-guard`: Documentation integrity.
 - `zamblak-ui-rtl-senior-ux-guard`: Arabic-first UX logic.
-- `zamblak-graphify-navigation`: Graphify-first navigation, symbol/impact tracing, freshness classification, targeted grep fallback, and explicit post-commit refresh before push.
+- `zamblak-graphify-navigation`: Graphify-first navigation, symbol/impact tracing, freshness classification, targeted grep fallback, and index refresh only on express task authorization.
 
 ### Graphify navigation policy
-- Select `zamblak-graphify-navigation` for Graphify-backed navigation, symbol tracing, impact review, and post-commit index refresh verification.
-- Graphify remains **navigation only** (hierarchy item 7). It never overrides source, migrations, Git state, or canonical docs.
+- Select `zamblak-graphify-navigation` for Graphify-backed navigation, symbol tracing, and impact review; select it for post-commit index refresh verification only when a refresh is expressly authorized.
+- Graphify remains **navigation only** (hierarchy item 7). It never overrides source, migrations, Git state, canonical docs, or task authority.
 - Source verification against current files is mandatory for material conclusions.
 - When graph nodes are missing or stale, use **targeted** `grep` / `rg` (known symbols and mapped paths) before any broader search.
-- Repository-local Graphify output is generated under ignored `graphify-out/`. Verify the ignore rule before refresh. Ignored `graphify-out/**` is allowed after refresh; tracked, staged, or non-ignored untracked changes block push; output outside `graphify-out/` blocks push.
-- After every authorized successful commit, and before push, run explicit `graphify update .` (absolute executable fallback only if documented by the skill and available). Do not push until refresh verification passes or is explicitly WARN/HOLD.
+- Repository-local Graphify output is generated under ignored `graphify-out/`. Verify the ignore rule before any authorized refresh. Ignored `graphify-out/**` is allowed after an authorized refresh; tracked, staged, or non-ignored untracked changes block push; output outside `graphify-out/` blocks push.
+- Graphify refresh is performed **only** when the current task expressly authorizes it (for example, an explicit `GRAPHIFY_REFRESH_ONLY` mode or an explicit refresh instruction). There is **no** automatic refresh after commits, and the absence of an unauthorized Graphify refresh must **never** block an otherwise valid commit or push.
 - Do **not** create automatic Graphify Git hooks.
-- Do **not** refresh Graphify during read-only tasks unless the task explicitly authorizes refresh.
-- Full procedures live in `.agents/skills/zamblak-graphify-navigation/SKILL.md`; do not duplicate them here.
+- Do **not** refresh Graphify during read-only, docs, implementation, commit, or push tasks unless the task expressly authorizes refresh.
+- Full procedures live in `.agents/skills/zamblak-graphify-navigation/SKILL.md` and apply only when a refresh is expressly authorized; do not duplicate them here.
 
 ## Approved & Forbidden Files Per Task
 Modify only files explicitly relevant to the current task scope.
@@ -41,6 +47,8 @@ Modify only files explicitly relevant to the current task scope.
 - NO destructive git commands without explicit approval.
 - **SQL_DRAFT_ONLY** and **SQL_DRAFT_FIX_ONLY**: Write or fix SQL drafts locally. Do NOT apply to the database.
 - **SUPABASE_APPLY_ONLY**: Only apply SQL if the task mode explicitly allows it and user has approved. No migration apply without explicit approval.
+- **COMMIT_AND_PUSH**: permitted only when the user-approved task explicitly names this exact mode. No implementation or documentation edits during that task; stage only exact approved paths; create exactly one normal commit with the exact approved message; push normally without force; verify HEAD, origin/main, divergence, worktree, and index afterward. Never an implicit default.
+- **DOCS_SYNC_ONLY_NO_STAGE**: modifications allowed only to documentation files explicitly named by the task; no staging, commit, push, or database writes.
 
 ## Source-of-Truth Hierarchy
 1. User-approved prompt

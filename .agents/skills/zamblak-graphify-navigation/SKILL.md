@@ -1,6 +1,6 @@
 ---
 name: zamblak-graphify-navigation
-description: Repository-local Graphify navigation protocol. Query-first symbol/node navigation, source verification, targeted grep fallback, freshness classification, ignored graphify-out lifecycle, and explicit post-commit refresh before push. Graphify is navigation-only and never source authority.
+description: Repository-local Graphify navigation protocol. Query-first symbol/node navigation, source verification, targeted grep fallback, freshness classification, ignored graphify-out lifecycle, and expressly authorized index refresh workflow. Graphify is navigation-only and never source authority.
 ---
 
 # Zamblak Graphify Navigation
@@ -33,9 +33,18 @@ Use this skill for:
 - dependency and impact tracing;
 - locating symbols, functions, components, routes, database surfaces, and related files;
 - precommit scope review;
-- post-commit index refresh verification (after an authorized successful commit, before push).
+- post-commit index refresh verification, only when the current task explicitly uses `GRAPHIFY_REFRESH_ONLY` or otherwise expressly authorizes Graphify refresh.
 
 Do **not** require Graphify for a task that only operates on exact known files and gains no navigation benefit, unless the task explicitly requires Graphify evidence.
+
+## Refresh authorization
+
+Graphify refresh is **opt-in only**. It requires express authorization in the current task.
+
+- Refresh is performed only when the current task explicitly uses `GRAPHIFY_REFRESH_ONLY` or otherwise expressly authorizes Graphify refresh.
+- Ordinary read-only, docs, implementation, precommit, `COMMIT_ONLY`, `COMMIT_AND_PUSH`, and `PUSH_ONLY` tasks must **not** refresh Graphify unless their prompt expressly authorizes it.
+- The absence of an unauthorized refresh **never** blocks an otherwise valid commit or push.
+- No automatic Git hooks are created, and no implicit refresh permission is inherited from an earlier task.
 
 ## Authority order
 
@@ -165,7 +174,7 @@ Do **not** claim **FRESH** solely because the refresh exit code is zero.
 Require:
 
 - record the exact Git HEAD before refresh (`git rev-parse HEAD`);
-- run refresh only after the authorized commit succeeds;
+- run refresh only for the exact operation the task authorized (for example, after the authorized commit succeeds);
 - record refresh exit code and relevant output;
 - inspect Graphify metadata for an indexed commit SHA when available.
 
@@ -185,16 +194,18 @@ A successful refresh with **UNKNOWN** metadata may proceed to push with a **nonb
 
 Do **not** falsely label UNKNOWN as FRESH.
 
-### Push gate
+### Push gate (conditional)
 
-Before push, require:
+When the current task expressly authorizes a Graphify refresh as a prerequisite for its push, the following refresh-specific push gate applies:
 
 - ignore rule verified for `graphify-out/graph.json`;
 - refresh command succeeded (exit 0);
 - ignored-output checks passed;
 - no tracked, staged, or non-ignored untracked changes exist;
 - Graphify freshness is **FRESH**, or **UNKNOWN** with the bounded warning conditions above;
-- **STALE** is **HOLD** when a post-commit refresh was required for the push.
+- **STALE** is **HOLD** when the authorized refresh was required for the push.
+
+These refresh-specific conditions do **not** apply to ordinary authorized pushes where Graphify refresh was not requested. An unauthorized or omitted refresh must not block such a push. If the task explicitly requires refresh, failure of the refresh-specific gate remains **HOLD**.
 
 This definition eliminates the refresh → non-ignored untracked files → push deadlock.
 
@@ -208,7 +219,7 @@ This definition eliminates the refresh → non-ignored untracked files → push 
 - staged files appear;
 - non-ignored untracked files appear;
 - refresh fails;
-- metadata proves the graph is **STALE** after a required post-commit refresh;
+- metadata proves the graph is **STALE** when the authorized refresh was required for current indexing;
 - Graphify output conflicts with current source.
 
 Do **not** HOLD merely because ignored `graphify-out/**` exists.
@@ -247,11 +258,11 @@ Do **not** use blind whole-repository scanning as the default.
 
 Do not claim HEAD alignment without evidence.
 
-## Post-commit refresh policy
+## Expressly authorized refresh workflow
 
-After every **authorized successful commit**, and **before push**:
+This workflow applies only when the current task expressly authorizes Graphify refresh (an explicit `GRAPHIFY_REFRESH_ONLY` mode or an explicit refresh instruction). It supports refreshing after a commit when the current task explicitly authorizes that exact operation. There is **no** refresh obligation after every commit and **no** universal "before push" refresh requirement.
 
-1. Confirm the commit succeeded.
+1. Confirm the exact operation the task authorized (for example, refresh after the authorized commit).
 2. Confirm clean-tree preconditions (tracked clean; staged empty; no non-ignored untracked files; ignored `graphify-out/` allowed).
 3. Verify ignore: `git check-ignore -v "graphify-out/graph.json"` (HOLD if not ignored by `.gitignore`).
 4. Record current HEAD SHA to be indexed.
@@ -260,7 +271,7 @@ After every **authorized successful commit**, and **before push**:
 7. Run post-refresh verification (status, diffs, ignored `graphify-out`, check-ignore).
 8. Classify freshness: FRESH / UNKNOWN / STALE using metadata evidence (never invent FRESH).
 9. Do **not** stage or commit ignored Graphify output.
-10. Do **not** push until the push gate passes (or explicit WARN/HOLD per task rules for UNKNOWN).
+10. Do **not** push past a failing refresh-specific push gate when the task explicitly requires refresh for that push (or explicit WARN/HOLD per task rules for UNKNOWN).
 
 Do **not** install Graphify.
 Do **not** create automatic Git hooks.
@@ -285,20 +296,21 @@ Ignored `graphify-out/**` alone does **not** make the tree “dirty” for Graph
 
 ## Failure and HOLD rules
 
-**HOLD** when:
+**HOLD** when the current task requires or expressly authorizes refresh and:
 
 - a task requires a fresh graph and freshness cannot be established **and** targeted source verification is insufficient for the claims;
-- `graphify-out` is not ignored before a required refresh;
-- refresh creates tracked, staged, non-ignored untracked files, or output outside `graphify-out/`;
-- refresh fails and the task requires a successful refresh;
-- post-commit refresh is required and metadata proves **STALE**;
+- `graphify-out` is not ignored before the authorized refresh;
+- an authorized refresh creates tracked, staged, non-ignored untracked files, or output outside `graphify-out/`;
+- an expressly required refresh fails;
+- the authorized refresh is required for current indexing and metadata proves **STALE**;
 - Graphify results conflict with current source or Git evidence.
 
 Do **not** HOLD merely because:
 
 - ignored `graphify-out/**` exists;
 - Graphify is STALE when targeted source verification can safely complete the task and freshness was not mandatory;
-- freshness is UNKNOWN after a successful post-commit refresh that meets the push-gate warning conditions.
+- freshness is UNKNOWN after a successful authorized refresh that meets the push-gate warning conditions;
+- **no refresh occurred when none was authorized.**
 
 ## Required reporting
 
