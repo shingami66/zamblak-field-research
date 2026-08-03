@@ -83,6 +83,56 @@ Not every trivial task needs every section expanded. Risky tasks require explici
 - `AGENTS.md` remains above every skill.
 - Product and security guards cannot be bypassed by UI or implementation skills.
 
+## Skill Inheritance and Prompt Compression
+
+Once a task explicitly selects a skill, the stable rules in that skill are binding and do not need to be copied word-for-word into every task prompt. Prompts should reference selected skills rather than repeat large stable policies, except where task-specific risk requires a stricter boundary.
+
+1. A task prompt must still explicitly provide task-specific authority, including:
+   - task ID;
+   - execution mode;
+   - objective;
+   - expected baseline or baseline rule;
+   - selected skills;
+   - allowed files;
+   - task-specific prohibitions;
+   - required validation;
+   - acceptance criteria;
+   - exactly one next controlled action.
+
+2. Skill inheritance never grants: file access outside the task scope; staging; commit; push; database writes; Supabase access; Graphify refresh; secret access; destructive Git operations; or product-decision authority — unless the current task explicitly authorizes the matching action and mode.
+
+3. A task prompt may narrow a skill rule but must not silently weaken or override a higher-authority safety boundary.
+
+4. Skills must not be used to infer unstated product requirements, role decisions, business decisions, runtime evidence, or database state.
+
+5. Repeated stable instructions should be consolidated into the appropriate existing skill rather than copied into every new task prompt.
+
+## Completion Ripple Gate
+
+Before the first write, before returning PASS, and before recommending a next task, an agent must determine whether the current work:
+
+- creates, renames, moves, or deletes an artifact;
+- starts, advances, completes, pauses, or supersedes a roadmap phase or delivery stage;
+- changes implemented, prototype, mock, historical, planned, deferred, or runtime-verified status;
+- changes product, role, permission, schema, migration, security, privacy, tenant, or evidence boundaries;
+- introduces or discovers an unresolved decision;
+- requires registration in an entry point, index, roadmap, decision register, parent document, contract register, or navigation surface;
+- requires documentation synchronization, an independent review, product approval, precommit review, Mozfer manual smoke, database verification, or another mandatory lifecycle gate before progression.
+
+Required behavior:
+
+1. Determine the complete required synchronization and lifecycle set before the first write.
+2. Compare that set against the task whitelist and execution mode.
+3. If a required synchronization path or lifecycle action is outside the task whitelist or authorization, return HOLD before creating a partial, orphaned, contradictory, or falsely complete result.
+4. Do not return PASS merely because the explicitly edited file is internally correct.
+5. Do not leave required registration, authority classification, roadmap synchronization, or decision handling as optional future cleanup after PASS.
+6. Do not recommend a later lifecycle stage while the current stage remains unregistered, unreviewed, unapproved where approval is required, unsynchronized, blocked by a decision, or uncommitted when the current workflow requires that gate.
+7. The next action must be the nearest mandatory unfinalized gate, not the most interesting future task.
+8. Applicable reports must include a concise Completion Ripple result stating which ripple surfaces were checked, which required synchronization was included, which was not required, and whether progression is allowed.
+9. A read-only reviewer must audit the Completion Ripple result independently and must not silently repair it.
+
+Document- and index-classification detail belongs to zamblak-docs-guard; agent-control stays general and cross-domain.
+
 ## Reporting and one-next-action rule
 
 Every result must be `PASS`, `PASS WITH WARN`, or `HOLD`, with exact evidence for files, validation, risks, and safety. Use the prompt's requested report structure; when none is supplied, start with the verdict and task ID. `PASS WITH WARN` is only for a precise nonblocking limitation; it cannot bypass a HOLD condition.
