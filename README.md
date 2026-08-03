@@ -91,6 +91,12 @@ Wireframes are subordinate low-fidelity Phase 1 delivery artifacts. They describ
 
 - [docs/wireframes/research-form-submission-wireframe.md](./docs/wireframes/research-form-submission-wireframe.md) — Owner-first `/forms/new` submission Wireframe; approved by Mozfer on 2026-08-03; approval applies to low-fidelity structure only; Visual Specification remains incomplete; implementation and runtime acceptance remain unclaimed.
 
+## Phase 1 visual specifications
+
+Visual Specifications are subordinate Phase 1 presentation artifacts. They do not change product/data contracts; they do not mean implementation or runtime acceptance; implementation requires a later authorized slice.
+
+- [docs/visual-specifications/research-form-submission-visual-specification.md](./docs/visual-specifications/research-form-submission-visual-specification.md) — Owner-first `/forms/new` Visual Specification; approved by Mozfer on 2026-08-03; applies to presentation improvements of the existing page only; rebuilding remains unauthorized; implementation and runtime acceptance remain unclaimed.
+
 ## Contributor and agent governance
 
 Repository tasks (agents and contributors) must follow the execution modes, exact scope, approval gates, and safety requirements defined in [AGENTS.md](./AGENTS.md) and the skills under `.agents/skills/`.
