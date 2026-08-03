@@ -85,6 +85,12 @@ Workflow contracts are subordinate Phase 1 delivery artifacts. Canonical product
 - [docs/contracts/research-form-submission-screen-contract.md](./docs/contracts/research-form-submission-screen-contract.md) — Research Form submission Screen Contract for the Owner-first `/forms/new` workflow.
 - [docs/contracts/research-form-submission-data-contract.md](./docs/contracts/research-form-submission-data-contract.md) — Owner-first `/forms/new` submission Data Contract; approved by Mozfer on 2026-08-03; approval does not mean implementation or runtime acceptance.
 
+## Phase 1 workflow wireframes
+
+Wireframes are subordinate low-fidelity Phase 1 delivery artifacts. They describe structure only; no Visual Specification completion, implementation, or runtime acceptance is implied. Canonical product, role, schema, security, decision, and roadmap documents remain authoritative.
+
+- [docs/wireframes/research-form-submission-wireframe.md](./docs/wireframes/research-form-submission-wireframe.md) — Owner-first `/forms/new` submission Wireframe; approved by Mozfer on 2026-08-03; approval applies to low-fidelity structure only; Visual Specification remains incomplete; implementation and runtime acceptance remain unclaimed.
+
 ## Contributor and agent governance
 
 Repository tasks (agents and contributors) must follow the execution modes, exact scope, approval gates, and safety requirements defined in [AGENTS.md](./AGENTS.md) and the skills under `.agents/skills/`.
