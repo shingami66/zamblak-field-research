@@ -83,6 +83,7 @@ This README is an entry point. Canonical documents govern detailed product, role
 Workflow contracts are subordinate Phase 1 delivery artifacts. Canonical product, role, schema, security, decision, and roadmap documents remain authoritative; inclusion here does not mean implementation or runtime acceptance.
 
 - [docs/contracts/research-form-submission-screen-contract.md](./docs/contracts/research-form-submission-screen-contract.md) — Research Form submission Screen Contract for the Owner-first `/forms/new` workflow.
+- [docs/contracts/research-form-submission-data-contract.md](./docs/contracts/research-form-submission-data-contract.md) — Owner-first `/forms/new` submission Data Contract; approved by Mozfer on 2026-08-03; approval does not mean implementation or runtime acceptance.
 
 ## Contributor and agent governance
 

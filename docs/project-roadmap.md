@@ -53,7 +53,7 @@ The current DEV/DEMO baseline (verified against source code, migrations, and app
 - **Purpose:** Document Owner Researcher operational workflows. Define screen contracts and data contracts for forms, review, financials, and collections. Identify unresolved product decisions without inventing RBAC.
 - **Required Delivery Method:** Screen Contract → Data Contract → Wireframe → Visual Specification → One Implementation Slice → Consolidated Review → One Correction → Closure.
 - **Status:** IN PROGRESS
-- **Active Slice:** The first bounded Phase 1 slice is the Owner Researcher Research Form submission Screen Contract; the Screen Contract exists as a subordinate design artifact under `docs/contracts/`; the Data Contract, wireframe, visual specification, implementation slice, consolidated review, correction, and Phase 1 closure remain incomplete.
+- **Active Slice:** The first bounded Phase 1 slice is the Owner Researcher Research Form submission workflow; the Screen Contract exists and the Research Form submission Data Contract is approved by Mozfer (2026-08-03) as subordinate design artifacts under `docs/contracts/`; DEC-FORM-001 through DEC-FORM-006 remain approved in `docs/deferred-decisions.md` (approved 2026-08-03); the Data Contract approval gate is complete; the wireframe is the next incomplete delivery stage; the visual specification, implementation slice, consolidated review, correction, and Phase 1 closure remain incomplete.
 
 ### Phase 2: Sample Domain Foundation
 - **Purpose:** Design the logical and physical `Project Sample` domain. Resolve Sample lifecycle, targets/quotas, assignment, backfill, human reference format, and pricing interactions before writing SQL.
