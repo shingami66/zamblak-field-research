@@ -57,6 +57,30 @@ Current price lookup behavior inside `review_research_form` RPC (`20260730102500
 - `submitted_date` and `submitted_at` are distinct fields and are not interchangeable.
 - This documentation decision creates no migration, RPC, or runtime claim; no columns, tables, triggers, or SQL are invented here.
 
+#### 6.1 Approved Data-Semantics Rules (DEC-FORM-003 to DEC-FORM-006, approved 2026-08-03)
+
+Canonical data semantics (approved product authority):
+
+- **Canonical no-note representation is SQL `NULL`.** An empty string is not canonical absence (DEC-FORM-003).
+- **`submitted_date` is a valid, non-future interview business date.** It must be a real calendar date and must not be later than the server-authoritative current calendar date; the browser clock is not authoritative (DEC-FORM-004).
+- **`submitted_at` remains the server audit timestamp** and is never browser-supplied (DEC-FORM-002, DEC-FORM-004).
+- **Notes maximum is 2000 characters after trimming** (DEC-FORM-005).
+- **One logical submission retry reuses one idempotency key.** Reusing a request key with a different payload must fail closed as a request conflict (DEC-FORM-006).
+- **The unique participation index remains the atomic duplicate safeguard** against duplicate forms (DEC-FORM-006).
+
+Current implementation divergences (recorded accurately; not canonized):
+
+- The application normalizes blank notes to `null` (`parseSubmitResearchFormInput`).
+- The current submit RPC may persist an empty string (`btrim(COALESCE(p_notes, ''))`).
+- The current JavaScript date validation may accept rollover dates (e.g. `2026-02-31` passes `isValidIsoDate`).
+- The current Server Action creates a fresh `Date.now()`-based key per invocation (`submit-form-{participationId}-{Date.now()}`).
+
+Explicit:
+
+- No new column, table, constraint, trigger, RPC, migration, or SQL is created by these decisions.
+- No runtime conformance is claimed.
+- Correction/resubmission remains outside this submission slice.
+
 ---
 
 ## Approved Future Product Direction (Non-Live Logical Design)

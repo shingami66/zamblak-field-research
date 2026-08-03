@@ -67,6 +67,50 @@ A revisit trigger becoming true does **not** automatically:
 | **Revisit trigger** | None currently. |
 | **No automatic implementation authority** | Documentation decision only; grants no migration, RPC, or runtime claim. |
 
+### DEC-FORM-003 — Canonical blank-notes semantics
+
+| Field | Content |
+|---|---|
+| **Status** | **CLOSED — APPROVED BY MOZFER** |
+| **Approved date** | 2026-08-03 |
+| **Approved semantics** | Research Form notes are optional. Leading and trailing whitespace is trimmed. A missing, blank, or whitespace-only notes value is canonically stored as SQL **NULL**; an empty string is not the canonical persisted representation of no note. Application, RPC, and database layers must eventually apply the same normalization. |
+| **Current implementation boundary** | The application normalizes blank notes to `null` (`src/lib/forms/input.ts`); the current submit RPC may persist an empty string (`btrim(COALESCE(p_notes, ''))` in `20260723140000_forms_collections_rpcs.sql`). No code, RPC, SQL, or migration change is made by this decision. |
+| **Remaining implementation work** | Apply the same normalization across application, RPC, and database layers when implementation is separately authorized. |
+| **No automatic implementation authority** | No code, RPC, SQL, or migration change is authorized by this decision. |
+
+### DEC-FORM-004 — Interview-date validity and future-date policy
+
+| Field | Content |
+|---|---|
+| **Status** | **CLOSED — APPROVED BY MOZFER** |
+| **Approved date** | 2026-08-03 |
+| **Approved semantics** | `submitted_date` is the business date on which the interview occurred. It must be a real calendar date; impossible dates such as `2026-02-31` are invalid. `submitted_date` must not be later than the server-authoritative current calendar date; the browser clock is not authoritative. `submitted_at` remains the server-recorded audit timestamp. Exact validation mechanics and timezone handling remain implementation details unless separately approved. |
+| **Current implementation boundary** | Current JavaScript date validation (`isValidIsoDate` in `src/lib/forms/input.ts`) may accept rollover dates; no future-date check exists at any layer. This task does not implement validation. |
+| **Remaining implementation work** | Enforce calendar validity and the non-future rule at the appropriate application and database boundaries when implementation is separately authorized. |
+| **No automatic implementation authority** | No validation, schema, RPC, or code change is authorized by this decision. |
+
+### DEC-FORM-005 — Research Form notes length
+
+| Field | Content |
+|---|---|
+| **Status** | **CLOSED — APPROVED BY MOZFER** |
+| **Approved date** | 2026-08-03 |
+| **Approved semantics** | Non-null Research Form notes must not exceed **2000 characters after trimming**. The same bound must eventually be enforced consistently across browser, Server Action, RPC, and database boundaries. The approved limit does not mean current enforcement is already complete. |
+| **Current implementation boundary** | No notes length bound exists on the submission paths (`src/lib/forms/input.ts`; `20260723140000_forms_collections_rpcs.sql`); the `notes` column is unbounded `text`. No source, RPC, SQL, or schema change is made by this task. |
+| **Remaining implementation work** | Enforce the bound at the browser, Server Action, RPC, and database boundaries when implementation is separately authorized. |
+| **No automatic implementation authority** | No source, RPC, SQL, or schema change is authorized by this decision. |
+
+### DEC-FORM-006 — Logical-submission idempotency semantics
+
+| Field | Content |
+|---|---|
+| **Status** | **CLOSED — APPROVED BY MOZFER** |
+| **Approved date** | 2026-08-03 |
+| **Approved semantics** | One logical submission operation has one idempotency key. Retrying the same logical submission with the same payload must reuse the same key and may replay the previously completed result. Reusing the same key with a different payload must fail closed as a request conflict. A genuinely new submission operation uses a new key. The key is stable only for the same logical submission operation; it is **not** permanently fixed to the Participation. The one-form-per-Participation unique invariant remains the final database safeguard against duplicate forms. Exact key-generation mechanics remain an implementation detail. |
+| **Current implementation boundary** | Current Server Action behavior creates a fresh `Date.now()`-based key per invocation (`src/app/forms/new/actions.ts`), so idempotency replay is not exercised on retry. This behavior is implementation evidence only and is not proof that retry semantics are fully implemented. The database replay path, same-key conflict check, and unique participation index already exist (`20260723140000_forms_collections_rpcs.sql`; `20260723170000_enforce_one_research_form_per_participation.sql`). |
+| **Remaining implementation work** | Make the same logical submission reuse a stable operation key with same-payload replay and same-key/different-payload fail-closed behavior at the application layer when implementation is separately authorized. |
+| **No automatic implementation authority** | No code, RPC, SQL, or migration change is authorized by this task. |
+
 ## Auth and account administration after `ZAM-AUTH-001D`
 
 - Password recovery.

@@ -71,6 +71,16 @@
 - `submitted_at` is the server-recorded audit timestamp showing when the form submission was recorded in the system.
 - `submitted_date` and `submitted_at` are distinct fields and must not be treated as interchangeable.
 
+Approved data-semantics rules (all apply to Research Form submission semantics; see DEC-FORM-003/004/005/006 in `docs/deferred-decisions.md`):
+
+- `notes` are optional. Leading and trailing whitespace is trimmed. A missing, blank, or whitespace-only `notes` value is canonically stored as SQL **NULL**; an empty string is not the canonical persisted representation of no note. Application, RPC, and database layers must eventually apply the same normalization.
+- `submitted_date` must be a **real calendar date** (impossible dates such as `2026-02-31` are invalid) and must **not** be later than the server-authoritative current calendar date. The browser clock is not authoritative.
+- Non-null `notes` must not exceed **2000 characters after trimming**. The same bound must eventually be enforced consistently across browser, Server Action, RPC, and database boundaries.
+- One logical submission operation uses **one retry-stable idempotency key**. Retrying the same logical submission with the same payload must reuse the same key and may replay the previously completed result. Reusing the same key with a different payload must fail closed as a request conflict. A genuinely new submission operation uses a new key. The key is not permanently fixed to a Participation. Exact key generation is an implementation detail.
+- The one-form-per-Participation unique invariant remains the final database safeguard against duplicate forms.
+
+These rules record approved product semantics, not implementation. Current implementation divergence (for example, blank notes normalization differing between code paths, date validation that may accept rollover dates, or a fresh `Date.now()`-based key per invocation attempt) does not authorize code, RPC, SQL, or migration changes and is not a claim that these rules are fully implemented.
+
 ## MVP Import, Export, and Reporting Scope
 - Excel import remains in MVP. Operational import may be performed when authorized.
 - Operational Excel export is approved MVP product scope, but implementation, runtime behavior, server authorization, RLS enforcement, field filtering, and manual export smoke are not yet proven.
