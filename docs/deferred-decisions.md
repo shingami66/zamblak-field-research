@@ -41,6 +41,32 @@ A revisit trigger becoming true does **not** automatically:
 - Generated Supabase Database TypeScript types.
 - Residual non-SELECT privilege cleanup after `ZAM-WF-001F` on the **ten core public tables, two managed views, named core trigger functions, and `postgres` GLOBAL/`public` default privileges** is **closed** under `ZAM-SEC-ACL-001` (migration `20260715120000_harden_core_acl_defaults.sql`, DEV/DEMO apply verified, commit `846894e`). Intentionally remaining out of scope: `supabase_admin`-owned default ACLs (hosted project-owner limitation) and any future non-core public objects (require explicit grants).
 
+## Research Form workflow decisions (Mozfer-approved)
+
+### DEC-FORM-001 — Same-record correction and resubmission
+
+| Field | Content |
+|---|---|
+| **Status** | **CLOSED — APPROVED BY MOZFER** |
+| **Approved date** | 2026-08-03 |
+| **Approved semantics** | A rejected Research Form may later be corrected and resubmitted by updating the same persisted Research Form. Never create a second Research Form for the same Participation. The one-form-per-Participation invariant is preserved. |
+| **Current implementation boundary** | No correction workflow, state transitions, audit history, permissions, UI, or implementation exist. The database exposes `review_correction_reason` and the error code `correction_reason_required` as source evidence only. |
+| **Remaining future contract work** | Detailed correction state transitions, audit history, permissions, UI, and implementation remain a separate future workflow contract; not implemented by any current task. |
+| **Revisit trigger** | None for the decision itself. The correction workflow contract becomes a separate future slice when selected from the roadmap. |
+| **No automatic implementation authority** | Approval of these semantics does not authorize schema, RPC, or code changes. |
+
+### DEC-FORM-002 — Interview date versus audit timestamp
+
+| Field | Content |
+|---|---|
+| **Status** | **CLOSED — APPROVED BY MOZFER** |
+| **Approved date** | 2026-08-03 |
+| **Approved semantics** | `submitted_date` is the business date on which the interview occurred (interview date). `submitted_at` is the server-recorded audit timestamp showing when the form submission was recorded in the system. The two fields are distinct and must not be treated as interchangeable. |
+| **Current implementation boundary** | The submission UI labels the date field "تاريخ المقابلة" (interview date) and `submitted_at` is the server record timestamp. No schema change was made by this decision. |
+| **Remaining future contract work** | The submission Data Contract may now use the approved date meanings. |
+| **Revisit trigger** | None currently. |
+| **No automatic implementation authority** | Documentation decision only; grants no migration, RPC, or runtime claim. |
+
 ## Auth and account administration after `ZAM-AUTH-001D`
 
 - Password recovery.

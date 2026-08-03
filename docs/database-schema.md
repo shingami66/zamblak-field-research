@@ -48,6 +48,15 @@ Current price lookup behavior inside `review_research_form` RPC (`20260730102500
 - **Registration & Verification Boundary:** The local file count indicates repository source inventory and does not imply that every local migration is remotely registered in `supabase_migrations` history or has received independent runtime verification. Remote registration is claimed only where documented (e.g. `20260723120000`–`20260723150000` and `20260730102500`).
 - **Migration Repair Evidence:** `20260730102500` was applied to designated DEV/DEMO, catalog-verified, and registered as `applied` in remote `supabase_migrations` history (`npx supabase migration repair`). Catalog verification confirms SQL correctness but does not claim successful form acceptance runtime where pricing is unconfigured.
 
+### 6. Approved Research Form Data Semantics (Decision 2026-08-03)
+
+- The one-row-per-Participation invariant remains unchanged (`enforce_one_research_form_per_participation`).
+- Future correction/resubmission must preserve and update the same `research_forms` row; no second row is created for the same Participation.
+- `submitted_date` is the interview business date (the date on which the interview occurred).
+- `submitted_at` is the server record/audit timestamp showing when the submission was recorded.
+- `submitted_date` and `submitted_at` are distinct fields and are not interchangeable.
+- This documentation decision creates no migration, RPC, or runtime claim; no columns, tables, triggers, or SQL are invented here.
+
 ---
 
 ## Approved Future Product Direction (Non-Live Logical Design)

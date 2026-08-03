@@ -62,6 +62,15 @@
 - Closing a project ends that project's active duplicate-blocking scope for future participation in other projects. It does not permit new participation writes into the closed project.
 - This section records a product decision only. Migration design, runtime enforcement, database behavior, and manual smoke are not yet proven here.
 
+## Research Form Submission Semantics (Approved 2026-08-03)
+
+- Exactly one persisted Research Form per Participation remains authoritative and enforced.
+- Correction/resubmission of a rejected form updates the existing Research Form; never create a second form for the same Participation.
+- The correction workflow is approved product direction, but its detailed contract, state transitions, audit behavior, UI, and implementation remain incomplete; no current task implements it.
+- `submitted_date` is the business date on which the interview occurred (interview date).
+- `submitted_at` is the server-recorded audit timestamp showing when the form submission was recorded in the system.
+- `submitted_date` and `submitted_at` are distinct fields and must not be treated as interchangeable.
+
 ## MVP Import, Export, and Reporting Scope
 - Excel import remains in MVP. Operational import may be performed when authorized.
 - Operational Excel export is approved MVP product scope, but implementation, runtime behavior, server authorization, RLS enforcement, field filtering, and manual export smoke are not yet proven.

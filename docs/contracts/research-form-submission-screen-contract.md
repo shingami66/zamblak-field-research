@@ -110,19 +110,20 @@ Consolidated from Section 3: entry via `/forms` header action, empty-state CTA, 
 
 - No pricing display, entry, or editing (browser-supplied prices forbidden by PRD).
 - No review/decision actions (accept/reject/cancel) — separate Phase 1 slice.
-- No resubmission or correction UI for submitted/rejected forms — Open Decision Candidate 1.
+- No resubmission or correction UI for submitted/rejected forms (DEC-FORM-001 closed: same-record correction approved; the correction UI remains a separate future workflow slice, not part of this Screen Contract).
 - No `support_helper` participation surface.
 - No Sample/Phase 2 semantics; current stored `RF-YYYYMMDD-NNN` codes remain (PRD §3 Legacy Compatibility). Short display codes and truncated-UUID tokens in the `/forms` list (`forms/page.tsx:171,176,282,287`) are temporary UI, not canonical contract.
 - No bulk import, no export, no financial summary on this surface.
 - No changes to `/forms` list layout, filters, or detail page beyond the defined navigation outcomes.
 
-## 12. Unresolved Decisions (UNREGISTERED DECISION CANDIDATES — open, no IDs)
+## 12. Resolved Decisions (Mozfer-approved, registered in deferred-decisions.md)
 
-These are **not** registered in [deferred-decisions.md](../deferred-decisions.md) (registration remains a future Mozfer-approved action). Per the register's status boundary, no revisit trigger grants implementation authority by itself. Neither candidate is resolved or assigned an ID in this document.
+Both previously unregistered candidates were approved by Mozfer and registered in [deferred-decisions.md](../deferred-decisions.md) as **CLOSED — APPROVED BY MOZFER** (approved date 2026-08-03). Neither remains an unresolved candidate, and neither changes the current Screen Contract scope.
 
-**UNREGISTERED DECISION CANDIDATE 1 — Correction/resubmission semantics for submitted or rejected forms.** The database and row model already expose `review_correction_reason` and the error code `correction_reason_required` (`src/lib/forms/copy.ts:15`), and the detail page displays the field (`src/app/forms/[formId]/page.tsx:290-297`), but no UI path initiates a correction. This decision affects whether the submission workflow needs an amendment surface.
+- **DEC-FORM-001 — Same-record correction and resubmission.** A rejected Research Form may later be corrected and resubmitted by updating the same persisted Research Form; a second Research Form must never be created for the same Participation. The decision supplies the same-record invariant, but detailed correction state transitions, audit history, permissions, UI, and implementation remain a separate future workflow slice — outside this Screen Contract.
+- **DEC-FORM-002 — Interview date versus audit timestamp.** `submitted_date` is the interview business date; `submitted_at` is the server-recorded audit timestamp. The two fields are distinct and must not be treated as interchangeable. This decision unblocks the submission Data Contract, which may use the approved date meanings.
 
-**UNREGISTERED DECISION CANDIDATE 2 — Canonical meaning of `submitted_date` vs `submitted_at`.** The UI labels the date field "تاريخ المقابلة" (interview date), and the list orders by it, while `submitted_at` is the server record timestamp. The Data Contract slice must canonize this distinction (business date vs audit timestamp).
+The correction/resubmission UI remains outside this Screen Contract. This section records approved product direction only; it grants no implementation, runtime acceptance, SQL, migration, or manual-smoke claim.
 
 ## 13. Source Evidence (static)
 
@@ -155,4 +156,4 @@ These are **not** registered in [deferred-decisions.md](../deferred-decisions.md
 ## 15. Mozfer Review Checklist (for the next controlled task)
 
 - [ ] Confirm slice scope: submission only (no review, pricing, quota, or collections).
-- [ ] Confirm the two UNREGISTERED DECISION CANDIDATES may be resolved inside the Data Contract slice.
+- [ ] Confirm DEC-FORM-002 (interview date vs audit timestamp) is used in the Data Contract and that correction/resubmission UI remains outside this Screen Contract (DEC-FORM-001).
