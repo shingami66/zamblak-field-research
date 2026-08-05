@@ -111,6 +111,19 @@ A revisit trigger becoming true does **not** automatically:
 | **Remaining implementation work** | Make the same logical submission reuse a stable operation key with same-payload replay and same-key/different-payload fail-closed behavior at the application layer when implementation is separately authorized. |
 | **No automatic implementation authority** | No code, RPC, SQL, or migration change is authorized by this task. |
 
+## Projects workflow decisions (Mozfer-approved)
+
+### DEC-PROJECT-001 — New Projects default to active on creation
+
+| Field | Content |
+|---|---|
+| **Status** | **CLOSED — APPROVED BY MOZFER** |
+| **Approved date** | 2026-08-04 |
+| **Approved semantics** | New Projects are created in `active` status. There is no draft-creation option; participants can be added directly after creation. Existing `draft` projects remain `draft`; `draft` remains a supported status vocabulary and lifecycle state (`draft` → `active`/`cancelled`). There is **no backfill** and **no automatic activation** of legacy `draft` rows. |
+| **Current implementation boundary** | Implementation is RPC-only and **manually applied and catalog-validated on DEV** (Mozfer, 2026-08-04): migration `20260804001500_create_projects_active_by_default.sql` was applied on DEV `gdegnwglakyblnmxgiwx` (SQL Editor result `Success. No rows returned`) and its read-only postconditions validated; `projects.status` default is `active` and `create_project` activates new Projects (`status = 'active'`) inside the RPC. Project RLS policies remain unchanged (draft-only `ins_projects` retained); existing direct-table-mutation restrictions remain intact; no backfill; legacy `draft` projects unchanged. Application copy updated in `src/lib/projects/create-copy.ts` (announces active default). Browser acceptance of the creation flow and Supabase migration-history registration remain separately pending/unclaimed. |
+| **Remaining implementation work** | Remaining implementation work: DEV database apply and post-apply catalog verification were completed and manually validated by Mozfer on 2026-08-04. Remaining gates are runtime/manual smoke and browser acceptance of the updated Project creation flow. Supabase migration-history registration and remote migration-ledger alignment remain unclaimed; CLI migration repair was not run, and production application is not claimed. |
+| **No automatic implementation authority** | This decision itself grants no migration apply, commit, push, or further product authority; task `ZAM-PROJECT-CREATE-ACTIVE-BY-DEFAULT-29C` is the preparation-only implementation of it. |
+
 ## Auth and account administration after `ZAM-AUTH-001D`
 
 - Password recovery.

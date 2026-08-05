@@ -7,7 +7,7 @@ The current physical schema deployed on designated DEV/DEMO follows this hierarc
 `Account → Company → Project → Participation → Research Form`
 
 ### 2. Current Live Entity Inventory
-Reflecting current migration source code and documented DEV/DEMO evidence across the 19 local migration files in `supabase/migrations/` (`202607060001` through `20260730102500`):
+Reflecting current migration source code and documented DEV/DEMO evidence across the 20 local migration files in `supabase/migrations/` (`202607060001` through `20260804001500`):
 - `accounts`: Tenant root boundary (`account_id`).
 - `profiles`: User identity linked to Supabase Auth (`auth.users`).
 - `companies`: Client/Sponsor companies (`sel_companies`, CRUD RPCs).
@@ -44,7 +44,8 @@ Current price lookup behavior inside `review_research_form` RPC (`20260730102500
 - **UI Null State:** Before acceptance, unconfigured forms may display `"لم تُحدد بعد"` in UI summaries, but acceptance will fail unless an authoritative price snapshot or project fallback is configured in the database.
 
 ### 5. Local Source Inventory
-- **Local Migration Files:** The repository contains 19 local migration SQL files in `supabase/migrations/` (from `202607060001_zamblak_core_schema.sql` to `20260730102500_fix_review_form_price_lookup.sql`).
+- **Local Migration Files:** The repository contains 20 local migration SQL files in `supabase/migrations/` (from `202607060001_zamblak_core_schema.sql` to `20260804001500_create_projects_active_by_default.sql`).
+- **Manually Applied on DEV (2026-08-04):** `20260804001500_create_projects_active_by_default.sql` (DEC-PROJECT-001, approved 2026-08-04) sets the `projects.status` column default to `active` and makes `create_project` insert `status = 'active'` with no backfill. Mozfer applied it manually on DEV project `gdegnwglakyblnmxgiwx` (SQL Editor result `Success. No rows returned`) and catalog-validated it. DEV runtime truth: column default is `active`; `create_project` inserts `active`; security posture validated (SECURITY DEFINER, owner postgres, safe search_path, authenticated-only EXECUTE, no direct Project mutation privileges, draft-only `ins_projects` unchanged); status support for `draft`/`active`/`closed`/`cancelled` validated; no existing rows were changed. Supabase migration-history registration remains **unclaimed**; production truth is not claimed.
 - **Registration & Verification Boundary:** The local file count indicates repository source inventory and does not imply that every local migration is remotely registered in `supabase_migrations` history or has received independent runtime verification. Remote registration is claimed only where documented (e.g. `20260723120000`–`20260723150000` and `20260730102500`).
 - **Migration Repair Evidence:** `20260730102500` was applied to designated DEV/DEMO, catalog-verified, and registered as `applied` in remote `supabase_migrations` history (`npx supabase migration repair`). Catalog verification confirms SQL correctness but does not claim successful form acceptance runtime where pricing is unconfigured.
 

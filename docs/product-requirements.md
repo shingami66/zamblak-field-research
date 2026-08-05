@@ -20,6 +20,12 @@
 - Project domain is arbitrary trimmed nonblank text between 1 and 120 characters (`chk_projects_domain`).
 - Accepts Arabic, English, or mixed text. Blank/whitespace-only input is rejected.
 
+## Project Creation Default (DEC-PROJECT-001, approved 2026-08-04)
+- New Projects are created in `active` status; there is no draft-creation option.
+- Participants can be added directly after creation.
+- Existing `draft` projects remain `draft`; `draft` remains a supported lifecycle state. There is no backfill and no automatic activation of legacy drafts.
+- Implementation boundary (2026-08-04): the DEV database enforcement is now **manually applied and catalog-validated** by Mozfer on DEV project `gdegnwglakyblnmxgiwx` (migration `20260804001500_create_projects_active_by_default.sql`; SQL Editor result `Success. No rows returned`). New Projects are created `active` at the database/RPC layer. Existing draft Projects remain unchanged (no backfill). Creation-screen browser acceptance after the migration remains pending; production deployment is not claimed.
+
 ## Product & Domain Status Boundaries
 
 ### 1. Current Implemented Truth

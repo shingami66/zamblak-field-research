@@ -93,7 +93,7 @@ describe("Projects create page source boundary", () => {
     assert.equal(page.includes("listCompanies"), true);
     assert.equal(page.includes("CreateProjectForm"), true);
     assert.equal(page.includes("/projects"), true);
-    assert.equal(page.includes("مسودة") || page.includes("draftNotice"), true);
+    assert.equal(page.includes("draftNotice"), true);
 
     const form = readFileSync(
       join(repoSrc, "components", "projects", "CreateProjectForm.tsx"),
@@ -120,5 +120,56 @@ describe("Projects create page source boundary", () => {
     assert.equal(actions.includes("withCreateProjectFormRevision"), true);
     assert.equal(actions.includes("CREATE_PROJECT_SUCCESS_REDIRECT_PATH"), true);
     assert.equal(actions.includes("redirect("), true);
+  });
+
+  it("create copy announces the active default instead of the draft default", () => {
+    const copy = readFileSync(join(here, "create-copy.ts"), "utf8");
+    assert.equal(copy.includes("مسودة"), false);
+    assert.equal(copy.includes("سيُنشأ المشروع بحالة نشط"), true);
+    const page = readFileSync(
+      join(repoSrc, "app", "projects", "new", "page.tsx"),
+      "utf8"
+    );
+    assert.equal(page.includes("draftNotice"), true);
+  });
+
+  it("prepared migration makes active the new-project default without backfill", () => {
+    const migration = readFileSync(
+      join(
+        repoSrc,
+        "..",
+        "supabase",
+        "migrations",
+        "20260804001500_create_projects_active_by_default.sql"
+      ),
+      "utf8"
+    );
+    assert.equal(migration.includes("ALTER TABLE public.projects"), true);
+    assert.equal(
+      migration.includes("ALTER COLUMN status SET DEFAULT 'active'"),
+      true
+    );
+    assert.equal(
+      migration.includes("CREATE OR REPLACE FUNCTION public.create_project"),
+      true
+    );
+    assert.equal(
+      migration.includes("v_display_name, v_domain, 'active', p_start_date"),
+      true
+    );
+    assert.equal(
+      migration.includes("v_display_name, v_domain, 'draft', p_start_date"),
+      false
+    );
+    assert.equal(migration.includes("DROP POLICY"), false);
+    assert.equal(migration.includes("CREATE POLICY"), false);
+    assert.equal(migration.includes("ALTER POLICY"), false);
+    assert.equal(migration.includes("UPDATE public.projects"), false);
+    assert.equal(migration.includes("DELETE FROM public.projects"), false);
+    assert.equal(migration.includes("DROP TABLE"), false);
+    assert.equal(
+      migration.includes("DROP CONSTRAINT chk_projects_status"),
+      false
+    );
   });
 });

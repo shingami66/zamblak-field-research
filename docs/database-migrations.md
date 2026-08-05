@@ -16,7 +16,7 @@ Every migration entry in this ledger is classified across four distinct verifica
 
 ---
 
-## Local Migration Inventory & Ledger (19 SQL Files)
+## Local Migration Inventory & Ledger (20 SQL Files)
 
 ### 1. `202607060001_zamblak_core_schema.sql`
 - **Local Source:** PRESENT
@@ -150,6 +150,18 @@ Every migration entry in this ledger is classified across four distinct verifica
 - **Verification:** CATALOG VERIFIED (`review_research_form` RPC definition updated to use `participation_pricing.price_snapshot` and `project_financial_settings.price_per_accepted_form`; missing-column error 42703 resolved)
 - **Remote History:** VERIFIED REGISTERED (registered as applied via `npx supabase migration repair 20260730102500 --status applied --linked`)
 - **Details:** Corrects price lookup column identifiers in form review RPC. During verification testing, form acceptance returned `accepted_price_unavailable` because the tested participation lacked configured pricing setup. Full manual form-acceptance runtime is not claimed.
+
+### 20. `20260804001500_create_projects_active_by_default.sql`
+- **Local Source:** PRESENT
+- **Manual DEV SQL Application:** CLAIMED BY MOZFER (2026-08-04; manual SQL Editor execution on DEV `gdegnwglakyblnmxgiwx`)
+- **SQL Editor Result:** `Success. No rows returned`
+- **Manual Catalog Validation:** CLAIMED BY MOZFER (2026-08-04; all postcondition checks true: status default `active`, SECURITY DEFINER, owner postgres, safe search_path, executable insert writes `active` and not `draft`, authenticated EXECUTE only, RLS-policy preservation validated, direct Project mutation privileges absent, all four Project statuses supported)
+- **Existing Rows / Backfill:** no backfill; existing rows unchanged
+- **Supabase Migration-History Registration:** NOT CLAIMED (no retained evidence of `supabase_migrations.schema_migrations` registration)
+- **CLI Migration Repair:** NOT RUN
+- **Remote Migration-Ledger Alignment:** NOT CLAIMED
+- **Production Application:** NOT CLAIMED
+- **Details:** Approved decision DEC-PROJECT-001 (Mozfer, 2026-08-04): new Projects are created `active`. The migration changes the `projects.status` column default to `active` and replaces `create_project` to insert `status = 'active'` (RPC-only creation; new Project activation occurs inside the RPC). Leaves existing Project RLS policies unchanged; direct table mutation remains denied by the existing security posture. No existing rows are changed; no backfill; existing `draft` rows unchanged; `draft` remains supported. Browser acceptance of the new-Project creation flow after this migration is not yet claimed.
 
 ---
 
