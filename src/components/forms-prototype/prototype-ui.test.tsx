@@ -157,7 +157,7 @@ describe("UI Components & Content Safeguards", () => {
     expect(screen.getByText("0559988776")).toBeDefined();
   });
 
-  it("renders deliberate empty state when no eligible projects exist and disables inputs", async () => {
+  it("renders deliberate empty state when no eligible projects exist and hides the form", async () => {
     render(
       <CreateResearchFormClient
         prefilledContext={null}
@@ -174,16 +174,13 @@ describe("UI Components & Content Safeguards", () => {
       screen.getByText("أضف مشاركاً إلى مشروع نشط، أو راجع المشاركين الذين تم تسجيل استمارات لهم.")
     ).toBeDefined();
 
-    const projectSelect = screen.getByLabelText(/المشروع/) as HTMLSelectElement;
-    expect(projectSelect.disabled).toBe(true);
-
-    const participantSelect = screen.getByLabelText(/المشارك/) as HTMLSelectElement;
-    expect(participantSelect.disabled).toBe(true);
-
-    const submitBtn = screen.getByRole("button", { name: "حفظ الاستمارة" }) as HTMLButtonElement;
-    expect(submitBtn.disabled).toBe(true);
-
     expect(screen.getByText("عرض المشاريع")).toBeDefined();
+
+    expect(screen.queryByLabelText(/المشروع/)).toBeNull();
+    expect(screen.queryByLabelText(/المشارك/)).toBeNull();
+    expect(screen.queryByLabelText(/تاريخ المقابلة/)).toBeNull();
+    expect(screen.queryByLabelText(/ملاحظات/)).toBeNull();
+    expect(screen.queryByRole("button", { name: "حفظ الاستمارة" })).toBeNull();
   });
 
   it("renders ProjectFormsPage with progress values", async () => {

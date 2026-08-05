@@ -59,6 +59,8 @@ export function CreateResearchFormClient({
   const availableParticipants = activeProject?.participants ?? [];
 
   const noEligibleProjects = !prefilledContext && eligibleProjects.length === 0;
+  const hasNoAvailableParticipants =
+    Boolean(selectedProjectId) && availableParticipants.length === 0;
 
   const handleProjectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedProjectId(e.target.value);
@@ -105,201 +107,196 @@ export function CreateResearchFormClient({
     });
   };
 
-  return (
-    <div className={styles.page}>
-      <BackLink href="/forms">العودة إلى الاستمارات</BackLink>
+  const saveDisabled =
+    isPending ||
+    (!prefilledContext && (!selectedProjectId || !selectedParticipationId));
 
-      <header className={styles.pageIntro} style={{ marginTop: "1rem" }}>
-        <h1 className={styles.pageTitle}>تسجيل استمارة جديدة</h1>
-        <p className={styles.pageDescription}>
+  return (
+    <div className={styles.createFormPage}>
+      <BackLink href="/forms" className={styles.createFormBackLink}>
+        العودة إلى الاستمارات
+      </BackLink>
+
+      <header className={styles.createFormIntro}>
+        <h1 className={styles.createFormTitle}>تسجيل استمارة جديدة</h1>
+        <p className={styles.createFormDescription}>
           اربط الاستمارة بمشارك داخل مشروع قائم، ثم أدخل تاريخ المقابلة.
         </p>
       </header>
 
       {prefilledError && (
-        <div className={styles.detailCard} style={{ borderColor: "#ef4444", marginBottom: "1.5rem" }} role="alert">
-          <h2 style={{ color: "#dc2626", fontSize: "1.125rem", fontWeight: 700, marginBottom: "0.5rem" }}>
-            تنبيه في البيانات الممررة
-          </h2>
-          <p style={{ color: "var(--color-muted)", margin: 0 }}>{prefilledError}</p>
+        <div className={styles.createFormAlert} role="alert">
+          <h2 className={styles.createFormAlertTitle}>تنبيه في البيانات الممررة</h2>
+          <p className={styles.createFormAlertBody}>{prefilledError}</p>
         </div>
       )}
 
       {noEligibleProjects && (
-        <div className={styles.detailCard} style={{ marginBottom: "1.5rem", borderInlineStart: "4px solid #f59e0b" }} role="status">
-          <h2 style={{ fontSize: "1.125rem", fontWeight: 700, color: "var(--color-foreground)", margin: "0 0 0.5rem 0" }}>
+        <div className={styles.createFormStatus} role="status">
+          <h2 className={styles.createFormStatusTitle}>
             لا توجد مشاريع متاحة لتسجيل استمارات
           </h2>
-          <p style={{ fontSize: "0.9375rem", color: "var(--color-muted)", margin: "0 0 1rem 0", lineHeight: 1.6 }}>
-            أضف مشاركاً إلى مشروع نشط، أو راجع المشاركين الذين تم تسجيل استمارات لهم.
+          <p className={styles.createFormStatusBody}>
+            أضف مشاركاً إلى مشروع نشط، أو راجع المشاركين الذين تم تسجيل استمارات
+            لهم.
           </p>
-          <Link href="/projects" className={styles.secondaryAction} style={{ fontSize: "0.875rem" }}>
+          <Link href="/projects" className={styles.createFormSecondaryAction}>
             عرض المشاريع
           </Link>
         </div>
       )}
 
-      {prefilledContext ? (
-        /* PREFILLED LOCKED CONTEXT CARD */
-        <div className={styles.detailCard} style={{ marginBottom: "1.5rem" }}>
-          <h2 className={styles.detailTitle}>سياق المشارك المحدد</h2>
-          <dl className={styles.descriptionList}>
-            <div className={styles.descriptionRow}>
-              <dt className={styles.descriptionLabel}>المشروع</dt>
-              <dd className={styles.descriptionValue}>{prefilledContext.projectName}</dd>
+      {prefilledContext && (
+        <section className={styles.createFormLocked}>
+          <h2 className={styles.createFormLockedTitle}>سياق المشارك المحدد</h2>
+          <dl className={styles.createFormLockedRows}>
+            <div className={styles.createFormLockedRow}>
+              <dt className={styles.createFormLockedLabel}>المشروع</dt>
+              <dd className={styles.createFormLockedValue}>
+                {prefilledContext.projectName}
+              </dd>
             </div>
-            <div className={styles.descriptionRow}>
-              <dt className={styles.descriptionLabel}>المشارك</dt>
-              <dd className={styles.descriptionValue}>{prefilledContext.participantName}</dd>
+            <div className={styles.createFormLockedRow}>
+              <dt className={styles.createFormLockedLabel}>المشارك</dt>
+              <dd className={styles.createFormLockedValue}>
+                {prefilledContext.participantName}
+              </dd>
             </div>
-            <div className={styles.descriptionRow}>
-              <dt className={styles.descriptionLabel}>رقم الجوال</dt>
-              <dd className={styles.descriptionValue}>
+            <div className={styles.createFormLockedRow}>
+              <dt className={styles.createFormLockedLabel}>رقم الجوال</dt>
+              <dd className={styles.createFormLockedValue}>
                 <bdi dir="ltr">{prefilledContext.participantMobile}</bdi>
               </dd>
             </div>
           </dl>
-          <div style={{ marginTop: "1rem" }}>
-            <Link
-              href={`/projects/${prefilledContext.projectId}/participants`}
-              className={styles.secondaryAction}
-              style={{ fontSize: "0.875rem" }}
-            >
-              العودة لمشاركي المشروع
-            </Link>
-          </div>
-        </div>
-      ) : null}
-
-      <form onSubmit={handleSubmit} className={styles.detailCard} style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-        {!prefilledContext && (
-          <>
-            {/* STEP 1: PROJECT SELECTOR */}
-            <div className={styles.formField}>
-              <label className={styles.formLabel} htmlFor="project-select">
-                المشروع <span className={styles.required}>*</span>
-              </label>
-              <select
-                id="project-select"
-                className={styles.rejectTextarea}
-                style={{ height: "3.25rem", paddingInline: "0.875rem" }}
-                value={selectedProjectId}
-                onChange={handleProjectChange}
-                disabled={noEligibleProjects}
-                required
-              >
-                <option value="">
-                  {noEligibleProjects
-                    ? "-- لا توجد مشاريع متاحة --"
-                    : "-- اختر المشروع --"}
-                </option>
-                {eligibleProjects.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name} ({p.availableCount} مشارك متاح)
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* STEP 2: PARTICIPANT SELECTOR */}
-            <div className={styles.formField}>
-              <label className={styles.formLabel} htmlFor="participant-select">
-                المشارك <span className={styles.required}>*</span>
-              </label>
-              <select
-                id="participant-select"
-                className={styles.rejectTextarea}
-                style={{ height: "3.25rem", paddingInline: "0.875rem" }}
-                value={selectedParticipationId}
-                onChange={handleParticipantChange}
-                disabled={noEligibleProjects || !selectedProjectId || availableParticipants.length === 0}
-                required
-              >
-                <option value="">
-                  {noEligibleProjects
-                    ? "-- لا يوجد مشاركون متاحون --"
-                    : !selectedProjectId
-                    ? "-- اختر المشروع أولاً --"
-                    : availableParticipants.length === 0
-                    ? "لا يوجد مشاركون متاحون لتسجيل استمارة في هذا المشروع."
-                    : "-- اختر المشارك --"}
-                </option>
-                {availableParticipants.map((p) => (
-                  <option key={p.participationId} value={p.participationId}>
-                    {p.name} - {p.mobile}
-                  </option>
-                ))}
-              </select>
-              {selectedProjectId && availableParticipants.length === 0 && (
-                <span style={{ fontSize: "0.875rem", color: "#92400e", marginTop: "0.25rem" }}>
-                  لا يوجد مشاركون متاحون لتسجيل استمارة في هذا المشروع.
-                </span>
-              )}
-            </div>
-          </>
-        )}
-
-        {/* STEP 3: FORM DETAILS */}
-        <div className={styles.formField}>
-          <label className={styles.formLabel} htmlFor="submitted-date-input">
-            تاريخ المقابلة <span className={styles.required}>*</span>
-          </label>
-          <input
-            id="submitted-date-input"
-            type="date"
-            className={styles.rejectTextarea}
-            style={{ height: "3.25rem", paddingInline: "0.875rem" }}
-            value={submittedDate}
-            onChange={(e) => {
-              setSubmittedDate(e.target.value);
-              setSubmitError(null);
-            }}
-            disabled={noEligibleProjects}
-            required
-          />
-        </div>
-
-        <div className={styles.formField}>
-          <label className={styles.formLabel} htmlFor="notes-textarea">
-            ملاحظات
-          </label>
-          <textarea
-            id="notes-textarea"
-            className={styles.rejectTextarea}
-            rows={3}
-            placeholder="أضف أي ملاحظة مهمة عن المقابلة، إن وجدت."
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            disabled={noEligibleProjects}
-          />
-          <span style={{ fontSize: "0.875rem", color: "var(--color-muted)", marginTop: "0.25rem" }}>
-            أضف أي ملاحظة مهمة عن المقابلة، إن وجدت.
-          </span>
-        </div>
-
-        {submitError && (
-          <div className={styles.validationError} role="alert" style={{ marginTop: "0.5rem" }}>
-            {submitError}
-          </div>
-        )}
-
-        <div className={styles.dialogActions} style={{ marginTop: "0.5rem" }}>
-          <Link href="/forms" className={styles.secondaryAction}>
-            إلغاء
-          </Link>
-          <button
-            type="submit"
-            className={styles.primaryAction}
-            disabled={
-              isPending ||
-              noEligibleProjects ||
-              (!prefilledContext && (!selectedProjectId || !selectedParticipationId))
-            }
+          <Link
+            href={`/projects/${prefilledContext.projectId}/participants`}
+            className={styles.createFormReturnLink}
           >
-            {isPending ? "جاري الحفظ..." : "حفظ الاستمارة"}
-          </button>
-        </div>
-      </form>
+            العودة لمشاركي المشروع
+          </Link>
+        </section>
+      )}
+
+      {!noEligibleProjects && (
+        <form onSubmit={handleSubmit} className={styles.createFormCard}>
+          {!prefilledContext && (
+            <>
+              <div className={styles.createFormField}>
+                <label className={styles.createFormLabel} htmlFor="project-select">
+                  المشروع <span className={styles.createFormRequired}>*</span>
+                </label>
+                <select
+                  id="project-select"
+                  className={styles.createFormControl}
+                  value={selectedProjectId}
+                  onChange={handleProjectChange}
+                  required
+                >
+                  <option value="">-- اختر المشروع --</option>
+                  {eligibleProjects.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name} ({p.availableCount} مشارك متاح)
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className={styles.createFormField}>
+                <label
+                  className={styles.createFormLabel}
+                  htmlFor="participant-select"
+                >
+                  المشارك <span className={styles.createFormRequired}>*</span>
+                </label>
+                <select
+                  id="participant-select"
+                  className={styles.createFormControl}
+                  value={selectedParticipationId}
+                  onChange={handleParticipantChange}
+                  disabled={
+                    !selectedProjectId || availableParticipants.length === 0
+                  }
+                  required
+                >
+                  <option value="">
+                    {!selectedProjectId
+                      ? "-- اختر المشروع أولاً --"
+                      : availableParticipants.length === 0
+                      ? "لا يوجد مشاركون متاحون لتسجيل استمارة في هذا المشروع."
+                      : "-- اختر المشارك --"}
+                  </option>
+                  {availableParticipants.map((p) => (
+                    <option key={p.participationId} value={p.participationId}>
+                      {p.name} - {p.mobile}
+                    </option>
+                  ))}
+                </select>
+                {hasNoAvailableParticipants && (
+                  <span className={styles.createFormHelperWarning}>
+                    لا يوجد مشاركون متاحون لتسجيل استمارة في هذا المشروع.
+                  </span>
+                )}
+              </div>
+            </>
+          )}
+
+          <div className={styles.createFormField}>
+            <label
+              className={styles.createFormLabel}
+              htmlFor="submitted-date-input"
+            >
+              تاريخ المقابلة <span className={styles.createFormRequired}>*</span>
+            </label>
+            <input
+              id="submitted-date-input"
+              type="date"
+              className={styles.createFormControl}
+              value={submittedDate}
+              onChange={(e) => {
+                setSubmittedDate(e.target.value);
+                setSubmitError(null);
+              }}
+              required
+            />
+          </div>
+
+          <div className={styles.createFormField}>
+            <label className={styles.createFormLabel} htmlFor="notes-textarea">
+              ملاحظات
+            </label>
+            <textarea
+              id="notes-textarea"
+              className={styles.createFormTextarea}
+              rows={3}
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+            />
+            <span className={styles.createFormHelper}>
+              أضف أي ملاحظة مهمة عن المقابلة، إن وجدت.
+            </span>
+          </div>
+
+          {submitError && (
+            <div className={styles.createFormError} role="alert">
+              {submitError}
+            </div>
+          )}
+
+          <div className={styles.createFormActions}>
+            <Link href="/forms" className={styles.createFormSecondaryAction}>
+              إلغاء
+            </Link>
+            <button
+              type="submit"
+              className={styles.createFormPrimaryAction}
+              disabled={saveDisabled}
+            >
+              {isPending ? "جاري الحفظ..." : "حفظ الاستمارة"}
+            </button>
+          </div>
+        </form>
+      )}
     </div>
   );
 }
