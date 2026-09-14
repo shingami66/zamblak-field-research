@@ -128,6 +128,10 @@ Local skills reside in `.agents/skills/`. Tasks and agents must route the **smal
 - `zamblak-agent-control`: Core execution protocol, workflow lifecycle, prompt design, and task orchestration.
 - `zamblak-review-delegation`: Antigravity-native independent review dispatch, worktree fingerprint integrity, targeted rereview, and session recovery capsules. Selected only when a task requires independent review, delegation, or session recovery.
 - `zamblak-opencodereview`: Deterministic OpenCodeReview delegation-packet preparation protocol. Prepares structured review packets (reviewable files, exclusions, resolved path rules, and domain background) via `ocr delegate preview` and `ocr delegate rule` without invoking OCR LLM paths. Selected only when a task explicitly requires OCR-backed review.
+- `zamblak-supabase-data-engineering`: Runtime Supabase data engineering, browser vs server client usage, SSR cookie sessions, Data API queries, and RPC contracts. Schema, migrations, and RLS policies remain with `zamblak-db-rls-migration-guard`.
+- `zamblak-nextjs-framework-engineering`: Next.js App Router framework engineering, Server vs Client components, Server Actions, Route Handlers, streaming, and version-matched Next.js 16 APIs.
+- `zamblak-nextjs-performance-engineering`: Evidence-first performance engineering, symptom measurement, bottleneck layer identification, before/after benchmarking, and targeted optimization.
+- `zamblak-postgres-query-index-guidance`: Advisory PostgreSQL query shaping, composite/partial index design, selectivity analysis, write amplification tradeoffs, and tenant-aware indexing.
 - `zamblak-db-rls-migration-guard`: Migration, SQL, and RLS schema protection.
 - `zamblak-precommit-gate`: Git staging and commit protections.
 - `zamblak-product-manager`: PRD alignment and product requirement rigor.

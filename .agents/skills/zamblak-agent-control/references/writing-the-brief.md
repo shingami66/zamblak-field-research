@@ -109,6 +109,10 @@ Remaining diagnostic or repair steps.
 | Core workflow, lifecycle, task control | `zamblak-agent-control` | Mandatory on all tasks |
 | Independent review, delegation, session recovery | `zamblak-review-delegation` | Review delegation & recovery |
 | OCR review preparation & delegation packets | `zamblak-opencodereview` | Review packet preparation |
+| Supabase runtime, queries, RPCs, SSR cookies | `zamblak-supabase-data-engineering` | Runtime data access |
+| Next.js App Router, actions, boundaries | `zamblak-nextjs-framework-engineering` | Framework mechanics |
+| Performance bottlenecks, profiling, metrics | `zamblak-nextjs-performance-engineering` | Performance diagnostics |
+| PostgreSQL query analysis, index suitability | `zamblak-postgres-query-index-guidance` | Query & index advice |
 | Schema, migrations, RPCs, RLS policies | `zamblak-db-rls-migration-guard` | SQL / DB safety |
 | Git staging, precommit reviews, commits | `zamblak-precommit-gate` | Precommit checks |
 | Product requirements, PRD alignment | `zamblak-product-manager` | Product scope |

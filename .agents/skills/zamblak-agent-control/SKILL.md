@@ -241,7 +241,7 @@ The Controller and agents must route the **smallest materially relevant skill st
 ### Routing Principles
 - **Domain Reasoning, Not Authority:** Skills provide specialized domain reasoning (e.g. database RLS analysis, Arabic RTL UX rules, fieldwork constraints, precommit gate checks), NOT additional authority.
 - **Workflow Supremacy:** `AGENTS.md` and this Agent Control skill remain the supreme workflow authority. Skills cannot grant file access, Git/DB mutation, or product authority beyond the task prompt.
-- **Selective Routing:** Route only skills materially relevant to the immediate task surface (e.g. `zamblak-db-rls-migration-guard` for SQL/schema tasks; `zamblak-ui-rtl-senior-ux-guard` for Arabic UI; `zamblak-review-delegation` for independent review or session recovery; `zamblak-opencodereview` for OCR review packet preparation).
+- **Selective Routing:** Route only skills materially relevant to the immediate task surface (e.g. `zamblak-supabase-data-engineering` for runtime Supabase/query/RPC work; `zamblak-db-rls-migration-guard` for SQL/schema/migrations; `zamblak-nextjs-framework-engineering` for Next.js framework mechanics; `zamblak-nextjs-performance-engineering` for measured performance bottlenecks; `zamblak-postgres-query-index-guidance` for query/index design; `zamblak-ui-rtl-senior-ux-guard` for Arabic UI; `zamblak-review-delegation` for independent review or session recovery; `zamblak-opencodereview` for OCR review packet preparation).
 
 ### Skill Inheritance Rules
 Once a task explicitly selects a skill, the stable rules in that skill are binding and do not need to be copied word-for-word into every task prompt.
