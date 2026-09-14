@@ -1,0 +1,80 @@
+{
+  "rules": [
+    {
+      "path": "supabase/migrations/**",
+      "rule": "Supabase SQL Migrations: Inspect DDL for mandatory `account_id` foreign key references, Row Level Security (`ALTER TABLE ... ENABLE ROW LEVEL SECURITY`), RLS policies using `current_user_account_id()` or `auth.uid()`, index definitions on foreign keys and tenant columns, idempotent migrations, backward compatibility, and absence of destructive drops without replacement. Verify no G7 schema or CRM tables are introduced. Report evidence only.",
+      "merge_system_rule": true
+    },
+    {
+      "path": "src/lib/supabase/**",
+      "rule": "Supabase Client & Server Initialization: Inspect server/client cookie handling, service-role client restriction to trusted server actions only, absence of service-role keys in browser bundles, proper session extraction, error handling, and avoidance of client-side tenant spoofing. Report evidence only.",
+      "merge_system_rule": true
+    },
+    {
+      "path": "src/lib/auth/**",
+      "rule": "Authentication & Session Boundaries: Inspect secure session resolution, role verification (`owner` vs `support_helper`), tenant context verification (`account_id`), redirect behavior on unauthenticated access, and avoidance of credentials in error logs or URL parameters. Report evidence only.",
+      "merge_system_rule": true
+    },
+    {
+      "path": "src/app/actions/**",
+      "rule": "Next.js Server Actions & Mutations: Inspect mandatory authentication checks, tenant boundary enforcement (`account_id`), Zod input schema validation, optimistic lock or conflict handling, error boundaries, precise path revalidation (`revalidatePath` / `revalidateTag`), and protection against unauthorized state mutation. Report evidence only.",
+      "merge_system_rule": true
+    },
+    {
+      "path": "src/lib/pricing/**",
+      "rule": "Financial & Pricing Logic: Inspect server-authoritative calculations, accepted-only participation counting, absence of client-supplied pricing overrides, proper rounding and decimal precision, avoidance of negative fees, and adherence to project financial settings. Report evidence only.",
+      "merge_system_rule": true
+    },
+    {
+      "path": "src/lib/respondents/**",
+      "rule": "Respondent Registry & Participation Domain: Inspect respondent deduplication logic, 90-day (3-month) participation duplicate warnings, mobile phone lookup normalization, one-form-per-participation invariant enforcement, and PII protection. Report evidence only.",
+      "merge_system_rule": true
+    },
+    {
+      "path": "src/app/forms/**",
+      "rule": "Research Form Workflow & Submission: Inspect one-form-per-participation invariant, question data serialization, draft vs submitted states, client/server validation consistency, accessible error messaging, and senior-friendly fieldwork UX. Report evidence only.",
+      "merge_system_rule": true
+    },
+    {
+      "path": "src/components/**",
+      "rule": "UI Components & Arabic RTL: Inspect native RTL layout support, logical CSS properties (`ms-`, `me-`, `ps-`, `pe-`, `start`, `end`), touch target sizing for mobile field researchers (min 44x44px), high contrast readability, accessible aria attributes, and auto-dismissing feedback notices. Report evidence only.",
+      "merge_system_rule": true
+    },
+    {
+      "path": "**/*.test.{ts,tsx,js,mjs}",
+      "rule": "Test Coverage & Invariants: Inspect deterministic test execution, isolation from live database credentials, coverage of boundary conditions, tenant isolation assertions, and avoidance of flaky timeouts. Report evidence only.",
+      "merge_system_rule": true
+    },
+    {
+      "path": "**/*",
+      "rule": "General Zamblak Source Rule: Inspect code quality, TypeScript strict typing (avoid `any`), proper error handling, tenant security boundaries, performance, and absence of G7 CRM/accounting contamination. Report evidence only.",
+      "merge_system_rule": true
+    }
+  ],
+  "exclude": [
+    "**/node_modules/**",
+    ".next/**",
+    ".git/**",
+    "coverage/**",
+    "dist/**",
+    "build/**",
+    ".opencodereview/**",
+    "*.log",
+    "**/*.log",
+    ".env",
+    ".env.*",
+    "*.key",
+    "*.pem",
+    "*.cert",
+    "*.pfx",
+    "package-lock.json",
+    "pnpm-lock.yaml",
+    "public/**",
+    "**/*.png",
+    "**/*.jpg",
+    "**/*.jpeg",
+    "**/*.ico",
+    "**/*.pdf",
+    "**/*.tmp"
+  ]
+}

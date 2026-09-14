@@ -39,6 +39,7 @@ The Controller owns the complete lifecycle and routine discovery. The Owner must
    - Reviewer substantively inspects the actual diff, relevant source, tests, contracts, and validation evidence.
    - Provider diversity is not required; genuine context separation is mandatory. If unavailable, the result is HOLD. Writer self-review must never be relabeled as independent review.
    - Antigravity-native delegation is operationalized via `zamblak-review-delegation`, which launches fresh read-only reviewer sessions via the local `agy` CLI, enforces worktree fingerprint integrity, and captures reports outside the Git tree.
+   - Deterministic review preparation packets may be generated via `zamblak-opencodereview` (`ocr delegate preview` and `ocr delegate rule`). OCR LLM review paths are strictly prohibited. OCR tooling remains optional infrastructure and does not block ordinary work if unconfigured.
 8. **Repair and Targeted Rereview:** Confirmed in-scope BLOCKING or MATERIAL findings return to the same logical Writer lane. Safe and cheap MINOR findings may also be repaired when clearly in-scope. After repair: rerun affected validation; obtain targeted independent rereview focused on repaired files, original findings, direct contracts, and collateral risk without restarting broad historical discovery.
 9. **Controller Final Verdict:** The Controller evaluates Writer execution, validation evidence, and Reviewer findings to issue the final verdict (`PASS`, `PASS WITH WARN`, `PARTIAL`, `HOLD`, or `FAIL`).
 10. **Auto-Land Execution (Standing Owner Authorization):** Once a bounded task completes the full controlled lifecycle and reaches a final Controller-grade clean PASS:
@@ -240,7 +241,7 @@ The Controller and agents must route the **smallest materially relevant skill st
 ### Routing Principles
 - **Domain Reasoning, Not Authority:** Skills provide specialized domain reasoning (e.g. database RLS analysis, Arabic RTL UX rules, fieldwork constraints, precommit gate checks), NOT additional authority.
 - **Workflow Supremacy:** `AGENTS.md` and this Agent Control skill remain the supreme workflow authority. Skills cannot grant file access, Git/DB mutation, or product authority beyond the task prompt.
-- **Selective Routing:** Route only skills materially relevant to the immediate task surface (e.g. `zamblak-db-rls-migration-guard` for SQL/schema tasks; `zamblak-ui-rtl-senior-ux-guard` for Arabic UI; `zamblak-review-delegation` for independent review or session recovery).
+- **Selective Routing:** Route only skills materially relevant to the immediate task surface (e.g. `zamblak-db-rls-migration-guard` for SQL/schema tasks; `zamblak-ui-rtl-senior-ux-guard` for Arabic UI; `zamblak-review-delegation` for independent review or session recovery; `zamblak-opencodereview` for OCR review packet preparation).
 
 ### Skill Inheritance Rules
 Once a task explicitly selects a skill, the stable rules in that skill are binding and do not need to be copied word-for-word into every task prompt.
