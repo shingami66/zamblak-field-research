@@ -113,11 +113,12 @@ Remaining diagnostic or repair steps.
 | Next.js App Router, actions, boundaries | `zamblak-nextjs-framework-engineering` | Framework mechanics |
 | Performance bottlenecks, profiling, metrics | `zamblak-nextjs-performance-engineering` | Performance diagnostics |
 | PostgreSQL query analysis, index suitability | `zamblak-postgres-query-index-guidance` | Query & index advice |
-| Schema, migrations, RPCs, RLS policies | `zamblak-db-rls-migration-guard` | SQL / DB safety |
+| Schema, migrations, RLS, grants, views, triggers | `zamblak-db-rls-migration-guard` | SQL / DB safety & gates |
+| Non-trivial production code quality & refactoring | `zamblak-clean-code-guard` | Code quality & sanity |
 | Git staging, precommit reviews, commits | `zamblak-precommit-gate` | Precommit checks |
 | Product requirements, PRD alignment | `zamblak-product-manager` | Product scope |
 | Field research, respondent rules, forms | `zamblak-fieldwork-domain-guard` | Domain logic |
-| Tenant boundaries (`account_id`), PII | `zamblak-security-privacy-guard` | Privacy & isolation |
+| Auth, privacy, IDOR, PII, tenant boundaries | `zamblak-security-privacy-guard` | Security & privacy |
 | Documentation updates, ripple sync | `zamblak-docs-guard` | Documentation rigor |
 | Arabic UI, RTL layouts, Tailwind/CSS | `zamblak-ui-rtl-senior-ux-guard` | RTL / UX design |
 | Graph navigation, symbol tracing | `zamblak-graphify-navigation` | Navigation only |

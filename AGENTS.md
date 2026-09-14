@@ -132,11 +132,12 @@ Local skills reside in `.agents/skills/`. Tasks and agents must route the **smal
 - `zamblak-nextjs-framework-engineering`: Next.js App Router framework engineering, Server vs Client components, Server Actions, Route Handlers, streaming, and version-matched Next.js 16 APIs.
 - `zamblak-nextjs-performance-engineering`: Evidence-first performance engineering, symptom measurement, bottleneck layer identification, before/after benchmarking, and targeted optimization.
 - `zamblak-postgres-query-index-guidance`: Advisory PostgreSQL query shaping, composite/partial index design, selectivity analysis, write amplification tradeoffs, and tenant-aware indexing.
-- `zamblak-db-rls-migration-guard`: Migration, SQL, and RLS schema protection.
+- `zamblak-db-rls-migration-guard`: Authoritative gatekeeper for database schemas, SQL migrations, RLS policies, views, triggers, grants, and migration apply gates.
+- `zamblak-clean-code-guard`: Production code quality, simplicity, trust-boundary validation, error handling, and refactoring integrity for non-trivial code changes.
+- `zamblak-security-privacy-guard`: Specialist review guard for application security, authentication, authorization, IDOR/BOLA prevention, respondent PII privacy, and tenant isolation (`account_id`).
 - `zamblak-precommit-gate`: Git staging and commit protections.
 - `zamblak-product-manager`: PRD alignment and product requirement rigor.
 - `zamblak-fieldwork-domain-guard`: Field research domain logic.
-- `zamblak-security-privacy-guard`: Privacy and tenant boundaries.
 - `zamblak-docs-guard`: Documentation integrity.
 - `zamblak-ui-rtl-senior-ux-guard`: Arabic-first UX logic.
 - `zamblak-graphify-navigation`: Graphify-first navigation, symbol/impact tracing, freshness classification, targeted grep fallback, and index refresh only on express task authorization.
