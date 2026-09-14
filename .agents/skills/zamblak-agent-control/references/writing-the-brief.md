@@ -107,6 +107,7 @@ Remaining diagnostic or repair steps.
 | Domain / Task Surface | Routed Skill | Role |
 | :--- | :--- | :--- |
 | Core workflow, lifecycle, task control | `zamblak-agent-control` | Mandatory on all tasks |
+| Independent review, delegation, session recovery | `zamblak-review-delegation` | Review delegation & recovery |
 | Schema, migrations, RPCs, RLS policies | `zamblak-db-rls-migration-guard` | SQL / DB safety |
 | Git staging, precommit reviews, commits | `zamblak-precommit-gate` | Precommit checks |
 | Product requirements, PRD alignment | `zamblak-product-manager` | Product scope |

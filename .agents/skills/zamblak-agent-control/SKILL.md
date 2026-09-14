@@ -38,6 +38,7 @@ The Controller owns the complete lifecycle and routine discovery. The Owner must
    - Reviewer must not edit, stage, commit, push, deploy, apply SQL, or repair.
    - Reviewer substantively inspects the actual diff, relevant source, tests, contracts, and validation evidence.
    - Provider diversity is not required; genuine context separation is mandatory. If unavailable, the result is HOLD. Writer self-review must never be relabeled as independent review.
+   - Antigravity-native delegation is operationalized via `zamblak-review-delegation`, which launches fresh read-only reviewer sessions via the local `agy` CLI, enforces worktree fingerprint integrity, and captures reports outside the Git tree.
 8. **Repair and Targeted Rereview:** Confirmed in-scope BLOCKING or MATERIAL findings return to the same logical Writer lane. Safe and cheap MINOR findings may also be repaired when clearly in-scope. After repair: rerun affected validation; obtain targeted independent rereview focused on repaired files, original findings, direct contracts, and collateral risk without restarting broad historical discovery.
 9. **Controller Final Verdict:** The Controller evaluates Writer execution, validation evidence, and Reviewer findings to issue the final verdict (`PASS`, `PASS WITH WARN`, `PARTIAL`, `HOLD`, or `FAIL`).
 10. **Auto-Land Execution (Standing Owner Authorization):** Once a bounded task completes the full controlled lifecycle and reaches a final Controller-grade clean PASS:
@@ -172,7 +173,7 @@ Existing specialized `COMMIT_ONLY`, `PUSH_ONLY`, and `COMMIT_AND_PUSH` operation
 Preserve successful work across authentication, session, transport, timeout, expired-conversation, or comparable environment failures. Do not classify such failures as model-capability failures without evidence.
 
 ### Single-Writer Guarantee
-Ensure no previous mutating Writer remains active when checkable. Never run two mutating Writers concurrently.
+Ensure no previous mutating Writer remains active when checkable. Never run two mutating Writers concurrently. Managed via `zamblak-review-delegation` writer-lock mutex (`zamblak-writer-lock.v1`).
 
 ### Recovery Capsule
 If a fresh Writer session becomes necessary, preserve existing edits. Resumed Writer sessions should receive delta instructions plus the compact Recovery Capsule (never the full original prompt), containing:
@@ -239,7 +240,7 @@ The Controller and agents must route the **smallest materially relevant skill st
 ### Routing Principles
 - **Domain Reasoning, Not Authority:** Skills provide specialized domain reasoning (e.g. database RLS analysis, Arabic RTL UX rules, fieldwork constraints, precommit gate checks), NOT additional authority.
 - **Workflow Supremacy:** `AGENTS.md` and this Agent Control skill remain the supreme workflow authority. Skills cannot grant file access, Git/DB mutation, or product authority beyond the task prompt.
-- **Selective Routing:** Route only skills materially relevant to the immediate task surface (e.g. `zamblak-db-rls-migration-guard` for SQL/schema tasks; `zamblak-ui-rtl-senior-ux-guard` for Arabic UI).
+- **Selective Routing:** Route only skills materially relevant to the immediate task surface (e.g. `zamblak-db-rls-migration-guard` for SQL/schema tasks; `zamblak-ui-rtl-senior-ux-guard` for Arabic UI; `zamblak-review-delegation` for independent review or session recovery).
 
 ### Skill Inheritance Rules
 Once a task explicitly selects a skill, the stable rules in that skill are binding and do not need to be copied word-for-word into every task prompt.

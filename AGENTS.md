@@ -53,6 +53,7 @@ Standing Owner Auto-Land
    - Reviewer must not edit, stage, commit, push, deploy, apply SQL, or repair.
    - Reviewer substantively inspects the actual diff, relevant source, tests, contracts, and validation evidence.
    - Provider diversity is not required; genuine context separation is mandatory. If unavailable, the result is HOLD. Writer self-review must never be relabeled as independent review.
+   - Antigravity-native delegation is operationalized via `zamblak-review-delegation`, which launches fresh read-only reviewer sessions via the local `agy` CLI, enforces worktree fingerprint integrity, and captures reports outside the Git tree.
 5. **Repair and Rereview:** Confirmed in-scope BLOCKING or MATERIAL findings return to the same logical Writer lane. Safe and cheap MINOR findings may also be repaired when clearly in-scope. After repair, rerun affected validation and obtain targeted independent rereview focused on repaired files, original findings, direct contracts, and collateral risk without restarting broad historical discovery.
 6. **Session Recovery:** Preserve successful work across session, transport, timeout, or environment interruptions. If a fresh Writer session is required: verify no previous mutating Writer remains active when checkable, preserve existing edits, and supply a compact Recovery Capsule (task scope, repository state, relevant files/contracts, completed work, already-passing validation, remaining diagnostics, protected boundaries). Never classify session or transport dropouts as model-capability failures without evidence.
 7. **Auto-Land Policy (Standing Owner Authorization):** Standing Owner authorization exists for routine task landing once a task completes the full controlled lifecycle and reaches a final Controller-grade clean PASS (Writer implementation → required validation → fresh independent read-only Reviewer → targeted repair/rereview if needed → Controller final PASS).
@@ -124,6 +125,7 @@ Local skills reside in `.agents/skills/`. Tasks and agents must route the **smal
 - **Domain Reasoning, Not Authority:** Skills provide specialized domain reasoning and checks (database RLS, Arabic RTL UX, fieldwork logic, precommit gates, navigation), NOT additional authority.
 - **Workflow Supremacy:** `AGENTS.md` and `zamblak-agent-control` remain the workflow authority. Skills cannot grant file access, Git/database mutations, or product authority beyond the task prompt.
 - `zamblak-agent-control`: Core execution protocol, workflow lifecycle, prompt design, and task orchestration.
+- `zamblak-review-delegation`: Antigravity-native independent review dispatch, worktree fingerprint verification, targeted rereview, and session recovery capsules. Selected only when a task requires independent review, delegation, or session recovery.
 - `zamblak-db-rls-migration-guard`: Migration, SQL, and RLS schema protection.
 - `zamblak-precommit-gate`: Git staging and commit protections.
 - `zamblak-product-manager`: PRD alignment and product requirement rigor.
