@@ -121,5 +121,5 @@ Remaining diagnostic or repair steps.
 | Field research, respondent registry, eligibility, form invariants, accepted financial counting | `zamblak-fieldwork-domain-guard` | Authoritative fieldwork domain reasoning |
 | Auth, privacy, IDOR, PII, tenant boundaries | `zamblak-security-privacy-guard` | Security & privacy |
 | Documentation updates, ripple sync | `zamblak-docs-guard` | Documentation rigor |
-| Arabic UI, RTL layouts, Tailwind/CSS | `zamblak-ui-rtl-senior-ux-guard` | RTL / UX design |
+| Arabic-first RTL, layout, responsive, accessibility, interaction states | `zamblak-ui-rtl-senior-ux-guard` | Authoritative Arabic RTL & UX guard |
 | Graph navigation, symbol tracing | `zamblak-graphify-navigation` | Navigation only |

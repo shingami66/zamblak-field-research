@@ -140,7 +140,7 @@ Local skills reside in `.agents/skills/`. Tasks and agents must route the **smal
 - `zamblak-product-manager`: PRD alignment and product requirement rigor.
 - `zamblak-fieldwork-domain-guard`: Authoritative domain reasoning for Respondent Registry uniqueness, participation eligibility, 3-month warnings, current 5-tier hierarchy boundaries, research form invariants, and accepted-only financial counting.
 - `zamblak-docs-guard`: Documentation integrity.
-- `zamblak-ui-rtl-senior-ux-guard`: Arabic-first UX logic.
+- `zamblak-ui-rtl-senior-ux-guard`: Authoritative specialist guard for Arabic-first RTL application UX, responsive fieldwork interfaces, accessibility, interaction states, and screen-contract fidelity.
 - `zamblak-graphify-navigation`: Graphify-first navigation, symbol/impact tracing, freshness classification, targeted grep fallback, and index refresh only on express task authorization.
 
 ### Graphify navigation policy

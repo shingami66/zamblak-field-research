@@ -134,6 +134,29 @@ export const SYNTHETIC_ROUTING_MATRIX = [
     recognizesSampleAsFuture: true,
     rationale: "Fieldwork domain reasoning only; simple domain questions do not route DB/Supabase/security; crossing tenant/auth conditionally adds security; schema changes conditionally add DB guard; changed tests add test guard; unresolved product choices add product manager; recognizes Sample as future, not current runtime truth; never manufactures DB, Git, deployment, or product authority.",
   },
+  {
+    id: 13,
+    name: "Arabic RTL fieldwork UX, responsive layout, accessibility, and interaction states",
+    primary: ["zamblak-ui-rtl-senior-ux-guard"],
+    conditional: [
+      "zamblak-fieldwork-domain-guard",
+      "zamblak-product-manager",
+      "zamblak-security-privacy-guard",
+      "zamblak-nextjs-framework-engineering",
+      "zamblak-clean-code-guard",
+      "zamblak-test-guard",
+    ],
+    forbiddenAutoRoute: [
+      "zamblak-db-rls-migration-guard",
+      "zamblak-supabase-data-engineering",
+      "zamblak-security-privacy-guard",
+      "zamblak-product-manager",
+    ],
+    forbiddenManufacturedAuthority: true,
+    stitchInspirationOnly: true,
+    uiVisibilityNotAuthorization: true,
+    rationale: "Arabic RTL layout, responsive fieldwork UX, accessibility, and interaction states; simple visual/RTL work does not auto-route DB/Supabase/security/product specialists; fieldwork behavior conditionally adds fieldwork guard; product ambiguity conditionally adds product manager; auth/PII/finance visibility conditionally adds security; Next.js mechanics conditionally add framework skill; changed code/tests conditionally add clean-code/test guards; Stitch remains inspiration-only; UI visibility is never authorization; never manufactures product, DB, Git, security, or deployment authority.",
+  },
 ];
 
 /**
@@ -174,8 +197,8 @@ async function runTests() {
   process.stdout.write("Running Zamblak Agent Control Acceptance Test Suite...\n\n");
 
   // 1. Synthetic Routing Matrix Contract
-  test("Routing Matrix: covers all 12 canonical task scenarios with non-empty primary skills", () => {
-    assert.strictEqual(SYNTHETIC_ROUTING_MATRIX.length, 12, "Must define exactly 12 synthetic task classes");
+  test("Routing Matrix: covers all 13 canonical task scenarios with non-empty primary skills", () => {
+    assert.strictEqual(SYNTHETIC_ROUTING_MATRIX.length, 13, "Must define exactly 13 synthetic task classes");
     for (const scenario of SYNTHETIC_ROUTING_MATRIX) {
       assert.ok(scenario.primary && scenario.primary.length > 0, `Scenario ${scenario.id} must define primary skill`);
       assert.ok(scenario.rationale, `Scenario ${scenario.id} must define rationale`);
@@ -249,6 +272,24 @@ async function runTests() {
     assert.ok(s12.conditional.includes("zamblak-product-manager"));
     assert.strictEqual(s12.forbiddenManufacturedAuthority, true);
     assert.strictEqual(s12.recognizesSampleAsFuture, true);
+  });
+
+  test("Routing Matrix: Scenario 13 (Arabic RTL Fieldwork UX) routes zamblak-ui-rtl-senior-ux-guard, isolates from DB/Supabase/security/product, and conditionally routes specialists", () => {
+    const s13 = SYNTHETIC_ROUTING_MATRIX[12];
+    assert.deepStrictEqual(s13.primary, ["zamblak-ui-rtl-senior-ux-guard"]);
+    assert.ok(s13.forbiddenAutoRoute.includes("zamblak-db-rls-migration-guard"));
+    assert.ok(s13.forbiddenAutoRoute.includes("zamblak-supabase-data-engineering"));
+    assert.ok(s13.forbiddenAutoRoute.includes("zamblak-security-privacy-guard"));
+    assert.ok(s13.forbiddenAutoRoute.includes("zamblak-product-manager"));
+    assert.ok(s13.conditional.includes("zamblak-fieldwork-domain-guard"));
+    assert.ok(s13.conditional.includes("zamblak-product-manager"));
+    assert.ok(s13.conditional.includes("zamblak-security-privacy-guard"));
+    assert.ok(s13.conditional.includes("zamblak-nextjs-framework-engineering"));
+    assert.ok(s13.conditional.includes("zamblak-clean-code-guard"));
+    assert.ok(s13.conditional.includes("zamblak-test-guard"));
+    assert.strictEqual(s13.forbiddenManufacturedAuthority, true);
+    assert.strictEqual(s13.stitchInspirationOnly, true);
+    assert.strictEqual(s13.uiVisibilityNotAuthorization, true);
   });
 
   // 2. Skill Inventory & Frontmatter Verification
@@ -379,6 +420,15 @@ async function runTests() {
     assert.ok(content.includes("accepted") && content.includes("financially"));
   });
 
+  test("Authority Invariants: UI RTL guard separates UI visibility from authorization, treats Stitch as inspiration only, and disclaims mutation authority", () => {
+    const content = readFileSync(join(skillsDir, "zamblak-ui-rtl-senior-ux-guard", "SKILL.md"), "utf8");
+    assert.ok(content.includes("UI Visibility Is NEVER Authorization") || content.includes("UI visibility is NEVER authorization"));
+    assert.ok(content.includes("Stitch") && (content.includes("inspiration") || content.includes("Inspiration Only")));
+    assert.ok(content.includes("Zero Technical Mutation Authority") || content.includes("never authorizes Git"));
+    assert.ok(content.includes("zamblak-security-privacy-guard"));
+    assert.ok(content.includes("zamblak-fieldwork-domain-guard"));
+  });
+
   // 5. Anti-Contamination Verification
   test("Anti-Contamination: zero G7 business/product terms in skills or AGENTS.md", () => {
     const forbiddenPatterns = [
@@ -404,6 +454,7 @@ async function runTests() {
       join(skillsDir, "zamblak-clean-code-guard", "SKILL.md"),
       join(skillsDir, "zamblak-test-guard", "SKILL.md"),
       join(skillsDir, "zamblak-fieldwork-domain-guard", "SKILL.md"),
+      join(skillsDir, "zamblak-ui-rtl-senior-ux-guard", "SKILL.md"),
     ];
 
     for (const file of filesToCheck) {
