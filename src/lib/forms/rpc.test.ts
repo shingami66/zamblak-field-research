@@ -21,13 +21,31 @@ describe("Forms RPC Contracts", () => {
   describe("Input Parsing & Normalization", () => {
     it("validates submitResearchForm input", () => {
       const invalid = parseSubmitResearchFormInput({
+        idempotencyKey: "test-idempotency-key-12345",
         participationId: "invalid",
         submittedDate: "2026-07-23",
       });
       assert.equal(invalid.ok, false);
       if (!invalid.ok) assert.equal(invalid.code, "invalid_input");
 
+      const missingKey = parseSubmitResearchFormInput({
+        idempotencyKey: "",
+        participationId: VALID_UUID_1,
+        submittedDate: "2026-07-23",
+      });
+      assert.equal(missingKey.ok, false);
+      if (!missingKey.ok) assert.equal(missingKey.code, "idempotency_key_invalid");
+
+      const malformedKey = parseSubmitResearchFormInput({
+        idempotencyKey: "short",
+        participationId: VALID_UUID_1,
+        submittedDate: "2026-07-23",
+      });
+      assert.equal(malformedKey.ok, false);
+      if (!malformedKey.ok) assert.equal(malformedKey.code, "idempotency_key_invalid");
+
       const valid = parseSubmitResearchFormInput({
+        idempotencyKey: "test-idempotency-key-12345",
         participationId: VALID_UUID_1,
         submittedDate: "2026-07-23",
         notes: " Test note ",
@@ -37,7 +55,7 @@ describe("Forms RPC Contracts", () => {
         assert.equal(valid.data.p_participation_id, VALID_UUID_1);
         assert.equal(valid.data.p_submitted_date, "2026-07-23");
         assert.equal(valid.data.p_notes, "Test note");
-        assert.equal(typeof valid.data.p_idempotency_key, "string");
+        assert.equal(valid.data.p_idempotency_key, "test-idempotency-key-12345");
       }
     });
 
@@ -145,6 +163,7 @@ describe("Forms RPC Contracts", () => {
       } as unknown as SupabaseClient;
 
       const result = await submitResearchForm(mockSupabase, {
+        idempotencyKey: "submit-form-key-12345678",
         participationId: VALID_UUID_1,
         submittedDate: "2026-07-23",
         notes: "First attempt",
@@ -155,7 +174,29 @@ describe("Forms RPC Contracts", () => {
       assert.equal(calledArgs.p_participation_id, VALID_UUID_1);
       assert.equal(calledArgs.p_submitted_date, "2026-07-23");
       assert.equal(calledArgs.p_notes, "First attempt");
-      assert.equal(typeof calledArgs.p_idempotency_key, "string");
+      assert.equal(calledArgs.p_idempotency_key, "submit-form-key-12345678");
+    });
+
+    it("fails before RPC when idempotency key is missing or invalid", async () => {
+      let rpcCalled = false;
+      const mockSupabase = {
+        rpc: async () => {
+          rpcCalled = true;
+          return { data: null, error: null };
+        },
+      } as unknown as SupabaseClient;
+
+      const result = await submitResearchForm(mockSupabase, {
+        idempotencyKey: "invalid",
+        participationId: VALID_UUID_1,
+        submittedDate: "2026-07-23",
+      });
+
+      assert.equal(result.ok, false);
+      if (!result.ok) {
+        assert.equal(result.code, "idempotency_key_invalid");
+      }
+      assert.equal(rpcCalled, false, "RPC must not be called when idempotency key is invalid");
     });
 
     it("invokes review_research_form with exact p_* arguments", async () => {

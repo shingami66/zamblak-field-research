@@ -31,7 +31,7 @@ export type FormsResult<T> =
   | { ok: false; code: FormsErrorCode };
 
 export interface SubmitResearchFormInput {
-  idempotencyKey?: string;
+  idempotencyKey: string;
   participationId: string;
   submittedDate: string;
   notes?: string | null;

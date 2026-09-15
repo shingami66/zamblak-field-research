@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState, useTransition } from "react";
+import React, { useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createResearchFormAction } from "@/app/forms/new/actions";
 import { BackLink } from "@/components/shared/BackLink";
+import { generateIdempotencyKey } from "@/lib/idempotency/key";
 import styles from "@/app/forms/forms.module.css";
 
 export type EligibleParticipant = {
@@ -35,6 +36,11 @@ type Props = {
   eligibleProjects: EligibleProject[];
 };
 
+interface SubmissionOperation {
+  fingerprint: string;
+  key: string;
+}
+
 export function CreateResearchFormClient({
   prefilledContext,
   prefilledError,
@@ -42,6 +48,7 @@ export function CreateResearchFormClient({
 }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const submissionOperationRef = useRef<SubmissionOperation | null>(null);
 
   const [selectedProjectId, setSelectedProjectId] = useState(
     prefilledContext?.projectId ?? ""
@@ -91,11 +98,38 @@ export function CreateResearchFormClient({
       return;
     }
 
+    const canonicalNotes =
+      typeof notes === "string" && notes.trim().length > 0
+        ? notes.trim()
+        : null;
+
+    const canonicalPayload = {
+      participationId: targetParticipationId,
+      submittedDate: submittedDate.trim(),
+      notes: canonicalNotes,
+    };
+    const currentFingerprint = JSON.stringify(canonicalPayload);
+
+    let idempotencyKey: string;
+    if (
+      submissionOperationRef.current &&
+      submissionOperationRef.current.fingerprint === currentFingerprint
+    ) {
+      idempotencyKey = submissionOperationRef.current.key;
+    } else {
+      idempotencyKey = generateIdempotencyKey();
+      submissionOperationRef.current = {
+        fingerprint: currentFingerprint,
+        key: idempotencyKey,
+      };
+    }
+
     startTransition(async () => {
       const res = await createResearchFormAction({
+        idempotencyKey,
         participationId: targetParticipationId,
-        submittedDate,
-        notes: notes.trim() || null,
+        submittedDate: submittedDate.trim(),
+        notes: canonicalNotes,
       });
 
       if (!res.ok) {

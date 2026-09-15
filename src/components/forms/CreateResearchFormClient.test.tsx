@@ -1,14 +1,16 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { createResearchFormAction } from "@/app/forms/new/actions";
+import { isValidIdempotencyKey } from "@/lib/idempotency/key";
 import {
   CreateResearchFormClient,
   type EligibleProject,
   type PrefilledContext,
 } from "./CreateResearchFormClient";
 
+const mockPush = vi.fn();
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: vi.fn() }),
+  useRouter: () => ({ push: mockPush }),
 }));
 
 vi.mock("@/app/forms/new/actions", () => ({
@@ -22,13 +24,19 @@ const projects: EligibleProject[] = [
   {
     id: "proj-1",
     name: "مشروع تجريبي",
-    availableCount: 1,
+    availableCount: 2,
     participants: [
       {
         participationId: "part-1",
         respondentId: "res-1",
         name: "سارة أحمد",
         mobile: "0555555555",
+      },
+      {
+        participationId: "part-2",
+        respondentId: "res-2",
+        name: "محمد علي",
+        mobile: "0555555556",
       },
     ],
   },
@@ -207,4 +215,237 @@ describe("CreateResearchFormClient", () => {
     );
     expect(vi.mocked(createResearchFormAction)).not.toHaveBeenCalled();
   });
+
+  describe("DEC-FORM-006 Idempotency Lifecycle & Same-Payload Retries", () => {
+    it("generates a valid idempotency key on first submission and redirects on success", async () => {
+      render(
+        <CreateResearchFormClient
+          prefilledContext={prefilled}
+          prefilledError={null}
+          eligibleProjects={projects}
+        />
+      );
+
+      const form = screen.getByRole("button", { name: "حفظ الاستمارة" }).closest("form")!;
+      fireEvent.submit(form);
+
+      expect(createResearchFormAction).toHaveBeenCalledTimes(1);
+      const callArg = vi.mocked(createResearchFormAction).mock.calls[0][0];
+      expect(callArg.participationId).toBe("part-1");
+      expect(callArg.notes).toBe(null);
+      expect(isValidIdempotencyKey(callArg.idempotencyKey)).toBe(true);
+
+      await vi.waitFor(() => {
+        expect(mockPush).toHaveBeenCalledWith("/forms/form-1?success=create_form");
+      });
+    });
+
+    it("reuses the exact same idempotency key on retry of the same canonical payload after failure", async () => {
+      vi.mocked(createResearchFormAction).mockResolvedValueOnce({
+        ok: false,
+        code: "generic_failure",
+        message: "تعذر تسجيل الاستمارة حالياً. حاول مرة أخرى.",
+      });
+
+      render(
+        <CreateResearchFormClient
+          prefilledContext={prefilled}
+          prefilledError={null}
+          eligibleProjects={projects}
+        />
+      );
+
+      const form = screen.getByRole("button", { name: "حفظ الاستمارة" }).closest("form")!;
+      fireEvent.submit(form);
+
+      const alert = await screen.findByRole("alert");
+      expect(alert.textContent).toContain("تعذر تسجيل الاستمارة حالياً");
+      expect(createResearchFormAction).toHaveBeenCalledTimes(1);
+      const firstKey = vi.mocked(createResearchFormAction).mock.calls[0][0].idempotencyKey;
+      expect(isValidIdempotencyKey(firstKey)).toBe(true);
+
+      // Retry without modifying any field
+      fireEvent.submit(form);
+
+      await vi.waitFor(() => {
+        expect(createResearchFormAction).toHaveBeenCalledTimes(2);
+      });
+      const secondKey = vi.mocked(createResearchFormAction).mock.calls[1][0].idempotencyKey;
+      expect(secondKey).toBe(firstKey);
+    });
+
+    it("generates a new idempotency key when Participation changes", async () => {
+      vi.mocked(createResearchFormAction).mockResolvedValue({
+        ok: false,
+        code: "generic_failure",
+        message: "خطأ مؤقت",
+      });
+
+      render(
+        <CreateResearchFormClient
+          prefilledContext={null}
+          prefilledError={null}
+          eligibleProjects={projects}
+        />
+      );
+
+      const projectSelect = screen.getByLabelText(/^المشروع/) as HTMLSelectElement;
+      fireEvent.change(projectSelect, { target: { value: "proj-1" } });
+
+      const participantSelect = screen.getByLabelText(/^المشارك/) as HTMLSelectElement;
+      fireEvent.change(participantSelect, { target: { value: "part-1" } });
+
+      const form = screen.getByRole("button", { name: "حفظ الاستمارة" }).closest("form")!;
+      fireEvent.submit(form);
+
+      await vi.waitFor(() => {
+        expect(createResearchFormAction).toHaveBeenCalledTimes(1);
+      });
+      const firstKey = vi.mocked(createResearchFormAction).mock.calls[0][0].idempotencyKey;
+
+      // Change participant to part-2
+      fireEvent.change(participantSelect, { target: { value: "part-2" } });
+      fireEvent.submit(form);
+
+      await vi.waitFor(() => {
+        expect(createResearchFormAction).toHaveBeenCalledTimes(2);
+      });
+      const secondKey = vi.mocked(createResearchFormAction).mock.calls[1][0].idempotencyKey;
+      expect(isValidIdempotencyKey(secondKey)).toBe(true);
+      expect(secondKey).not.toBe(firstKey);
+    });
+
+    it("generates a new idempotency key when interview date changes", async () => {
+      vi.mocked(createResearchFormAction).mockResolvedValue({
+        ok: false,
+        code: "generic_failure",
+        message: "خطأ مؤقت",
+      });
+
+      render(
+        <CreateResearchFormClient
+          prefilledContext={prefilled}
+          prefilledError={null}
+          eligibleProjects={projects}
+        />
+      );
+
+      const dateInput = screen.getByLabelText(/^تاريخ المقابلة/) as HTMLInputElement;
+      const form = screen.getByRole("button", { name: "حفظ الاستمارة" }).closest("form")!;
+
+      fireEvent.submit(form);
+
+      await vi.waitFor(() => {
+        expect(createResearchFormAction).toHaveBeenCalledTimes(1);
+      });
+      const firstKey = vi.mocked(createResearchFormAction).mock.calls[0][0].idempotencyKey;
+
+      // Change date
+      fireEvent.change(dateInput, { target: { value: "2026-05-10" } });
+      fireEvent.submit(form);
+
+      await vi.waitFor(() => {
+        expect(createResearchFormAction).toHaveBeenCalledTimes(2);
+      });
+      const secondKey = vi.mocked(createResearchFormAction).mock.calls[1][0].idempotencyKey;
+      expect(isValidIdempotencyKey(secondKey)).toBe(true);
+      expect(secondKey).not.toBe(firstKey);
+    });
+
+    it("generates a new idempotency key when trimmed notes materially change", async () => {
+      vi.mocked(createResearchFormAction).mockResolvedValue({
+        ok: false,
+        code: "generic_failure",
+        message: "خطأ مؤقت",
+      });
+
+      render(
+        <CreateResearchFormClient
+          prefilledContext={prefilled}
+          prefilledError={null}
+          eligibleProjects={projects}
+        />
+      );
+
+      const notesInput = screen.getByLabelText(/^ملاحظات/) as HTMLTextAreaElement;
+      const form = screen.getByRole("button", { name: "حفظ الاستمارة" }).closest("form")!;
+
+      fireEvent.change(notesInput, { target: { value: "ملاحظة أصلية" } });
+      fireEvent.submit(form);
+
+      await vi.waitFor(() => {
+        expect(createResearchFormAction).toHaveBeenCalledTimes(1);
+      });
+      const firstKey = vi.mocked(createResearchFormAction).mock.calls[0][0].idempotencyKey;
+
+      // Materially change notes
+      fireEvent.change(notesInput, { target: { value: "ملاحظة معدلة مختلفة" } });
+      fireEvent.submit(form);
+
+      await vi.waitFor(() => {
+        expect(createResearchFormAction).toHaveBeenCalledTimes(2);
+      });
+      const secondKey = vi.mocked(createResearchFormAction).mock.calls[1][0].idempotencyKey;
+      expect(isValidIdempotencyKey(secondKey)).toBe(true);
+      expect(secondKey).not.toBe(firstKey);
+    });
+
+    it("reuses the same idempotency key when notes change only by irrelevant surrounding whitespace", async () => {
+      vi.mocked(createResearchFormAction).mockResolvedValue({
+        ok: false,
+        code: "generic_failure",
+        message: "خطأ مؤقت",
+      });
+
+      render(
+        <CreateResearchFormClient
+          prefilledContext={prefilled}
+          prefilledError={null}
+          eligibleProjects={projects}
+        />
+      );
+
+      const notesInput = screen.getByLabelText(/^ملاحظات/) as HTMLTextAreaElement;
+      const form = screen.getByRole("button", { name: "حفظ الاستمارة" }).closest("form")!;
+
+      fireEvent.change(notesInput, { target: { value: "ملاحظة هامة" } });
+      fireEvent.submit(form);
+
+      await vi.waitFor(() => {
+        expect(createResearchFormAction).toHaveBeenCalledTimes(1);
+      });
+      const firstKey = vi.mocked(createResearchFormAction).mock.calls[0][0].idempotencyKey;
+
+      // Add surrounding whitespace to the exact same text
+      fireEvent.change(notesInput, { target: { value: "   ملاحظة هامة   " } });
+      fireEvent.submit(form);
+
+      await vi.waitFor(() => {
+        expect(createResearchFormAction).toHaveBeenCalledTimes(2);
+      });
+      const secondKey = vi.mocked(createResearchFormAction).mock.calls[1][0].idempotencyKey;
+      expect(secondKey).toBe(firstKey);
+
+      // Now clear notes to whitespace-only vs empty string: both canonicalize to null
+      fireEvent.change(notesInput, { target: { value: "" } });
+      fireEvent.submit(form);
+
+      await vi.waitFor(() => {
+        expect(createResearchFormAction).toHaveBeenCalledTimes(3);
+      });
+      const thirdKey = vi.mocked(createResearchFormAction).mock.calls[2][0].idempotencyKey;
+      expect(thirdKey).not.toBe(firstKey);
+
+      // Add only whitespace to empty notes
+      fireEvent.change(notesInput, { target: { value: "     " } });
+      fireEvent.submit(form);
+
+      await vi.waitFor(() => {
+        expect(createResearchFormAction).toHaveBeenCalledTimes(4);
+      });
+      const fourthKey = vi.mocked(createResearchFormAction).mock.calls[3][0].idempotencyKey;
+      expect(fourthKey).toBe(thirdKey);
+    });
+  });
 });
+

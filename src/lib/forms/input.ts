@@ -1,4 +1,7 @@
-import { normalizeIdempotencyKey } from "@/lib/idempotency/key";
+import {
+  isValidIdempotencyKey,
+  normalizeIdempotencyKey,
+} from "@/lib/idempotency/key";
 import type {
   CorrectAcceptedResearchFormInput,
   CorrectAcceptedResearchFormRpcArgs,
@@ -37,8 +40,11 @@ export function parseSubmitResearchFormInput(
   if (!isValidIsoDate(input.submittedDate)) {
     return { ok: false, code: "invalid_input" };
   }
+  if (!isValidIdempotencyKey(input.idempotencyKey)) {
+    return { ok: false, code: "idempotency_key_invalid" };
+  }
 
-  const key = normalizeIdempotencyKey(input.idempotencyKey);
+  const key = input.idempotencyKey.trim();
   const notes =
     typeof input.notes === "string" && input.notes.trim().length > 0
       ? input.notes.trim()

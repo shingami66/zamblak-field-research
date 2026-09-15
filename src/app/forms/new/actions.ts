@@ -4,19 +4,29 @@ import { createClient } from "@/lib/supabase/server";
 import { requireOwnerSession } from "../route-state";
 import { submitResearchForm } from "@/lib/forms/rpc";
 import { isValidIsoDate, isValidUuid } from "@/lib/forms/input";
+import { isValidIdempotencyKey } from "@/lib/idempotency/key";
 
 export type CreateFormActionResult =
   | { ok: true; formId: string }
   | { ok: false; code: string; message: string };
 
 export async function createResearchFormAction(formData: {
+  idempotencyKey: string;
   participationId: string;
   submittedDate: string;
   notes?: string | null;
 }): Promise<CreateFormActionResult> {
   await requireOwnerSession();
 
-  const { participationId, submittedDate, notes } = formData;
+  const { idempotencyKey, participationId, submittedDate, notes } = formData;
+
+  if (!isValidIdempotencyKey(idempotencyKey)) {
+    return {
+      ok: false,
+      code: "invalid_input",
+      message: "معرّف العملية غير صالح.",
+    };
+  }
 
   if (!isValidUuid(participationId)) {
     return {
@@ -35,10 +45,9 @@ export async function createResearchFormAction(formData: {
   }
 
   const supabase = await createClient();
-  const idempotencyKey = `submit-form-${participationId}-${Date.now()}`;
 
   const res = await submitResearchForm(supabase, {
-    idempotencyKey,
+    idempotencyKey: idempotencyKey.trim(),
     participationId,
     submittedDate,
     notes: notes && notes.trim() ? notes.trim() : null,
