@@ -115,6 +115,25 @@ export const SYNTHETIC_ROUTING_MATRIX = [
     forbiddenManufacturedAuthority: true,
     rationale: "Test code quality and behavioral integrity only; clean-code guard is for production code; running tests alone does not route it; docs-only does not route it; never manufactures DB, Git, or product authority.",
   },
+  {
+    id: 12,
+    name: "Fieldwork domain reasoning (respondent registry, participation eligibility, form invariants)",
+    primary: ["zamblak-fieldwork-domain-guard"],
+    conditional: [
+      "zamblak-security-privacy-guard",
+      "zamblak-db-rls-migration-guard",
+      "zamblak-test-guard",
+      "zamblak-product-manager",
+    ],
+    forbiddenAutoRoute: [
+      "zamblak-supabase-data-engineering",
+      "zamblak-db-rls-migration-guard",
+      "zamblak-security-privacy-guard",
+    ],
+    forbiddenManufacturedAuthority: true,
+    recognizesSampleAsFuture: true,
+    rationale: "Fieldwork domain reasoning only; simple domain questions do not route DB/Supabase/security; crossing tenant/auth conditionally adds security; schema changes conditionally add DB guard; changed tests add test guard; unresolved product choices add product manager; recognizes Sample as future, not current runtime truth; never manufactures DB, Git, deployment, or product authority.",
+  },
 ];
 
 /**
@@ -155,8 +174,8 @@ async function runTests() {
   process.stdout.write("Running Zamblak Agent Control Acceptance Test Suite...\n\n");
 
   // 1. Synthetic Routing Matrix Contract
-  test("Routing Matrix: covers all 11 canonical task scenarios with non-empty primary skills", () => {
-    assert.strictEqual(SYNTHETIC_ROUTING_MATRIX.length, 11, "Must define exactly 11 synthetic task classes");
+  test("Routing Matrix: covers all 12 canonical task scenarios with non-empty primary skills", () => {
+    assert.strictEqual(SYNTHETIC_ROUTING_MATRIX.length, 12, "Must define exactly 12 synthetic task classes");
     for (const scenario of SYNTHETIC_ROUTING_MATRIX) {
       assert.ok(scenario.primary && scenario.primary.length > 0, `Scenario ${scenario.id} must define primary skill`);
       assert.ok(scenario.rationale, `Scenario ${scenario.id} must define rationale`);
@@ -216,6 +235,20 @@ async function runTests() {
     // Verify Scenario 9 (docs-only) does not route zamblak-test-guard
     const s9 = SYNTHETIC_ROUTING_MATRIX[8];
     assert.ok(!s9.primary.includes("zamblak-test-guard"));
+  });
+
+  test("Routing Matrix: Scenario 12 (Fieldwork Domain Guard) routes zamblak-fieldwork-domain-guard, isolates from DB/Supabase/security, and conditionally routes specialists", () => {
+    const s12 = SYNTHETIC_ROUTING_MATRIX[11];
+    assert.deepStrictEqual(s12.primary, ["zamblak-fieldwork-domain-guard"]);
+    assert.ok(s12.forbiddenAutoRoute.includes("zamblak-supabase-data-engineering"));
+    assert.ok(s12.forbiddenAutoRoute.includes("zamblak-db-rls-migration-guard"));
+    assert.ok(s12.forbiddenAutoRoute.includes("zamblak-security-privacy-guard"));
+    assert.ok(s12.conditional.includes("zamblak-security-privacy-guard"));
+    assert.ok(s12.conditional.includes("zamblak-db-rls-migration-guard"));
+    assert.ok(s12.conditional.includes("zamblak-test-guard"));
+    assert.ok(s12.conditional.includes("zamblak-product-manager"));
+    assert.strictEqual(s12.forbiddenManufacturedAuthority, true);
+    assert.strictEqual(s12.recognizesSampleAsFuture, true);
   });
 
   // 2. Skill Inventory & Frontmatter Verification
@@ -338,6 +371,14 @@ async function runTests() {
     assert.ok(content.includes("SUPABASE_APPLY_ONLY"));
   });
 
+  test("Authority Invariants: Fieldwork domain guard recognizes Sample as future direction, disclaims mutation authority, and enforces domain rules", () => {
+    const content = readFileSync(join(skillsDir, "zamblak-fieldwork-domain-guard", "SKILL.md"), "utf8");
+    assert.ok(content.includes("Zero Technical Mutation Authority") || content.includes("never authorizes Git"));
+    assert.ok(content.includes("Sample") && (content.includes("Approved Future Direction") || content.includes("Phase 2")));
+    assert.ok(content.includes("warning only") && content.includes("NEVER"));
+    assert.ok(content.includes("accepted") && content.includes("financially"));
+  });
+
   // 5. Anti-Contamination Verification
   test("Anti-Contamination: zero G7 business/product terms in skills or AGENTS.md", () => {
     const forbiddenPatterns = [
@@ -362,6 +403,7 @@ async function runTests() {
       join(skillsDir, "zamblak-db-rls-migration-guard", "SKILL.md"),
       join(skillsDir, "zamblak-clean-code-guard", "SKILL.md"),
       join(skillsDir, "zamblak-test-guard", "SKILL.md"),
+      join(skillsDir, "zamblak-fieldwork-domain-guard", "SKILL.md"),
     ];
 
     for (const file of filesToCheck) {

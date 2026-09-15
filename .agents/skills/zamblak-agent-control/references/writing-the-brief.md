@@ -118,7 +118,7 @@ Remaining diagnostic or repair steps.
 | Changed or generated test code quality | `zamblak-test-guard` | Test quality & integrity |
 | Git staging, precommit reviews, commits | `zamblak-precommit-gate` | Precommit checks |
 | Product requirements, PRD alignment | `zamblak-product-manager` | Product scope |
-| Field research, respondent rules, forms | `zamblak-fieldwork-domain-guard` | Domain logic |
+| Field research, respondent registry, eligibility, form invariants, accepted financial counting | `zamblak-fieldwork-domain-guard` | Authoritative fieldwork domain reasoning |
 | Auth, privacy, IDOR, PII, tenant boundaries | `zamblak-security-privacy-guard` | Security & privacy |
 | Documentation updates, ripple sync | `zamblak-docs-guard` | Documentation rigor |
 | Arabic UI, RTL layouts, Tailwind/CSS | `zamblak-ui-rtl-senior-ux-guard` | RTL / UX design |

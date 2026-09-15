@@ -138,7 +138,7 @@ Local skills reside in `.agents/skills/`. Tasks and agents must route the **smal
 - `zamblak-security-privacy-guard`: Specialist review guard for application security, authentication, authorization, IDOR/BOLA prevention, respondent PII privacy, and tenant isolation (`account_id`).
 - `zamblak-precommit-gate`: Git staging and commit protections.
 - `zamblak-product-manager`: PRD alignment and product requirement rigor.
-- `zamblak-fieldwork-domain-guard`: Field research domain logic.
+- `zamblak-fieldwork-domain-guard`: Authoritative domain reasoning for Respondent Registry uniqueness, participation eligibility, 3-month warnings, current 5-tier hierarchy boundaries, research form invariants, and accepted-only financial counting.
 - `zamblak-docs-guard`: Documentation integrity.
 - `zamblak-ui-rtl-senior-ux-guard`: Arabic-first UX logic.
 - `zamblak-graphify-navigation`: Graphify-first navigation, symbol/impact tracing, freshness classification, targeted grep fallback, and index refresh only on express task authorization.
