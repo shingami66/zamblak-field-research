@@ -134,6 +134,7 @@ Local skills reside in `.agents/skills/`. Tasks and agents must route the **smal
 - `zamblak-postgres-query-index-guidance`: Advisory PostgreSQL query shaping, composite/partial index design, selectivity analysis, write amplification tradeoffs, and tenant-aware indexing.
 - `zamblak-db-rls-migration-guard`: Authoritative gatekeeper for database schemas, SQL migrations, RLS policies, views, triggers, grants, and migration apply gates.
 - `zamblak-clean-code-guard`: Production code quality, simplicity, trust-boundary validation, error handling, and refactoring integrity for non-trivial code changes.
+- `zamblak-test-guard`: Quality, behavioral integrity, boundary mocking, assertion depth, and regression protection for changed or generated test code. Does not run tests or review production code.
 - `zamblak-security-privacy-guard`: Specialist review guard for application security, authentication, authorization, IDOR/BOLA prevention, respondent PII privacy, and tenant isolation (`account_id`).
 - `zamblak-precommit-gate`: Git staging and commit protections.
 - `zamblak-product-manager`: PRD alignment and product requirement rigor.

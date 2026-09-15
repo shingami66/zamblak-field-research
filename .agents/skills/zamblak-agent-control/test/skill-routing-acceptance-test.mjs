@@ -104,6 +104,17 @@ export const SYNTHETIC_ROUTING_MATRIX = [
     forbiddenManufacturedAuthority: true,
     rationale: "Git staging and commit verification; no product or engineering skill may manufacture extra Git authority.",
   },
+  {
+    id: 11,
+    name: "Changed or generated test code quality",
+    primary: ["zamblak-test-guard"],
+    conditional: ["zamblak-security-privacy-guard", "zamblak-db-rls-migration-guard", "zamblak-supabase-data-engineering"],
+    forbiddenAutoRoute: ["zamblak-clean-code-guard"],
+    forbiddenOnDocsOnly: true,
+    forbiddenOnExecutionOnly: true,
+    forbiddenManufacturedAuthority: true,
+    rationale: "Test code quality and behavioral integrity only; clean-code guard is for production code; running tests alone does not route it; docs-only does not route it; never manufactures DB, Git, or product authority.",
+  },
 ];
 
 /**
@@ -144,8 +155,8 @@ async function runTests() {
   process.stdout.write("Running Zamblak Agent Control Acceptance Test Suite...\n\n");
 
   // 1. Synthetic Routing Matrix Contract
-  test("Routing Matrix: covers all 10 canonical task scenarios with non-empty primary skills", () => {
-    assert.strictEqual(SYNTHETIC_ROUTING_MATRIX.length, 10, "Must define exactly 10 synthetic task classes");
+  test("Routing Matrix: covers all 11 canonical task scenarios with non-empty primary skills", () => {
+    assert.strictEqual(SYNTHETIC_ROUTING_MATRIX.length, 11, "Must define exactly 11 synthetic task classes");
     for (const scenario of SYNTHETIC_ROUTING_MATRIX) {
       assert.ok(scenario.primary && scenario.primary.length > 0, `Scenario ${scenario.id} must define primary skill`);
       assert.ok(scenario.rationale, `Scenario ${scenario.id} must define rationale`);
@@ -189,6 +200,24 @@ async function runTests() {
     assert.ok(s9.forbiddenAutoRoute.includes("zamblak-db-rls-migration-guard"));
   });
 
+  test("Routing Matrix: Scenario 11 (Test Guard) routes zamblak-test-guard for test code, forbids clean-code guard, and isolates from execution/docs", () => {
+    const s11 = SYNTHETIC_ROUTING_MATRIX[10];
+    assert.deepStrictEqual(s11.primary, ["zamblak-test-guard"]);
+    assert.ok(s11.forbiddenAutoRoute.includes("zamblak-clean-code-guard"));
+    assert.strictEqual(s11.forbiddenOnDocsOnly, true);
+    assert.strictEqual(s11.forbiddenOnExecutionOnly, true);
+    assert.strictEqual(s11.forbiddenManufacturedAuthority, true);
+
+    // Verify Scenario 5 (production code) does not route zamblak-test-guard automatically
+    const s5 = SYNTHETIC_ROUTING_MATRIX[4];
+    assert.deepStrictEqual(s5.primary, ["zamblak-clean-code-guard"]);
+    assert.ok(!s5.primary.includes("zamblak-test-guard"));
+
+    // Verify Scenario 9 (docs-only) does not route zamblak-test-guard
+    const s9 = SYNTHETIC_ROUTING_MATRIX[8];
+    assert.ok(!s9.primary.includes("zamblak-test-guard"));
+  });
+
   // 2. Skill Inventory & Frontmatter Verification
   test("Skill Inventory: every skill in routing matrix exists with valid YAML frontmatter", () => {
     const allRoutedSkills = new Set();
@@ -226,6 +255,7 @@ async function runTests() {
       "zamblak-postgres-query-index-guidance",
       "zamblak-db-rls-migration-guard",
       "zamblak-clean-code-guard",
+      "zamblak-test-guard",
       "zamblak-security-privacy-guard",
       "zamblak-precommit-gate",
       "zamblak-product-manager",
@@ -254,6 +284,7 @@ async function runTests() {
       "zamblak-postgres-query-index-guidance",
       "zamblak-db-rls-migration-guard",
       "zamblak-clean-code-guard",
+      "zamblak-test-guard",
       "zamblak-precommit-gate",
       "zamblak-product-manager",
       "zamblak-fieldwork-domain-guard",
@@ -285,6 +316,14 @@ async function runTests() {
     const content = readFileSync(join(skillsDir, "zamblak-clean-code-guard", "SKILL.md"), "utf8");
     assert.ok(content.includes("NOT Product Authority"));
     assert.ok(content.includes("Cannot Override Domain Guards"));
+  });
+
+  test("Authority Invariants: Test guard disclaims running tests, production code review, and product/DB authority", () => {
+    const content = readFileSync(join(skillsDir, "zamblak-test-guard", "SKILL.md"), "utf8");
+    assert.ok(content.includes("Does NOT Run Tests") || content.includes("does not execute test runners"));
+    assert.ok(content.includes("NOT Production Code Authority") || content.includes("zamblak-clean-code-guard"));
+    assert.ok(content.includes("NOT Product Authority"));
+    assert.ok(content.includes("Zero Database/Secret Authority"));
   });
 
   test("Authority Invariants: Security guard prohibits reading secret credentials and enforces fail-closed", () => {
@@ -322,6 +361,7 @@ async function runTests() {
       join(skillsDir, "zamblak-security-privacy-guard", "SKILL.md"),
       join(skillsDir, "zamblak-db-rls-migration-guard", "SKILL.md"),
       join(skillsDir, "zamblak-clean-code-guard", "SKILL.md"),
+      join(skillsDir, "zamblak-test-guard", "SKILL.md"),
     ];
 
     for (const file of filesToCheck) {

@@ -115,6 +115,7 @@ Remaining diagnostic or repair steps.
 | PostgreSQL query analysis, index suitability | `zamblak-postgres-query-index-guidance` | Query & index advice |
 | Schema, migrations, RLS, grants, views, triggers | `zamblak-db-rls-migration-guard` | SQL / DB safety & gates |
 | Non-trivial production code quality & refactoring | `zamblak-clean-code-guard` | Code quality & sanity |
+| Changed or generated test code quality | `zamblak-test-guard` | Test quality & integrity |
 | Git staging, precommit reviews, commits | `zamblak-precommit-gate` | Precommit checks |
 | Product requirements, PRD alignment | `zamblak-product-manager` | Product scope |
 | Field research, respondent rules, forms | `zamblak-fieldwork-domain-guard` | Domain logic |
