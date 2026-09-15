@@ -1,6 +1,8 @@
 # Research Form Submission — Screen Contract (Phase 1, Slice 1)
 
-**Status:** Phase 1 Screen Contract draft, source-grounded and pending Mozfer product-copy approval.
+**Status:** APPROVED BY MOZFER — 2026-08-22 (Phase 1 Research Form submission Screen Contract).
+
+**Approval metadata:** approved by Mozfer on 2026-08-22, approving the existing contract content, its product copy, and the Mozfer Review Checklist in Section 15 AS-IS. No substantive contract wording or behavior was altered by recording this approval.
 
 **Authority boundary:** This file is a subordinate workflow contract. It must conform to [product-requirements.md](../product-requirements.md), [roles-permissions.md](../roles-permissions.md), [security-foundation.md](../security-foundation.md), [database-schema.md](../database-schema.md), [deferred-decisions.md](../deferred-decisions.md), and [project-roadmap.md](../project-roadmap.md). It does not override those canonical documents.
 
@@ -166,11 +168,13 @@ The correction/resubmission UI remains outside this Screen Contract. This sectio
 - This is a **design artifact**, not an implementation approval, and grants no stage/commit/apply authority.
 - No SQL is written here; the Data Contract is the next slice (`ZAM-PHASE1-RESEARCH-FORM-SUBMISSION-DATA-CONTRACT-02/03`).
 - Static source evidence only: no runtime, build, or manual-smoke claims (docs-guard evidence boundaries 1–7).
-- Phase 1 is marked **IN PROGRESS** in [project-roadmap.md](../project-roadmap.md) because its first delivery artifact now exists; the Data Contract, wireframe, visual specification, implementation slice, consolidated review, correction, and Phase 1 closure remain incomplete. This document itself changes no roadmap status.
+- Phase-delivery and phase-closure status is governed by [project-roadmap.md](../project-roadmap.md); this contract was approved by Mozfer on 2026-08-22 as part of that sequence.
 - Registered in the README `## Phase 1 workflow contracts` section under `ZAM-PHASE1-SUBMISSION-SCREEN-CONTRACT-REGISTER-03`; `docs/deferred-decisions.md` register was separately synchronized under `ZAM-PHASE1-FORM-SUBMISSION-DATA-APPROVAL-09`.
 
 ## 15. Mozfer Review Checklist (for the next controlled task)
 
-- [ ] Confirm slice scope: submission only (no review, pricing, quota, or collections).
-- [ ] Confirm DEC-FORM-002 (interview date vs audit timestamp) is used in the Data Contract and that correction/resubmission UI remains outside this Screen Contract (DEC-FORM-001).
-- [ ] Confirm DEC-FORM-003 (blank notes → SQL NULL), DEC-FORM-004 (calendar-valid, non-future interview date), DEC-FORM-005 (notes ≤ 2000 chars after trimming), and DEC-FORM-006 (retry-stable idempotency; non-Participation-fixed key) are respected by the future Data Contract, and that current implementation does not yet prove full conformance.
+*Resolution note: all items below were confirmed by Mozfer's as-is approval of this contract on 2026-08-22; no pending product-copy approval remains.*
+
+- [x] Confirm slice scope: submission only (no review, pricing, quota, or collections).
+- [x] Confirm DEC-FORM-002 (interview date vs audit timestamp) is used in the Data Contract and that correction/resubmission UI remains outside this Screen Contract (DEC-FORM-001).
+- [x] Confirm DEC-FORM-003 (blank notes → SQL NULL), DEC-FORM-004 (calendar-valid, non-future interview date), DEC-FORM-005 (notes ≤ 2000 chars after trimming), and DEC-FORM-006 (retry-stable idempotency; non-Participation-fixed key) are respected by the future Data Contract, and that current implementation does not yet prove full conformance.
