@@ -74,7 +74,7 @@ Current implementation divergences (recorded accurately; not canonized):
 - The application normalizes blank notes to `null` (`parseSubmitResearchFormInput`).
 - The current submit RPC may persist an empty string (`btrim(COALESCE(p_notes, ''))`).
 - The current JavaScript date validation may accept rollover dates (e.g. `2026-02-31` passes `isValidIsoDate`).
-- The current Server Action creates a fresh `Date.now()`-based key per invocation (`submit-form-{participationId}-{Date.now()}`).
+- The bounded Phase 2 application slice now supplies one retry-stable idempotency key per canonical logical submission; the database replay/conflict and unique-participation safeguards remain unchanged.
 
 Explicit:
 

@@ -310,7 +310,7 @@ All copy is source-grounded; none is invented or reworded.
 | 9 | No-eligible state (status + exit) | Empty state | §5 eligibility | client | Consistent |
 | 10 | Shared inline error region | Error region | §5 | client, `actions.ts` | Consistent |
 | 11 | Action group (Cancel, Save, pending label) | Actions | §6 submission | client | Consistent |
-| 12 | Pending and duplicate-submission block | Pending | §6 idempotency | client `useTransition` | Consistent; retry-stable idempotency not yet in source |
+| 12 | Pending and duplicate-submission block | Pending | §6 idempotency | client `useTransition` | Consistent; retry-stable application idempotency delivered in Phase 2 slice `0807c7b` |
 | 13 | Success navigation + destination banner | Success | §6 | client `router.push`, `success-notice.ts` | Consistent |
 | 14 | UUID display boundary | UUID boundary | — | client, `page.tsx` | Consistent |
 | 15 | Tenant and eligibility boundary | — | §7 | `actions.ts` codes, RLS-required semantics | Consistent |
@@ -327,11 +327,10 @@ All copy is source-grounded; none is invented or reworded.
 - Strict calendar validation and non-future date enforcement.
 - SQL `NULL` handling for empty notes.
 - 2000-character notes enforcement.
-- Retry-stable idempotency.
 
 **Deferred to the Visual Specification:** exact hide-vs-disable presentation in the no-eligible state; touch-target sizing; all visual tokens.
 
-**Deferred to implementation work:** closing the nonconformances above.
+**Deferred to implementation work:** closing the remaining nonconformances above. The retry-stable application idempotency slice is implemented; runtime/database evidence remains separate.
 
 This wireframe fixes none of the gaps; no gap here is a defect that this wireframe converts into a visual feature.
 

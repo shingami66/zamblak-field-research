@@ -85,7 +85,7 @@ Approved data-semantics rules (all apply to Research Form submission semantics; 
 - One logical submission operation uses **one retry-stable idempotency key**. Retrying the same logical submission with the same payload must reuse the same key and may replay the previously completed result. Reusing the same key with a different payload must fail closed as a request conflict. A genuinely new submission operation uses a new key. The key is not permanently fixed to a Participation. Exact key generation is an implementation detail.
 - The one-form-per-Participation unique invariant remains the final database safeguard against duplicate forms.
 
-These rules record approved product semantics, not implementation. Current implementation divergence (for example, blank notes normalization differing between code paths, date validation that may accept rollover dates, or a fresh `Date.now()`-based key per invocation attempt) does not authorize code, RPC, SQL, or migration changes and is not a claim that these rules are fully implemented.
+These rules record approved product semantics, not implementation. Current implementation divergence remains for blank-notes normalization, date validity/future-date enforcement, and notes length; the DEC-FORM-006 application key lifecycle is implemented in the bounded Phase 2 slice (commit `0807c7b`). This document makes no runtime or database-conformance claim and does not authorize additional code, RPC, SQL, or migration changes.
 
 ## MVP Import, Export, and Reporting Scope
 - Excel import remains in MVP. Operational import may be performed when authorized.

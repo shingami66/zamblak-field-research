@@ -39,7 +39,7 @@ The current DEV/DEMO baseline (verified against source code, migrations, and app
   - *Blank Notes Canonicalization (DEC-FORM-003):* Application normalizes blank/whitespace notes to `null`, but the database RPC may still persist empty strings (`btrim(COALESCE(p_notes, ''))`). Cross-layer SQL NULL consistency remains incomplete.
   - *Interview Date Validity & Future-Date Guard (DEC-FORM-004):* `submitted_date` (calendar interview date) validation accepts calendar rollovers in some paths and lacks server-authoritative non-future enforcement relative to server time.
   - *Notes Length Bound (DEC-FORM-005):* The approved 2000-character trimmed notes maximum is not yet enforced across browser, Server Action, RPC, and database boundaries.
-  - *Logical Submission Idempotency (DEC-FORM-006):* The current Server Action generates a fresh `Date.now()` key per invocation instead of reusing a stable key for retries of the same logical operation, meaning same-payload replay and conflict fail-closed behavior are unexercised on retry.
+  - *Logical Submission Idempotency (DEC-FORM-006):* The application slice now generates and owns one retry-stable key per canonical logical submission, validates explicit keys at the Server Action/RPC boundary, and rotates the key when the canonical payload changes (commit `0807c7b`). Database replay/conflict semantics and runtime/manual acceptance remain separate evidence boundaries.
 - **Collections UI Status:** The current Collections application UI remains an in-memory/`sessionStorage` prototype (`zamblak.forms-prototype.v1`).
 - **Financials Display Surface:** `/financials` is an Owner-only mock/demo display surface rendering sample cards.
 - **Pricing Setup Prerequisite:** Form review acceptance fails closed with `accepted_price_unavailable` if pricing is unconfigured in `participation_pricing` or `project_financial_settings`. Full manual form acceptance runtime is unclaimed without valid pricing setup.
@@ -84,7 +84,7 @@ The final roadmap phase represents **System-Wide Release Hardening and Productio
   - Consolidated independent review completed clean.
   - Correction gate satisfied without invented churn.
   - Manual browser acceptance: PASS BY MOZFER for `/forms/new` presentation and submission flows.
-- **Boundaries at Closure:** Remaining semantic debt (DEC-FORM-003 to 006) and future workflow contracts (review, financials, collections) transition to explicit downstream roadmap phases. DEV/DEMO verification only; production readiness not claimed.
+- **Boundaries at Closure:** Remaining semantic debt (DEC-FORM-003 to 005), the delivered DEC-FORM-006 application slice, and future workflow contracts (review, financials, collections) transition to explicit downstream roadmap phases. DEV/DEMO verification only; production readiness not claimed.
 
 ### Phase 2: Research Form Submission Semantic Hardening
 - **Purpose:** Bounded follow-up slice to align approved DEC-FORM-003 through DEC-FORM-006 semantics across application, RPC, and database boundaries before Sample implementation.
@@ -92,9 +92,9 @@ The final roadmap phase represents **System-Wide Release Hardening and Productio
   - Standardize blank notes to SQL NULL across browser, Server Action, RPC (`submit_research_form`), and table constraints (DEC-FORM-003).
   - Enforce calendar-valid, non-future `submitted_date` validation relative to server date (DEC-FORM-004).
   - Enforce 2000-character trimmed notes maximum across all layers (DEC-FORM-005).
-  - Implement retry-stable logical-operation idempotency keys with same-payload replay and conflict fail-closed behavior (DEC-FORM-006).
+  - Implement retry-stable logical-operation idempotency keys with same-payload replay and conflict fail-closed behavior (DEC-FORM-006); application key ownership and validation are implemented in the first bounded slice (commit `0807c7b`), while database/runtime evidence remains separate.
   - Preserve one-form-per-Participation invariant without altering approved UI workflows.
-- **Status:** NOT STARTED
+- **Status:** IN PROGRESS — DEC-FORM-006 application slice implemented; DEC-FORM-003/004/005 and cross-layer/runtime evidence remain.
 
 ### Phase 3: Sample Domain Design
 - **Purpose:** Pure domain and logical design phase for `Project Sample`. Resolve product rules, lifecycle, target/quota mechanics, participation links, human reference format (`P###-S##-F###`), pricing interactions, and deletion/history policies.

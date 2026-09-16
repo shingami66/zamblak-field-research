@@ -91,7 +91,7 @@ No pricing fields, review fields, or financial values exist on this surface.
 ## 8. Validation Contract
 
 - **Client:** required project (direct mode), required participation, required date (native `type="date"` plus JS guard), notes optional.
-- **Server action:** `participationId` must be a valid UUID; `submittedDate` must pass `isValidIsoDate`; notes trimmed to `null` when blank (DEC-FORM-003); idempotency key `submit-form-{participationId}-{Date.now()}` (`src/app/forms/new/actions.ts:21-45`).
+- **Server action:** `participationId` must be a valid UUID; `submittedDate` must pass `isValidIsoDate`; notes trimmed to `null` when blank (DEC-FORM-003); the client supplies one validated retry-stable idempotency key for each canonical logical submission and the action forwards it to the RPC (`src/components/forms/CreateResearchFormClient.tsx`; `src/app/forms/new/actions.ts:13-54`).
 - **Database/RPC (`submit_research_form`):** participation must exist and be eligible (`participation_not_eligible`); project must be active and not deleted; exactly-one-form invariant enforced via unique index `idx_rf_unique_participation` with `attempt_number = 1` (duplicate → `duplicate_participation`; existing accepted form → `duplicate_accepted_form`); state guard `research_form_state_invalid`; the RPC derives `code` (`RF-YYYYMMDD-NNN`), `account_id`, timestamps, and `created_by` server-side.
 - **Never browser-supplied:** price, `account_id`, role, `code`, `review_status`, `created_by` (PRD §2 "Price & Acceptance Semantics"), and `submitted_at` (DEC-FORM-002, DEC-FORM-004; `submitted_at` is server-derived).
 
@@ -104,7 +104,7 @@ The Screen Contract adopts the four approved decisions as submission semantics o
 - **DEC-FORM-005 — notes length:** notes must not exceed 2000 characters after trimming.
 - **DEC-FORM-006 — idempotency:** retrying the same logical submission should reuse the same operation key (may replay the completed result); reusing the key with a different payload fails closed; the key is not permanently fixed to a Participation; key-generation mechanics remain outside this Screen Contract; the unique one-form invariant (`idx_rf_unique_participation`) remains the final duplicate safeguard.
 
-**Conformance boundary:** the current implementation does not yet prove full conformance for all four of these decisions (for example, inconsistent RPC blank-notes normalization, date validity that may accept rollover dates, and a fresh `Date.now()`-based key in `src/app/forms/new/actions.ts`). This section states approved semantics only; it grants no implementation or runtime claim.
+**Conformance boundary:** the current implementation does not yet prove full conformance for DEC-FORM-003 through DEC-FORM-005 (for example, inconsistent RPC blank-notes normalization and date/length gaps). The DEC-FORM-006 application key lifecycle is implemented and covered by focused automated tests; database replay/conflict behavior and runtime/manual acceptance remain separate evidence boundaries. This section states approved semantics and makes no runtime claim.
 
 ## 9. Navigation Outcomes
 
@@ -124,7 +124,7 @@ Consolidated from Section 3: entry via `/forms` header action, empty-state CTA, 
 - No pricing display, entry, or editing (browser-supplied prices forbidden by PRD).
 - No review/decision actions (accept/reject/cancel) — separate Phase 1 slice.
 - No resubmission or correction UI for submitted/rejected forms (DEC-FORM-001 closed: same-record correction approved; the correction UI remains a separate future workflow slice, not part of this Screen Contract).
-- No implementation of DEC-FORM-003/004/005/006 enforcement in this slice (no blank-notes, date-validity, length-bound, or idempotency-key code changes; enforcement remains future implementation work per the approved decisions).
+- No implementation of DEC-FORM-003/004/005 enforcement in this Screen Contract slice. DEC-FORM-006 application key ownership and validation are delivered by the later bounded Phase 2 slice; database/runtime evidence remains outside this contract.
 - No `support_helper` participation surface.
 - No Sample/Phase 2 semantics; current stored `RF-YYYYMMDD-NNN` codes remain (PRD §3 Legacy Compatibility). Short display codes and truncated-UUID tokens in the `/forms` list (`forms/page.tsx:171,176,282,287`) are temporary UI, not canonical contract.
 - No bulk import, no export, no financial summary on this surface.
@@ -177,4 +177,4 @@ The correction/resubmission UI remains outside this Screen Contract. This sectio
 
 - [x] Confirm slice scope: submission only (no review, pricing, quota, or collections).
 - [x] Confirm DEC-FORM-002 (interview date vs audit timestamp) is used in the Data Contract and that correction/resubmission UI remains outside this Screen Contract (DEC-FORM-001).
-- [x] Confirm DEC-FORM-003 (blank notes → SQL NULL), DEC-FORM-004 (calendar-valid, non-future interview date), DEC-FORM-005 (notes ≤ 2000 chars after trimming), and DEC-FORM-006 (retry-stable idempotency; non-Participation-fixed key) are respected by the future Data Contract, and that current implementation does not yet prove full conformance.
+- [x] Confirm DEC-FORM-003 (blank notes → SQL NULL), DEC-FORM-004 (calendar-valid, non-future interview date), DEC-FORM-005 (notes ≤ 2000 chars after trimming), and DEC-FORM-006 (retry-stable idempotency; non-Participation-fixed key) are respected by the future Data Contract. DEC-FORM-003/004/005 remain cross-layer gaps; DEC-FORM-006 application behavior is covered by its bounded Phase 2 slice, with runtime/database evidence still separate.
